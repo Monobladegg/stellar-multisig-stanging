@@ -154,7 +154,7 @@ const PublicNet = ({ id }) => {
                                             title="View on Stellar.Expert"
                                         >
                                             <Image
-                                                src="/stellar-expert-logo.png"
+                                                src="../stellar-expert-logo.png"
                                                 alt="Stellar Expert Logo"
                                                 className="dark:invert"
                                                 width={30}

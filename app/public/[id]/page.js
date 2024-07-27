@@ -30,7 +30,7 @@ export async function generateStaticParams() {
 
 
 // Page component
-export default function Page({ params }) {
+export default async function Page({ params }) {
     generateStaticParams()
     if (!StellarSdk.StrKey.isValidEd25519PublicKey(params.id)) {
         // Handle case where params are not found or invalid

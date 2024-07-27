@@ -1,7 +1,5 @@
 // pages/public/[id].js
 
-"use client";
-
 import axios from "axios";
 import PublicNet from "./publicnet"; // Adjust the import path as needed
 import StellarSdk from "stellar-sdk";
@@ -28,29 +26,26 @@ export async function generateStaticParams() {
     return params;
 }
 
-
-// Page component
-export default async function Page({ params }) {
+// Client-side component
+const ClientComponent = ({ params }) => {
     if (!StellarSdk.StrKey.isValidEd25519PublicKey(params.id)) {
-        // Handle case where params are not found or invalid
         return (
-            <>
-                <MainLayout>
-                    <div className="cotainer">
-                        <div
-                            className={`search error container narrow`}
-                            style={{ padding: "20px" }}
-                        >
-                            <h2 className="text-overflow">
-                                Search results for {params.id}
-                            </h2>
-                            <div>User ID not found or invalid.</div>
-                        </div>
-                    </div>
-                </MainLayout>
-            </>
+            <div className="container">
+                <div className="search error container narrow" style={{ padding: "20px" }}>
+                    <h2 className="text-overflow">Search results for {params.id}</h2>
+                    <div>User ID not found or invalid.</div>
+                </div>
+            </div>
         );
     }
     return <PublicNet params={params} />;
+};
+
+// Page component
+export default async function Page({ params }) {
+    return (
+        <MainLayout>
+            <ClientComponent params={params} />
+        </MainLayout>
+    );
 }
-// 

@@ -1,4 +1,4 @@
-// pages/public/[id].js
+"use client";
 
 import axios from "axios";
 import PublicNet from "./publicnet";

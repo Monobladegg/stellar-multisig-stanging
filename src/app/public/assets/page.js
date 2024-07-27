@@ -32,9 +32,7 @@ const Assets = () => {
                     return;
                 }
 
-                const domainInformation = await getDomainInformation(
-                    home_domain
-                );
+                const domainInformation = await getDomainInformation(home_domain);
 
                 const splittedInformation = domainInformation.split("\n");
                 let currencies = false;
@@ -80,6 +78,7 @@ const Assets = () => {
 
     function handleSearch(e) {
         e.preventDefault();
+
     }
 
     return (

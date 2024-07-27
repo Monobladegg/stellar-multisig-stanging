@@ -1,6 +1,6 @@
 // pages/public/[id].js
 
-"use server";
+"use client";
 
 import axios from "axios";
 import PublicNet from "./publicnet"; // Adjust the import path as needed

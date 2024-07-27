@@ -63,7 +63,7 @@ const Header = () => {
                         paddingTop: "7px",
                     }}
                 >
-                    <Image
+                    <img
                         src="./montelibero-small-logo.png"
                         alt="Montelibero Logo"
                         className="dark:invert"

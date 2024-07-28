@@ -3,6 +3,7 @@
 import axios from 'axios';
 import MainLayout from "@/components/layouts";
 import ClientComponent from "./ClientComponent";
+import PublicNet from './publicnet';
 
 // Секция для серверной логики
 const getAccountIds = async () => {

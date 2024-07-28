@@ -7,21 +7,16 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
 const Page = () => {
-
-    const [href, setHref] = useState("");
+    const [id, setId] = useState("");
     useEffect(() => {
-        setHref(window.location.href);
+        const href = window.location.href;
+        setId(href.split("id=").pop());
     }, []);
-    console.log(href);
-
-    const id = href.split("id=").pop();
-    console.log(id)
 
     return (
-        // <MainLayout>
-        //     {id ? <PublicNet id={id} /> : <p>Loading...</p>}
-        // </MainLayout>
-        123
+        <MainLayout>
+            {id ? <PublicNet id={id} /> : <p>Loading...</p>}
+        </MainLayout>
     );
 };
 

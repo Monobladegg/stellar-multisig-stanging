@@ -18,33 +18,24 @@ const getAccountIds = async () => {
     }
 };
 
-export async function getStaticPaths() {
-    const accounts = await getAccountIds();
-    const paths = accounts.map(account => ({
-        params: { id: account.address }
-    }));
-
-    return {
-        paths,
-        fallback: false
-    };
-}
-
-export async function getStaticProps({ params }) {
+// Компонент страницы
+const Page = async ({ params }) => {
     const { id } = params;
-    // Вы можете здесь добавить дополнительную логику для получения данных на основе ID
+    
+    // Здесь вы можете выполнить любой запрос данных
+    // Например, получить информацию о конкретном аккаунте по ID
+    // const accountData = await axios.get(`API_URL/${id}`);
 
-    return {
-        props: { id }, // Передаем ID в компонент
-    };
-}
-
-const Page = ({ id }) => {
     return (
         <MainLayout>
             <PublicNet id={id} />
         </MainLayout>
     );
 };
+
+export async function generateStaticParams() {
+    const accounts = await getAccountIds();
+    return accounts.map(account => ({ id: account.address }));
+}
 
 export default Page;

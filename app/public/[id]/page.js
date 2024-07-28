@@ -2,10 +2,9 @@
 
 import axios from 'axios';
 import MainLayout from "@/components/layouts";
-import ClientComponent from "./ClientComponent";
 import PublicNet from './publicnet';
 
-// Секция для серверной логики
+// Функция для получения данных
 const getAccountIds = async () => {
     const apiStellarURI = "https://api.stellar.expert/explorer/directory?limit=20";
     try {
@@ -19,25 +18,31 @@ const getAccountIds = async () => {
     }
 };
 
-export async function generateStaticParams() {
-    // Пример данных, которые вы можете получить из API или базы данных
+export async function getStaticPaths() {
     const accounts = await getAccountIds();
-    return accounts.map(account => ({ id: account.address }));
+    const paths = accounts.map(account => ({
+        params: { id: account.address }
+    }));
+
+    return {
+        paths,
+        fallback: false
+    };
 }
-//
 
-// Компонент страницы
-const Page = ({ params }) => {
+export async function getStaticProps({ params }) {
+    const { id } = params;
+    // Вы можете здесь добавить дополнительную логику для получения данных на основе ID
 
-    const {id} = params
+    return {
+        props: { id }, // Передаем ID в компонент
+    };
+}
 
+const Page = ({ id }) => {
     return (
         <MainLayout>
-            {id  ?(
-                <PublicNet id={id} />
-            ) : (
-                <div>Loading...</div>
-            )}
+            <PublicNet id={id} />
         </MainLayout>
     );
 };

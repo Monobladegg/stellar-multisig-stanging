@@ -1,20 +1,17 @@
-// app/public/[id]/page.js
-
-// Секция для серверной логики
-export async function generateStaticParams() {
-    // Пример данных, которые вы можете получить из API или базы данных
-    const staticAccountIds = ["GAEAAQ6GYMF6SSAWSW3MSLWB5LHYQIEGF3I3TUBJM6L3MSZYSPOMTLTH"];
-    return staticAccountIds.map(id => ({ id }));
-}
-
-// Компонент страницы
 import MainLayout from "@/components/layouts";
-import ClientComponent from "./ClientComponent";
+import PublicNet from "./publicnet";
 
 const Page = ({ params }) => {
+
+    const {id} = params
+
     return (
         <MainLayout>
-            <ClientComponent params={params} />
+            {id  ?(
+                <PublicNet id={id} />
+            ) : (
+                <div>Loading...</div>
+            )}
         </MainLayout>
     );
 };

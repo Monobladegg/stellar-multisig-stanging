@@ -16,8 +16,8 @@ import { usePublic } from "@/context/net";
 import processKeys from "@/lib/processKeys";
 
 
-const PublicNet = ({ id }) => {
-    const [account, setAccount] = useState(id || "");
+const PublicNet = ({ params }) => {
+    const [account, setAccount] = useState(params.id || "");
     const [net, setNet] = usePublic();
     const [information, setInformation] = useState({});
     const [exists, setExists] = useState(true);

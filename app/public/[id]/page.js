@@ -1,5 +1,6 @@
 // app/public/[id].js
 
+import axios from "axios";
 import PublicNet from "./publicnet";
 
 const getAccountIds = async () => {

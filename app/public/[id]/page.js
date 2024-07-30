@@ -15,7 +15,7 @@ const getAccountIds = async () => {
     }
 };
 
-export async function generateStaticParams({params: {id}}) {
+export async function generateStaticParams() {
     const accounts = await getAccountIds();
     const params = accounts.map((account) => ({ id: account.id }));
     return params;

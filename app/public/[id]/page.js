@@ -1,5 +1,5 @@
 // pages/public/[id].js
-// import axios from 'axios';
+import axios from 'axios';
 import PublicNet from "./publicnet"; // Adjust the import path as needed
 import StellarSdk from "stellar-sdk";
 import MainLayout from "@/components/layouts";

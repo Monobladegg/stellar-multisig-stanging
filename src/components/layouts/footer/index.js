@@ -63,7 +63,7 @@ const Footer = ({ setTheme }) => {
                 <div className="dimmed condensed" style={{ fontSize: "0.8em" }}>
                     Donations:{" "}
                     <span className="" tabIndex="-1">
-                        <Link href={`/${net}/GCSAXEHZBQY65URLO6YYDOCTRLIGTNMGCQHVW2RZPFNPTEJN6VN7TFIN`}>
+                        <Link href={`/${net}/account?id=GCSAXEHZBQY65URLO6YYDOCTRLIGTNMGCQHVW2RZPFNPTEJN6VN7TFIN`}>
                             GCSAXEHZBQY65URLO6YYDOCTRLIGTNMGCQHVW2RZPFNPTEJN6VN7TFIN
                         </Link>
                     </span>

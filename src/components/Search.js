@@ -1,23 +1,17 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Search } from "lucide-react";
 import StellarSdk from "stellar-sdk";
 import { useRouter } from "next/navigation";
 import { usePublic } from "@/context/net";
-import useTheme from "@/hook/theme";
 
 const SearchBar = () => {
-    const { theme } = useTheme();
     const [search, setSearch] = useState("");
     const [net] = usePublic();
     const router = useRouter();
     const [errorvalid, setErrorvalid] = useState(null);
     const [exists, setExists] = useState(null);
-
-    useEffect(() => {
-        console.log(theme);
-    }, [theme]);
 
     const changeHandler = (e) => {
         setErrorvalid(null);
@@ -95,8 +89,8 @@ const SearchBar = () => {
                 <input
                     className={"search"}
                     value={search}
-                    onKeyDown={keyDownHandler}
-                    onChange={changeHandler}
+                    onKeyDown={(e) => keyDownHandler(e)}
+                    onChange={(e) => changeHandler(e)}
                     placeholder="Paste an account address here"
                 />
             </div>

@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
+import Link from "next/link"; // Import Link for client-side navigation
 import { usePublic } from "@/context/net";
 
 const Footer = ({setTheme}) => {
 
     const [value, setValue] = useState("");
-    const [net] = usePublic();
+    const [net, setNet] = usePublic();
     const stableSetTheme = useCallback(
         (theme) => {
             setTheme(theme);

@@ -42,23 +42,6 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-// Function to generate static props
-export const getStaticProps: GetStaticProps<PageProps> = async ({ params }) => {
-  if (!params?.id || !StellarSdk.StrKey.isValidEd25519PublicKey(params.id as string)) {
-    return {
-      notFound: true,
-    };
-  }
-
-  return {
-    props: {
-      params: {
-        id: params.id as string,
-      },
-    },
-  };
-};
-
 // Page component
 const Page: React.FC<PageProps> = ({ params }) => {
   if (!StellarSdk.StrKey.isValidEd25519PublicKey(params.id)) {

@@ -6,10 +6,16 @@ export const netSlice: StateCreator<
   [["zustand/immer", never]],
   [],
   INetSlice
-> = (set/*, get*/) => ({
-  net: typeof localStorage !== "undefined" ? localStorage.getItem("net") || "public" : "public",
-  setNet: (net: string) => {
-    set({ net: net });
-    typeof localStorage !== "undefined" && localStorage.setItem("net", net);
-  },
-});
+> = (set/*, get*/) => {
+  const net = typeof localStorage !== "undefined" ? localStorage.getItem("net") || "public" : "public";
+
+  return {
+    net,
+    setNet: (net: string) => {
+      set({ net: net });
+      if (typeof localStorage !== "undefined") {
+        localStorage.setItem("net", net);
+      }
+    },
+  };
+};

@@ -11,10 +11,9 @@ type Props = {
 };
 
 const PageLayout: FC<Props> = ({ children }) => {
-    const { theme, setTheme } = useStore(
+    const { theme } = useStore(
         useShallow((state) => ({
             theme: state.theme,
-            setTheme: state.setTheme,
         }))
     );
 

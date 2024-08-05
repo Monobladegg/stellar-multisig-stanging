@@ -6,10 +6,16 @@ export const themeSlice: StateCreator<
   [["zustand/immer", never]],
   [],
   IThemeSlice
-> = (set/*, get*/) => ({
-  theme: typeof localStorage !== "undefined" ? localStorage.getItem("theme") || "night" : "night",
-  setTheme: (theme: string) => {
-    set({ theme: theme });
-    typeof localStorage !== "undefined" && localStorage.setItem("theme", theme);
-  },
-});
+> = (set/*, get*/) => {
+  const theme = typeof localStorage !== "undefined" ? localStorage.getItem("theme") || "night" : "night";
+
+  return {
+    theme,
+    setTheme: (theme: string) => {
+      set({ theme: theme });
+      if (typeof localStorage !== "undefined") {
+        localStorage.setItem("theme", theme);
+      }
+    },
+  };
+};

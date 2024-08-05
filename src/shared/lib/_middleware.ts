@@ -1,7 +1,12 @@
 // middleware.js
 import { NextResponse } from 'next/server';
 
-export function middleware(request) {
+interface request {
+  nextUrl: any;
+  cookies: any;
+}
+
+export function middleware(request: request) {
   const url = request.nextUrl.clone();
   const { pathname } = request.nextUrl;
   const network = request.cookies.get('network') || 'public';

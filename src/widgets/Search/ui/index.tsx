@@ -34,7 +34,7 @@ const SearchBar: FC = () => {
             await server.loadAccount(search);
             setExists(true);
             router.push(`/${net}/account?id=${search}`);
-        } catch (e: any) {
+        } catch (e: unknown) {
             if (e instanceof StellarSdk.NotFoundError) {
                 setExists(false);
                 setErrorvalid(

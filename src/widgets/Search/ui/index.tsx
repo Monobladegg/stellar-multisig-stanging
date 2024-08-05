@@ -5,12 +5,12 @@ import { Search } from "lucide-react";
 import StellarSdk from "stellar-sdk";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/features/store";
-import { shallow } from "zustand/shallow";
+import { Store } from "@/shared/types";
+import { useShallow } from "zustand/react/shallow";
 
 const SearchBar: FC = () => {
-    const { theme } = useStore((state) => ({ theme: state.theme }), shallow);
+    const { theme, net }: Store = useStore(useShallow((state) => state));
     const [search, setSearch] = useState<string>("");
-    const { net } = useStore((state) => ({ net: state.net }), shallow);
     const router = useRouter();
     const [errorvalid, setErrorvalid] = useState<string | null>(null);
     const [exists, setExists] = useState<boolean | null>(null);

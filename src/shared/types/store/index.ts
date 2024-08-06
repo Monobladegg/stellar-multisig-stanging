@@ -1,4 +1,4 @@
-import { INetSlice, IThemeSlice } from "@/shared/types/Store/Slices";
+import { INetSlice, IThemeSlice } from "@/shared/types/store/slices";
 
 interface Store extends INetSlice, IThemeSlice {}
 

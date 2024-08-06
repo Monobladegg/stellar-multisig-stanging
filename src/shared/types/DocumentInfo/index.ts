@@ -1,5 +1,7 @@
 // src\shared\types\DocumentInfo\index.ts
 
-export type DocumentInfo = {
+declare type DocumentInfo = {
   [key: string]: string;
 }
+
+export default DocumentInfo

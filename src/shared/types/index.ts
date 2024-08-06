@@ -11,4 +11,4 @@ export type {
     TomlInfo,
     Entry
 } from "@/shared/types/information";
-export { type DocumentInfo } from "@/shared/types/documentInfo/index";
+export { type default as DocumentInfo } from "@/shared/types/documentInfo/index";

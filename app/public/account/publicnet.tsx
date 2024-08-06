@@ -88,9 +88,9 @@ const PublicNet: FC<Props> = ({ id }) => {
 
                 const splittedInformation = tomlInformation.split("\n");
                 let document = false;
-                let documentInfo: DocumentInfo = {};
+                const documentInfo: DocumentInfo = {};
 
-                for (let i in splittedInformation) {
+                for (const i in splittedInformation) {
                     if (splittedInformation[i] == "[DOCUMENTATION]") {
                         document = true;
                         continue;

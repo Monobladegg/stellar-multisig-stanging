@@ -27,9 +27,9 @@ const Accounts = () => {
             const splittedInformation = domainInformation.split("\n");
             let accounts = false;
             let accountInfo: Record<string, string> = {};
-            let accountInfoArray = [];
+            const accountInfoArray = [];
 
-            for (let i in splittedInformation) {
+            for (const i in splittedInformation) {
                 if (splittedInformation[i] === "[[CURRENCIES]]") {
                     accounts = true;
                     continue;

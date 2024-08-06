@@ -1059,8 +1059,8 @@ const PublicNet: FC<Props> = ({ id }) => {
                                                                 ?.split("\n")
                                                                 ?.map(
                                                                     (
-                                                                        toml,
-                                                                        keyinfo
+                                                                        toml: string,
+                                                                        keyinfo: number
                                                                     ) => {
                                                                         if (
                                                                             toml ==

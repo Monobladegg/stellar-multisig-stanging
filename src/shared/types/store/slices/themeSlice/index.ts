@@ -6,4 +6,4 @@ export type ThemeActions = {
   setTheme: (theme: string) => void
 }
 
-export interface IThemeSlice extends ThemeState, ThemeActions {}
+export type IThemeSlice = ThemeState & ThemeActions

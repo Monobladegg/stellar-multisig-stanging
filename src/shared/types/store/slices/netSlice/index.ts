@@ -6,4 +6,4 @@ export type NetActions = {
   setNet: (net: string) => void
 }
 
-export interface INetSlice extends NetState, NetActions {}
+export type INetSlice = NetState & NetActions

@@ -16,6 +16,7 @@ import { useStore } from "@/features/store";
 import { useShallow } from "zustand/react/shallow";
 import { Information } from "@/shared/types";
 import { DocumentInfo } from "@/shared/types";
+import { Issuer } from "@/shared/types/Information";
 
 interface Props {
     id: string;
@@ -539,7 +540,7 @@ const PublicNet: FC<Props> = ({ id }) => {
                                                 <div className="text-small">
                                                     <ul>
                                                         {information?.issuers?.map(
-                                                            (issuer, key) => {
+                                                            (issuer: Issuer , key: number) => {
                                                                 return (
                                                                     <li
                                                                         key={

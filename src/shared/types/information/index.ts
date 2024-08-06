@@ -34,3 +34,11 @@ export type Information = {
   entries: Array<string>;
   created_at?: string;
 }
+
+export type Issuer = {
+    paging_token: string;
+    asset_code: string;
+    accounts: {
+        authorized: number;
+    };
+};

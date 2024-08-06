@@ -42,3 +42,14 @@ export type Issuer = {
         authorized: number;
     };
 };
+
+export type Signer = {
+    key: string;
+    weight: number;
+}
+
+export type Balance = {
+    balance: string;
+    asset_code?: string;
+    asset_issuer?: string;
+}

@@ -14,7 +14,7 @@ import "./public.css";
 import processKeys from "@/shared/lib/processKeys";
 import { useStore } from "@/features/store";
 import { useShallow } from "zustand/react/shallow";
-import { Information } from "@/shared/types";
+import { Balance, Information, Signer } from "@/shared/types";
 import { DocumentInfo, Issuer } from "@/shared/types";
 
 interface Props {
@@ -617,7 +617,7 @@ const PublicNet: FC<Props> = ({ id }) => {
                                         </h4>
                                         <ul className="text-small condensed">
                                             {information?.signers?.map(
-                                                (item, index) => {
+                                                (item: Signer, index) => {
                                                     return (
                                                         <li key={index}>
                                                             <Link
@@ -779,7 +779,7 @@ const PublicNet: FC<Props> = ({ id }) => {
                                         <hr className="flare"></hr>
                                         <div className="all-account-balances micro-space text-header">
                                             {information?.balances?.map(
-                                                (item, key) => {
+                                                (item: Balance, key) => {
                                                     const totalInfo =
                                                         item.balance.split(".");
                                                     const number = totalInfo[0];

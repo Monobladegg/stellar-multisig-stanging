@@ -1,3 +1,5 @@
+// @ts-ignore 
+
 export { type default as Store } from "./store";
 export type { INetSlice, IThemeSlice } from "@/shared/types/store/slices";
 export type {

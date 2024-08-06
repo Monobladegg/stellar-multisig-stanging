@@ -1,4 +1,4 @@
-import { IThemeSlice } from "@/shared/types/Store/Slices";
+import { IThemeSlice } from "@/shared/types/Store/Slices/ThemeSlice";
 import { StateCreator } from "zustand";
 
 export const themeSlice: StateCreator<

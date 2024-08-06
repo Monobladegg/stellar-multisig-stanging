@@ -617,7 +617,7 @@ const PublicNet: FC<Props> = ({ id }) => {
                                         </h4>
                                         <ul className="text-small condensed">
                                             {information?.signers?.map(
-                                                (item: Signer, index) => {
+                                                (item: Signer, index: number) => {
                                                     return (
                                                         <li key={index}>
                                                             <Link
@@ -779,7 +779,7 @@ const PublicNet: FC<Props> = ({ id }) => {
                                         <hr className="flare"></hr>
                                         <div className="all-account-balances micro-space text-header">
                                             {information?.balances?.map(
-                                                (item: Balance, key) => {
+                                                (item: Balance, key: number) => {
                                                     const totalInfo =
                                                         item.balance.split(".");
                                                     const number = totalInfo[0];

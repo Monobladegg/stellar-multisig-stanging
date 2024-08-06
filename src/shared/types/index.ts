@@ -11,4 +11,6 @@ export type {
     TomlInfo,
     Entry
 } from "@/shared/types/information";
-export { type default as DocumentInfo } from "./documentInfo";
+export type DocumentInfo = {
+  [key: string]: string;
+}

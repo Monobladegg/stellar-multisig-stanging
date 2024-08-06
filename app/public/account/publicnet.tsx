@@ -15,8 +15,7 @@ import processKeys from "@/shared/lib/processKeys";
 import { useStore } from "@/features/store";
 import { useShallow } from "zustand/react/shallow";
 import { Information } from "@/shared/types";
-import { DocumentInfo } from "@/shared/types";
-import { Issuer } from "@/shared/types/Information";
+import { DocumentInfo, Issuer } from "@/shared/types";
 
 interface Props {
     id: string;

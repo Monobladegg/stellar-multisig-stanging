@@ -5,5 +5,6 @@ export type {
     Signer,
     Balance,
     TomlInfo,
+    Entry
 } from "@/shared/types/Information";
 export type { DocumentInfo } from "@/shared/types/DocumentInfo";

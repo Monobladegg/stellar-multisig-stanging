@@ -11,7 +11,7 @@ import StellarSdk from 'stellar-sdk';
 import React, { FC, useEffect, useState } from "react";
 import Link from "next/link";
 import processKeys from "@/shared/lib/processKeys";
-import { Information } from "@/shared/types";
+import { Balance, Entry, Information, Issuer, Signer, TomlInfo } from "@/shared/types";
 import { useStore } from "@/features/store";
 import { useShallow } from "zustand/react/shallow";
 import { DocumentInfo } from "@/shared/types";
@@ -507,7 +507,7 @@ const PublicNet: FC<Props> = ({ id }) => {
                                                 <div className="text-small">
                                                     <ul>
                                                         {information?.issuers?.map(
-                                                            (issuer, key) => {
+                                                            (issuer: Issuer, key: number) => {
                                                                 return (
                                                                     <li
                                                                         key={
@@ -578,7 +578,7 @@ const PublicNet: FC<Props> = ({ id }) => {
                                         </h4>
                                         <ul className="text-small condensed">
                                             {information?.signers?.map(
-                                                (item, index) => {
+                                                (item: Signer, index: number) => {
                                                     return (
                                                         <li key={index}>
                                                             <Link href={`/${net}/${item.key}`} legacyBehavior>
@@ -652,7 +652,7 @@ const PublicNet: FC<Props> = ({ id }) => {
                                                     {information?.entries &&
                                                         Object.keys(
                                                             information?.entries
-                                                        ).map((entry, key) => {
+                                                        ).map((entry: string, key: number) => {
                                                             const { processedKey, processedValue } = processKeys(entry, information?.entries[key]);
                                                             return (
                                                                 <li className="word-break" key={key}>
@@ -700,7 +700,7 @@ const PublicNet: FC<Props> = ({ id }) => {
                                         <hr className="flare"></hr>
                                         <div className="all-account-balances micro-space text-header">
                                             {information?.balances?.map(
-                                                (item, key) => {
+                                                (item: Balance, key: number) => {
                                                     const totalInfo =
                                                         item.balance.split(".");
                                                     const number = totalInfo[0];
@@ -954,13 +954,7 @@ const PublicNet: FC<Props> = ({ id }) => {
                                                                 Empty Data
                                                             </div>
                                                         ) : (
-                                                            information?.tomlInfo
-                                                                ?.split("\n")
-                                                                ?.map(
-                                                                    (
-                                                                        toml,
-                                                                        keyinfo
-                                                                    ) => {
+                                                            information?.tomlInfo?.split("\n")?.map((toml: string, keyinfo: number) => {
                                                                         if (
                                                                             toml ==
                                                                             null ||

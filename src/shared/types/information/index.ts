@@ -57,3 +57,8 @@ export type Balance = {
 export type TomlInfo = {
     tomlInfo: string;
 }
+
+export type Entry = {
+    key: string;
+    value: string;
+}

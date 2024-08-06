@@ -11,7 +11,7 @@ import StellarSdk from 'stellar-sdk';
 import React, { FC, useEffect, useState } from "react";
 import Link from "next/link";
 import processKeys from "@/shared/lib/processKeys";
-import { Balance, Entry, Information, Issuer, Signer, TomlInfo } from "@/shared/types";
+import { Balance, Information, Issuer, Signer } from "@/shared/types";
 import { useStore } from "@/features/store";
 import { useShallow } from "zustand/react/shallow";
 import { DocumentInfo } from "@/shared/types";

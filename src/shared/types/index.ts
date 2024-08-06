@@ -1,4 +1,4 @@
-export type { Store } from "@/shared/types/Store/index";
+export type { Store } from "./Store";
 export type { INetSlice, IThemeSlice } from "@/shared/types/Store/Slices";
 export type {
     Information,

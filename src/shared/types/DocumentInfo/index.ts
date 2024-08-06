@@ -1,3 +1,3 @@
-export type DocumentInfo = {
+export interface DocumentInfo {
   [key: string]: string;
 }

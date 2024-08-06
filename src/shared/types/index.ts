@@ -7,5 +7,5 @@ export type {
     Balance,
     TomlInfo,
     Entry
-} from "@/shared/types/information/index";
-export type { DocumentInfo } from "@/shared/types/documentInfo/index";
+} from "@/shared/types/information";
+export { type DocumentInfo } from "@/shared/types/documentInfo";

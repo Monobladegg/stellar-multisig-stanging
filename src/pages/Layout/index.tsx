@@ -2,8 +2,7 @@
 
 import { FC, useEffect } from "react";
 import { useStore } from "@/features/store";
-import { Footer } from "@/widgets";
-import { Header } from "@/widgets";
+import { Footer, Header } from "@/widgets";
 import { useShallow } from "zustand/react/shallow";
 
 type Props = {
@@ -22,7 +21,7 @@ const PageLayout: FC<Props> = ({ children }) => {
     useEffect(() => {
         if (localStorage.getItem("theme")) setTheme(localStorage.getItem("theme")!);
         if (localStorage.getItem("net")) setNet(localStorage.getItem("net")!);
-    }, []);
+    }, [setTheme, setNet]);
 
     return (
         <html lang="en" data-theme={theme}>
@@ -38,4 +37,4 @@ const PageLayout: FC<Props> = ({ children }) => {
     );
 };
 
-export default PageLayout
+export default PageLayout;

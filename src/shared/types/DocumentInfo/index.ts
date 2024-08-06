@@ -1,3 +1,3 @@
 export type DocumentInfo = {
-  [key: string]: any;
+  [key: string]: string;
 }

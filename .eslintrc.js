@@ -4,7 +4,8 @@ module.exports = {
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'next/core-web-vitals',
-    'prettier'
+    'prettier',
+    'next',
   ],
   parserOptions: {
     ecmaVersion: 2020,

@@ -1,4 +1,5 @@
-// @ts-ignore 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 
 export { type default as Store } from "./store";
 export type { INetSlice, IThemeSlice } from "@/shared/types/store/slices";

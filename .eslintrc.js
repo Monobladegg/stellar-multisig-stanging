@@ -3,13 +3,15 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
-    'next/core-web-vitals', // Добавьте эту строку для конфигурации ESLint для Next.js
+    'next/core-web-vitals',
+    'prettier'
   ],
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: 'module',
   },
   rules: {
-    
+    "react/no-unescaped-entities": "off",
+    "@next/next/no-page-custom-font": "off"
   },
 };

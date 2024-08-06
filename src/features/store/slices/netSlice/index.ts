@@ -1,4 +1,4 @@
-import { INetSlice } from "@/shared/types/Store/Slices/NetSlice";
+import { INetSlice } from "@/shared/types/index";
 import { StateCreator } from "zustand";
 
 export const netSlice: StateCreator<

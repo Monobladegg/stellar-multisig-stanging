@@ -17,7 +17,7 @@ export const Header: FC = () => {
             theme: state.theme,
         }))
     );
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState<boolean>(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -32,6 +32,7 @@ export const Header: FC = () => {
 
         // Bind the event listener
         document.addEventListener("mousedown", handleClickOutside);
+
         return () => {
             // Unbind the event listener on cleanup
             document.removeEventListener("mousedown", handleClickOutside);
@@ -39,7 +40,6 @@ export const Header: FC = () => {
     }, []);
 
     useEffect(() => {
-        // Log the current state for debugging
         console.log("Net:", net);
         console.log("Theme:", theme);
     }, [net, theme]);

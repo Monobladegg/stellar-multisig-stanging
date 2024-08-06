@@ -7,6 +7,6 @@ const Home = () => {
             <SearchBar />
         </MainLayout>
     );
-}
+};
 
-export default Home
+export default Home;

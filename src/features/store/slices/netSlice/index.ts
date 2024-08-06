@@ -1,4 +1,4 @@
-import { INetSlice } from "@/shared/types/store/slices";
+import { INetSlice } from "@/shared/types/Store/Slices";
 import { StateCreator } from "zustand";
 
 export const netSlice: StateCreator<
@@ -7,15 +7,14 @@ export const netSlice: StateCreator<
   [],
   INetSlice
 > = (set/*, get*/) => {
-  const net = typeof localStorage !== "undefined" ? localStorage.getItem("net") || "public" : "public";
-
+  const net = "public";
+  const setNet = (net: string) => {
+    set({ net: net }); 
+    localStorage.setItem("net", net);    
+  }
+  
   return {
     net,
-    setNet: (net: string) => {
-      set({ net: net });
-      if (typeof localStorage !== "undefined") {
-        localStorage.setItem("net", net);
-      }
-    },
+    setNet
   };
 };

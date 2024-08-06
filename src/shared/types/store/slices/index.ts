@@ -1,2 +1,2 @@
-export type {INetSlice} from "./netSlice";
-export type {IThemeSlice} from "./themeSlice";
+export type {INetSlice} from "./NetSlice";
+export type {IThemeSlice} from "./ThemeSlice";

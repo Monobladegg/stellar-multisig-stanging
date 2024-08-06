@@ -1,3 +1,3 @@
-import { INetSlice, IThemeSlice } from "@/shared/types/store/slices";
+import { INetSlice, IThemeSlice } from "@/shared/types/Store/Slices";
 
 export type Store = INetSlice & IThemeSlice

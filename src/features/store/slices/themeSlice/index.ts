@@ -1,21 +1,20 @@
-import { IThemeSlice } from "@/shared/types/store/slices";
+import { IThemeSlice } from "@/shared/types/Store/Slices";
 import { StateCreator } from "zustand";
 
 export const themeSlice: StateCreator<
-  IThemeSlice,
-  [["zustand/immer", never]],
-  [],
-  IThemeSlice
-> = (set/*, get*/) => {
-  const theme = typeof localStorage !== "undefined" ? localStorage.getItem("theme") || "night" : "night";
-
-  return {
-    theme,
-    setTheme: (theme: string) => {
-      set({ theme: theme });
-      if (typeof localStorage !== "undefined") {
+    IThemeSlice,
+    [["zustand/immer", never]],
+    [],
+    IThemeSlice
+> = (set /*, get*/) => {
+    const theme = "night";
+    const setTheme = (theme: string) => {
+        set({ theme: theme });
         localStorage.setItem("theme", theme);
-      }
-    },
-  };
+    };
+
+    return {
+        theme,
+        setTheme,
+    };
 };

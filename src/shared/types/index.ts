@@ -1,2 +1,3 @@
-export type { Store } from "@/shared/types/store";
-export type { Information } from "@/shared/types/information";
+export type { Store } from "@/shared/types/Store";
+export type { Information } from "@/shared/types/Information";
+export type { DocumentInfo } from "@/shared/types/DocumentInfo";

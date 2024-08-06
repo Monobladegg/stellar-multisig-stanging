@@ -1,6 +1,6 @@
 "use client"
 
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { useStore } from "@/features/store";
 import { Footer } from "@/widgets";
 import { Header } from "@/widgets";
@@ -11,11 +11,18 @@ type Props = {
 };
 
 const PageLayout: FC<Props> = ({ children }) => {
-    const { theme } = useStore(
+    const { theme, setTheme, setNet } = useStore(
         useShallow((state) => ({
             theme: state.theme,
+            setTheme: state.setTheme,
+            setNet: state.setNet
         }))
     );
+
+    useEffect(() => {
+        if (localStorage.getItem("theme")) setTheme(localStorage.getItem("theme")!);
+        if (localStorage.getItem("net")) setNet(localStorage.getItem("net")!);
+    }, []);
 
     return (
         <html lang="en" data-theme={theme}>

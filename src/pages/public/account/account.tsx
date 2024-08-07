@@ -1,9 +1,9 @@
 "use client";
 
-import PublicNet from "./publicnet"; 
+import PublicNet from "./publicnet";
 import StellarSdk from "stellar-sdk";
 import { MainLayout } from "@/widgets";
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 const Page: FC = () => {
@@ -19,28 +19,41 @@ const Page: FC = () => {
 
     if (!id || isValidId === null) {
         return (
-            <MainLayout>
-                <center>
-                    <h1>Loading...</h1>
-                </center>
-            </MainLayout>
+            <Suspense>
+                <MainLayout>
+                    <center>
+                        <h1>Loading...</h1>
+                    </center>
+                </MainLayout>
+            </Suspense>
         );
     }
 
     if (!id || isValidId === false) {
         return (
-            <MainLayout>
-                <div className="container">
-                    <div className="search error container narrow" style={{ padding: "20px" }}>
-                        <h2 className="text-overflow">Search results for {id}</h2>
-                        <div>User ID not found or invalid.</div>
+            <Suspense>
+                <MainLayout>
+                    <div className="container">
+                        <div
+                            className="search error container narrow"
+                            style={{ padding: "20px" }}
+                        >
+                            <h2 className="text-overflow">
+                                Search results for {id}
+                            </h2>
+                            <div>User ID not found or invalid.</div>
+                        </div>
                     </div>
-                </div>
-            </MainLayout>
+                </MainLayout>
+            </Suspense>
         );
     }
 
-    return <PublicNet id={id as string} />;
+    return (
+        <Suspense>
+            <PublicNet id={id as string} />
+        </Suspense>
+    );
 };
 
 export default Page;

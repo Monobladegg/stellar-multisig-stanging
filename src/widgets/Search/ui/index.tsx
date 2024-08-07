@@ -1,6 +1,8 @@
 "use client";
 
-import React, { FC, useEffect, useState, ChangeEvent, KeyboardEvent } from "react";
+import React, { FC,
+    
+    useState, ChangeEvent, KeyboardEvent } from "react";
 import { Search } from "lucide-react";
 import StellarSdk from "stellar-sdk";
 import { useRouter } from "next/navigation";

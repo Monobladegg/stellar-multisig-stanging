@@ -4,7 +4,6 @@ import { FC, useEffect } from "react";
 import { useStore } from "@/features/store";
 import { Footer, Header } from "@/widgets";
 import { useShallow } from "zustand/react/shallow";
-import Head from "next/head";
 
 type Props = {
     children: React.ReactNode;
@@ -26,11 +25,11 @@ const PageLayout: FC<Props> = ({ children }) => {
 
     return (
         <html lang="en" data-theme={theme}>
-            <Head>
+            <head>
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                 <meta name="commit-hash" content={process.env.NEXT_PUBLIC_COMMIT_HASH || ""} />
                 <title>Stellar Multisig</title>
-            </Head>
+            </head>
             <body>
                 <main className="flex min-h-screen flex-col">
                     <hr className="blue-ribbon" />

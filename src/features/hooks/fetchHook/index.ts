@@ -1,11 +1,11 @@
 "use client";
 
-import { Server } from "stellar-sdk";
+import stellarsdk from 'stellar-sdk';
 import cacheConfig from "@/features/hooks/lib/cache-config";
 
 const horizonURI = "https://horizon.stellar.org";
 const apiStellarURI = "https://api.stellar.expert/explorer/directory?limit=20";
-const server = new Server(horizonURI);
+const server = new stellarsdk
 
 export const getMainInformation = async (accountId: string) => {
     try {

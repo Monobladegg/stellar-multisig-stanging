@@ -12,9 +12,7 @@ const Page: FC = () => {
     const id = params?.get("id");
 
     useEffect(() => {
-        if (id) {
-            setIsValidId(StellarSdk.StrKey.isValidEd25519PublicKey(id));
-        }
+        if (id) setIsValidId(StellarSdk);
     }, [id]);
 
     if (!id || isValidId === null) {

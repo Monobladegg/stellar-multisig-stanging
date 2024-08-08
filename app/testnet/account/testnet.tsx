@@ -7,7 +7,7 @@ import {
     getDomainInformation,
     getMainInformation,
 } from "@/features/hooks";
-import StellarSdk from '@stellar/stellar-sdk';
+import StellarSdk from 'stellar-sdk';
 import React, { FC, useEffect, useState } from "react";
 import Link from "next/link";
 import processKeys from "@/shared/lib/processKeys";

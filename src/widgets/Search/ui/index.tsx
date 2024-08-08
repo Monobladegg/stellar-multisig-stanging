@@ -2,7 +2,9 @@
 
 import React, { FC, useState, ChangeEvent, KeyboardEvent } from "react";
 import { Search } from "lucide-react";
-import StellarSdk from "@stellar/stellar-sdk";
+import StellarSdk from "stellar-sdk";
+import { Server } from "stellar-sdk";
+import { StrKey } from "@stellar/stellar-sdk";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/features/store";
 import { Store } from "@/shared/types";
@@ -24,7 +26,7 @@ const SearchBar: FC = () => {
         const serverUrl = net === "testnet"
             ? "https://horizon-testnet.stellar.org"
             : "https://horizon.stellar.org";
-        const server = new StellarSdk.Server(serverUrl);
+        const server = new Server(serverUrl);
 
         try {
             await server.loadAccount(search);
@@ -48,7 +50,7 @@ const SearchBar: FC = () => {
             return;
         }
 
-        if (StellarSdk.StrKey.isValidEd25519PublicKey(search)) {
+        if (StrKey.isValidEd25519PublicKey(search)) {
             checkAccount();
         } else {
             setExists(false);

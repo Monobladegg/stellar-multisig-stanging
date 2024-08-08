@@ -11,7 +11,7 @@ export const getMainInformation = async (accountId: string) => {
     try {
         const mainInformation = localStorage.getItem("main-" + accountId);
         if (mainInformation) return JSON.parse(mainInformation);
-        const result = await (server as any).loadAccount(accountId);
+        const result = await server.loadAccount(accountId);
         localStorage.setItem("main-" + accountId, JSON.stringify(result));
         setTimeout(
             () => localStorage.removeItem("main-" + accountId),
@@ -29,7 +29,7 @@ export const getAccountIssuerInformation = async (accountId: string) => {
     try {
         const issuerInformation = localStorage.getItem("issuer-" + accountId);
         if (issuerInformation) return JSON.parse(issuerInformation);
-        const result = await (server as any).assets().forIssuer(accountId).call();
+        const result = await server.assets().forIssuer(accountId).call();
         localStorage.setItem("issuer-" + accountId, JSON.stringify(result));
         setTimeout(
             () => localStorage.removeItem("issuer-" + accountId),

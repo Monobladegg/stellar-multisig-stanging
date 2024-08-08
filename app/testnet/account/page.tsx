@@ -3,7 +3,7 @@
 "use client";
 import { useEffect, useState, FC } from "react";
 import PublicNet from "./testnet"; // Adjust the import path as needed
-import StellarSdk from "@stellar/stellar-sdk";
+import StellarSdk from "stellar-sdk";
 import { MainLayout } from "@/widgets";
 import React from "react";
 

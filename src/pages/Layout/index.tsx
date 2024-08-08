@@ -25,6 +25,10 @@ const PageLayout: FC<Props> = ({ children }) => {
 
     return (
         <html lang="en" data-theme={theme}>
+            <head>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                <title>Stellar Multisig</title>
+            </head>
             <body>
                 <main className="flex min-h-screen flex-col">
                     <hr className="blue-ribbon" />

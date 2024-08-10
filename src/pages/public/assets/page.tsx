@@ -7,6 +7,7 @@ import React, {
   FC,
   FormEvent,
   useMemo,
+  Suspense,
 } from "react";
 import { useStore } from "@/features/store";
 import { useShallow } from "zustand/react/shallow";
@@ -171,7 +172,6 @@ const Assets: FC = () => {
               )
             )}
           </ul>
-
           <div className="grid-actions text-center space relative">
             <div className="button-group">
               <button

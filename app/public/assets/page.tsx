@@ -1,12 +1,16 @@
 import Assets from "@/pages/public/assets/page";
 import { Metadata } from "next";
-import { FC } from "react";
+import { FC, Suspense } from "react";
 
 export const metadata: Metadata = {
-    title: "Assets",
-    description: "Assets of the Stellar network",
+  title: "Assets",
+  description: "Assets of the Stellar network",
 };
 
-const Page: FC = () => <Assets />;
+const Page: FC = () => (
+  <Suspense>
+    <Assets />
+  </Suspense>
+);
 
 export default Page;

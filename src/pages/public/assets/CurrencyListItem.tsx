@@ -11,7 +11,8 @@ type Props = {
 const CurrencyListItem: FC<Props> = ({ RecordEnemy, net, paramsTags }) => (
   <li style={{ padding: "1em", lineHeight: "1.6", overflow: "hidden" }}>
     <div>
-      <b>{RecordEnemy.name}</b>{" "}
+    <b>{RecordEnemy?.name || "Default Name"}</b>
+
       <a href="https://null" className="text-small">
         {RecordEnemy.domain}
       </a>

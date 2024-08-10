@@ -17,7 +17,6 @@ import { MainLayout } from "@/widgets";
 import { CurrencyInfo, RecordEnemy } from "@/shared/types";
 import CurrencyListItem from "./CurrencyListItem";
 import popularTags, { ITag } from "./lib/popularTags";
-
 const API_URL = "https://api.stellar.expert/explorer/directory";
 
 const Assets: FC = () => {

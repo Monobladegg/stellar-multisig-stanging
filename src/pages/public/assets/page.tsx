@@ -1,12 +1,18 @@
 "use client";
 
-import React, { useEffect, useState, useCallback, FC, FormEvent } from "react";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  FC,
+  FormEvent,
+  useMemo,
+} from "react";
 import { useStore } from "@/features/store";
 import { useShallow } from "zustand/react/shallow";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import axios, { AxiosError } from "axios";
-
 import { MainLayout } from "@/widgets";
 import { CurrencyInfo, RecordEnemy } from "@/shared/types";
 import CurrencyListItem from "./CurrencyListItem";
@@ -19,7 +25,10 @@ const Assets: FC = () => {
   const paramsTagsString = searchParams?.get("tag[]");
   const paramsCursor = searchParams?.get("cursor");
   const paramsSearch = searchParams?.get("search");
-  const paramsTags = paramsTagsString ? paramsTagsString.split(",") : [];
+  const paramsTags = useMemo(
+    () => (paramsTagsString ? paramsTagsString.split(",") : []),
+    [paramsTagsString]
+  );
   const router = useRouter();
   const [filter, setFilter] = useState<string>(paramsSearch || "");
   const [currency, setCurrency] = useState<CurrencyInfo>({} as CurrencyInfo);
@@ -29,7 +38,7 @@ const Assets: FC = () => {
     async (searchTerm: string) => {
       try {
         const { data } = await axios.get(API_URL, {
-          params: !!searchTerm
+          params: searchTerm
             ? {
                 limit: 20,
                 search: searchTerm,
@@ -96,8 +105,11 @@ const Assets: FC = () => {
   };
 
   const isPrevDisabled =
-    !!filter || currency?._embedded?.records.length === 0 || !paramsCursor;
-  const isNextDisabled = currency?._embedded?.records.length < 20 || !!filter;
+    Boolean(filter) ||
+    currency?._embedded?.records.length === 0 ||
+    !paramsCursor;
+  const isNextDisabled =
+    currency?._embedded?.records.length < 20 || Boolean(filter);
 
   return (
     <MainLayout>

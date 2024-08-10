@@ -7,7 +7,6 @@ import React, {
   FC,
   FormEvent,
   useMemo,
-  Suspense,
 } from "react";
 import { useStore } from "@/features/store";
 import { useShallow } from "zustand/react/shallow";

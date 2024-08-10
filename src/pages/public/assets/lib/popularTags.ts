@@ -3,7 +3,7 @@ export interface ITag {
   desc: string;
 }
 
-const popularTags: ITag[] = [
+export const popularTags: ITag[] = [
   {name: "#exchange", desc: "Centralized exchange account"},
   {name: "#anchor", desc: "Operational account of an anchor"},
   {name: "#issuer", desc: "Well known asset issuer account"},
@@ -17,5 +17,3 @@ const popularTags: ITag[] = [
   {name: "#airdrop", desc: "Airdrop distribution account"},
   {name: "#obsolete-inflation-pool", desc: "Inflation pool distribution account (obsolete)"}
 ];
-
-export default popularTags;

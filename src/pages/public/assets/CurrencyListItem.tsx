@@ -11,10 +11,10 @@ type Props = {
 const CurrencyListItem: FC<Props> = ({ RecordEnemy, net, paramsTags }) => (
   <li style={{ padding: "1em", lineHeight: "1.6", overflow: "hidden" }}>
     <div>
-    <b>{RecordEnemy?.name || "Default Name"}</b>
+    <b>{RecordEnemy?.name || "Not found name"}</b>
 
       <a href="https://null" className="text-small">
-        {RecordEnemy.domain}
+        {RecordEnemy?.domain || "Not found domain"}
       </a>
       {RecordEnemy.tags.map((tag: string, index: number) =>
         paramsTags.includes(tag) ? (

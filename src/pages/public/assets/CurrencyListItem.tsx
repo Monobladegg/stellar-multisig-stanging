@@ -16,7 +16,7 @@ const CurrencyListItem: FC<Props> = ({ RecordEnemy, net, paramsTags }) => (
       <a href="https://null" className="text-small">
         {RecordEnemy?.domain || "Not found domain"}
       </a>
-      {RecordEnemy.tags.map((tag: string, index: number) =>
+      {RecordEnemy?.tags.map((tag: string, index: number) =>
         paramsTags.includes(tag) ? (
           <a key={index} className="inline-tag active">
             #{tag}
@@ -26,16 +26,16 @@ const CurrencyListItem: FC<Props> = ({ RecordEnemy, net, paramsTags }) => (
             #{tag}
           </a>
         )
-      )}
+      ) || "Not found tags :("}
     </div>
     <Link
-      title={RecordEnemy.address}
-      aria-label={RecordEnemy.address}
+      title={RecordEnemy?.address || "Not found address"}
+      aria-label={RecordEnemy?.address || "Not found address"}
       className="account-address"
-      href={`/${net}/account?id=${RecordEnemy.address}`}
+      href={`/${net}/account?id=${RecordEnemy?.address || "Not found address"}`}
       style={{ marginRight: "1em" }}
     >
-      <span className="account-key">{RecordEnemy.address}</span>
+      <span className="account-key">{RecordEnemy?.address || "Not found address"}</span>
     </Link>
   </li>
 );

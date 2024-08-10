@@ -16,7 +16,7 @@ import axios, { AxiosError } from "axios";
 import { MainLayout } from "@/widgets";
 import { CurrencyInfo, RecordEnemy } from "@/shared/types";
 import CurrencyListItem from "./CurrencyListItem";
-import { ITag, popularTags } from "./lib/popularTags";
+import { ITag, popularTags } from "@/shared/lib/popularTags";
 const API_URL = "https://api.stellar.expert/explorer/directory";
 
 const Assets: FC = () => {

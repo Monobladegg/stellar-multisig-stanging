@@ -11,10 +11,10 @@ type Props = {
 const CurrencyListItem: FC<Props> = ({ RecordEnemy, net, paramsTags }) => (
   <li style={{ padding: "1em", lineHeight: "1.6", overflow: "hidden" }}>
     <div>
-    <b>{RecordEnemy?.name || "Not found name"}</b>
+      <b>{RecordEnemy?.name}</b>{" "}
 
       <a href="https://null" className="text-small">
-        {RecordEnemy?.domain || "Not found domain"}
+        {RecordEnemy?.domain}
       </a>
       {RecordEnemy?.tags.map((tag: string, index: number) =>
         paramsTags.includes(tag) ? (
@@ -26,16 +26,16 @@ const CurrencyListItem: FC<Props> = ({ RecordEnemy, net, paramsTags }) => (
             #{tag}
           </a>
         )
-      ) || "Not found tags :("}
+      )}
     </div>
     <Link
-      title={RecordEnemy?.address || "Not found address"}
-      aria-label={RecordEnemy?.address || "Not found address"}
+      title={RecordEnemy?.address}
+      aria-label={RecordEnemy?.address}
       className="account-address"
-      href={`/${net}/account?id=${RecordEnemy?.address || "Not found address"}`}
+      href={`/${net}/account?id=${RecordEnemy?.address}`}
       style={{ marginRight: "1em" }}
     >
-      <span className="account-key">{RecordEnemy?.address || "Not found address"}</span>
+      <span className="account-key">{RecordEnemy?.address}</span>
     </Link>
   </li>
 );

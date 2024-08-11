@@ -4,6 +4,8 @@
 // import CurrencyListItem from "./CurrencyListItem";
 // const API_URL = "https://api.stellar.expert/explorer/directory";
 // import CurrencyListItem from "./CurrencyListItem";
+// import { useShallow } from "zustand/react/shallow";
+// import { useStore } from "@/features/store";
 import React, {
   // useEffect,
   // useCallback,
@@ -12,8 +14,6 @@ import React, {
   FormEvent,
   useMemo,
 } from "react";
-import { useStore } from "@/features/store";
-import { useShallow } from "zustand/react/shallow";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { MainLayout } from "@/widgets";
@@ -34,7 +34,7 @@ const Assets: FC = () => {
   // const router = useRouter();
   const [filter, setFilter] = useState<string>(paramsSearch || "");
   const [currency] = useState<CurrencyInfo>({} as CurrencyInfo);
-  const { net } = useStore(useShallow((state) => ({ net: state.net })));
+  // const { net } = useStore(useShallow((state) => ({ net: state.net })));
 
   // const fetchAssetInfo = useCallback(
   //   async (searchTerm: string) => {

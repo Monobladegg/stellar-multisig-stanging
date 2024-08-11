@@ -13,7 +13,7 @@ import React, {
 // import axios, { AxiosError } from "axios";
 // import CurrencyListItem from "./CurrencyListItem";
 // const API_URL = "https://api.stellar.expert/explorer/directory";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { MainLayout } from "@/widgets";
 import { CurrencyInfo } from "@/shared/types";

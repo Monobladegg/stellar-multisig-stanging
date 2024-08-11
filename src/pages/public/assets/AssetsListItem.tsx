@@ -25,22 +25,22 @@ const AssetsListItem: FC<Props> = ({ item }) => {
       <div>
         <b>
           <Link
-            title={item.issuer}
-            aria-label={item.issuer}
+            title={item?.issuer}
+            aria-label={item?.issuer}
             className="account-address"
-            href={`/${net}/account?id=${item.issuer}`}
+            href={`/${net}/account?id=${item?.issuer}`}
             style={{ marginRight: "1em" }}
           >
-            <span className="account-key">{item.issuer}</span>
+            <span className="account-key">{item?.issuer}</span>
           </Link>
         </b>
         <a href="#" className="text-small">
-          {item.code}
+          {item?.code}
         </a>
         {" "}
-        {item.tag ? (
+        {item?.tag ? (
           <a href="#" className="inline-tag">
-            #{item.tag}
+            #{item?.tag}
           </a>
         ) : (
           <a href="#" className="inline-tag">

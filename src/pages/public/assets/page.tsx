@@ -18,6 +18,7 @@ import Link from "next/link";
 import { MainLayout } from "@/widgets";
 import { CurrencyInfo } from "@/shared/types";
 import { ITag, popularTags } from "@/shared/lib/popularTags";
+import trustedMtlAssets from "@/shared/configs/trusted-mtl-assets.json";
 
 const Assets: FC = () => {
   const searchParams = useSearchParams();
@@ -110,6 +111,8 @@ const Assets: FC = () => {
 
   const isNextDisabled: boolean =
     !(currency?._embedded?.records.length < 20) || Boolean(filter);
+
+  console.log(trustedMtlAssets)
 
   return (
     <MainLayout>

@@ -28,9 +28,9 @@ const Assets: FC = () => {
     () => (paramsTagsString ? paramsTagsString.split(",") : []),
     [paramsTagsString]
   );
-  const router = useRouter();
+  // const router = useRouter();
   const [filter, setFilter] = useState<string>(paramsSearch || "");
-  const [currency, setCurrency] = useState<CurrencyInfo>({} as CurrencyInfo);
+  const [currency] = useState<CurrencyInfo>({} as CurrencyInfo);
   // const { net } = useStore(useShallow((state) => ({ net: state.net })));
 
   // const fetchAssetInfo = useCallback(

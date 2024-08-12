@@ -11,14 +11,25 @@ export interface AssetsItem {
 
 type Props = {
   item: AssetsItem;
+  tags: string[];
 };
 
-const AssetsListItem: FC<Props> = ({ item }) => {
+const AssetsListItem: FC<Props> = ({ item, tags }) => {
   const { net } = useStore(
     useShallow((state) => ({
       net: state.net,
     }))
   );
+
+  const addToHref = (tag: string) => {
+    if (!tags[0]) return `?tag[]=${tag}`;
+    return `?tag[]=${tags.join(",")},${tag}`;
+  };
+
+  const removeFromHref = (tag: string) => {
+    return `?tag[]=${tags.filter((t) => t !== tag).join(",")}`;
+  };
+
 
   return (
     <li style={{ padding: "1em", lineHeight: "1.6", overflow: "hidden" }}>
@@ -35,14 +46,12 @@ const AssetsListItem: FC<Props> = ({ item }) => {
           </Link>
         </b>
         {" "}
-        {item?.tag ? (
-          <a href="#" className="inline-tag">
+        {item?.tag && (
+          tags.includes(item.tag) ? <Link href={removeFromHref(item?.tag)} className="inline-tag active">
             #{item?.tag}
-          </a>
-        ) : (
-          <a href="#" className="inline-tag">
-            #other
-          </a>
+          </Link> : <Link href={addToHref(item?.tag)} className="inline-tag">
+            #{item?.tag}
+          </Link>
         )}
       </div>
       <Link

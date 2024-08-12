@@ -1,7 +1,7 @@
 
 import React, { FC } from "react";
 import Layout from "@/pages/Layout/layout"
-import "./(deffault)/globals.css";
+import "./globals.css";
 
 interface Props {
   children: React.ReactNode;
@@ -9,6 +9,7 @@ interface Props {
 
 const RootLayout: FC<Props> = ({ children }) => {
   return <Layout>{children}</Layout>;
+  // test
 };
 
 export default RootLayout;

@@ -84,6 +84,7 @@ const Assets: FC = () => {
             className="icon icon-github"
             title="Log in with Github"
             style={{ fontSize: "1.4em" }}
+            target="_blank"
           ></a>
         </div>
         <div className="segment blank directory">
@@ -126,10 +127,10 @@ const Assets: FC = () => {
               ? displayedItems
                   .filter((item) => tags.includes(item.tag))
                   .map((value: AssetsItem, index: number) => (
-                    <AssetsListItem key={index} item={value} />
+                    <AssetsListItem key={index} item={value} tags={tags} />
                   ))
               : displayedItems.map((value: AssetsItem, index: number) => (
-                  <AssetsListItem key={index} item={value} />
+                  <AssetsListItem key={index} item={value} tags={tags} />
                 ))}
           </ul>
           <div ref={observerRef} />

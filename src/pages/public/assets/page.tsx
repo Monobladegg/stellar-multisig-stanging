@@ -122,7 +122,7 @@ const Assets: FC = () => {
             </div>
           </div>
           <ul className="striped space">
-            {!!tags[0]
+            {tags[0]
               ? displayedItems
                   .filter((item) => tags.includes(item.tag))
                   .map((value: AssetsItem, index: number) => (

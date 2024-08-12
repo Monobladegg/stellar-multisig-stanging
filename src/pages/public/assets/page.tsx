@@ -13,7 +13,7 @@ const Assets: FC = () => {
   const searchParams = useSearchParams();
   const paramsSearch = searchParams?.get("search");
   const tags = searchParams?.get("tag[]")?.split(",") || [];
-  const [staticTags, setStaticTags] = useState<string[]>([])
+  const [staticTags, setStaticTags] = useState<string[]>([]);
 
   const [filter, setFilter] = useState<string>(paramsSearch || "");
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -39,22 +39,24 @@ const Assets: FC = () => {
       { threshold: 1 }
     );
 
-    if (observerRef.current) {
-      observer.observe(observerRef.current);
+    const currentObserverRef = observerRef.current;
+    if (currentObserverRef) {
+      observer.observe(currentObserverRef);
     }
 
     return () => {
-      if (observerRef.current) {
-        observer.unobserve(observerRef.current);
+      if (currentObserverRef) {
+        observer.unobserve(currentObserverRef);
       }
     };
   }, []);
 
   useEffect(() => {
-    if (!!filter) return;
-    const uniqueTags = [...new Set(displayedItems.map((item) => item.tag))];
-    setStaticTags(uniqueTags);
-  }, [displayedItems]);
+    if (!filter) {
+      const uniqueTags = [...new Set(displayedItems.map((item) => item.tag))];
+      setStaticTags(uniqueTags);
+    }
+  }, [displayedItems, filter]);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -71,11 +73,6 @@ const Assets: FC = () => {
   const removeFromHref = (tag: string) => {
     return `?tag[]=${tags.filter((t) => t !== tag).join(",")}`;
   };
-
-  const allTags = displayedItems.map((item) => item.tag);
-  const uniqueTags = allTags.filter(
-    (tag, index) => allTags.indexOf(tag) === index
-  );
 
   return (
     <MainLayout>

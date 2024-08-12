@@ -1,14 +1,13 @@
-"use client";
 
 import React, { FC } from "react";
-import Layout from "@/pages/Layout/_index"
-import "./globals.css";
+import Layout from "@/pages/Layout/layout"
+import "./(deffault)/globals.css";
 
-interface RootLayoutProps {
+interface Props {
   children: React.ReactNode;
 }
 
-const RootLayout: FC<RootLayoutProps> = ({ children }) => {
+const RootLayout: FC<Props> = ({ children }) => {
   return <Layout>{children}</Layout>;
 };
 

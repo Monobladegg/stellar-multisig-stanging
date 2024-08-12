@@ -15,13 +15,14 @@ import { useStore } from "@/features/store";
 import { useShallow } from "zustand/react/shallow";
 import { Balance, Information, Signer } from "@/shared/types";
 import { DocumentInfo, Issuer } from "@/shared/types";
+import { processKeys } from "@/shared/lib";
 
 interface Props {
   id: string | undefined | null;
 }
 
 const PublicNet: FC<Props> = ({ id }) => {
-  const account = id;
+  const account = id
   const { net } = useStore(useShallow((state) => ({ net: state.net })));
   const [information, setInformation] = useState<Information>(
     {} as Information
@@ -30,10 +31,6 @@ const PublicNet: FC<Props> = ({ id }) => {
   const [tabIndex, setTabIndex] = useState(1);
   const [errorvalid, setErrorvalid] = useState("");
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    console.log(information);
-  }, [information]);
 
   useEffect(() => {
     const checkAccount = async () => {
@@ -526,13 +523,26 @@ const PublicNet: FC<Props> = ({ id }) => {
                           </i>
                         </h4>
                         <ul className="text-small condensed">
-                          {Object.entries(information?.entries).map(
-                            ([key, value]: [string, string]) => (
-                              <li className="word-break" key={key}>
-                                <span>{key}:</span> {value}
-                              </li>
-                            )
-                          )}
+                          {information?.entries &&
+                            Object.keys(information?.entries).map(
+                              (entry, key) => {
+                                const { processedKey, processedValue } =
+                                  processKeys(
+                                    entry,
+                                    information?.entries[entry]
+                                  );
+                                return (
+                                  <li className="word-break" key={key}>
+                                    {processedKey}:{" "}
+                                    <span
+                                      dangerouslySetInnerHTML={{
+                                        __html: processedValue,
+                                      }}
+                                    />
+                                  </li>
+                                );
+                              }
+                            )}
                         </ul>
                       </>
                     ) : (

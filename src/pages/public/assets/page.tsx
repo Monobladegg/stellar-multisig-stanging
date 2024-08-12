@@ -6,7 +6,7 @@ import { MainLayout } from "@/widgets";
 import AssetsListItem, { AssetsItem } from "./AssetsListItem";
 import trustedMtlAssets from "@/shared/configs/trusted-mtl-assets.json";
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 20;
 
 const Assets: FC = () => {
   const searchParams = useSearchParams();
@@ -25,7 +25,6 @@ const Assets: FC = () => {
   }, [filter, currentPage]);
 
   useEffect(() => {
-    // Set up IntersectionObserver for infinite scrolling
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
@@ -50,7 +49,7 @@ const Assets: FC = () => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     setFilter(formData.get("search") as string);
-    setCurrentPage(1); // Reset pagination when a new search is made
+    setCurrentPage(1);
   };
 
   return (

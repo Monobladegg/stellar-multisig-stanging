@@ -38,7 +38,7 @@ const AssetsListItem: FC<Props> = ({ item, tags }) => {
             title={item?.issuer}
             aria-label={item?.issuer}
             className="account-address"
-            href={`https://stellar.expert/explorer/${net}/asset/${item?.code}`}
+            href={`https://stellar.expert/explorer/${net}/asset/${item?.code}-${item?.issuer}`}
             style={{ marginRight: "1em" }}
           >
             <span className="account-key" style={{ fontSize: "1.6rem" }}>
@@ -64,7 +64,7 @@ const AssetsListItem: FC<Props> = ({ item, tags }) => {
         title={item?.issuer}
         aria-label={item?.issuer}
         className="account-address"
-        href={`https://stellar.expert/explorer/${net}/asset/${item?.code}`}
+        href={`https://stellar.expert/explorer/${net}/asset/${item?.code}-${item?.issuer}`}
         style={{ marginRight: "1em" }}
       >
         <span className="account-key" style={{ fontSize: "1.6rem" }}>

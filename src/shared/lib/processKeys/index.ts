@@ -32,7 +32,7 @@ const processKeys = (
 
   // Decode base64 value
   const decodedValue = decodeBase64(value);
-
+  //test
   // Determine key type and process accordingly
   for (const [type, patterns] of Object.entries(regexPatterns)) {
     if (patterns.some((pattern) => pattern.test(key))) {

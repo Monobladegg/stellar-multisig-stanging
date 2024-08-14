@@ -6,7 +6,7 @@ export const accountSlice: StateCreator<
   [["zustand/immer", never]],
   [],
   IAccountsSlice
-> = (set, get) => {
+> = (set/*, get*/) => {
   const accounts: IAccount[] = [];
   const isOpenAddAccountModal = false;
   const currentAccount = null

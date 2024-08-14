@@ -15,7 +15,7 @@ type Props = {
 const PageLayout: FC<Props> = ({ children }) => {
   const [isWindowDefined, setIsWindowDefined] = useState(false);
 
-  const { theme, setTheme, setNet, setAccounts, accounts, isOpenAddAccountModal, isAuth, currentAccount, setIsAuth } = useStore(
+  const { theme, setTheme, setNet, setAccounts, accounts, isOpenAddAccountModal, setIsAuth } = useStore(
     useShallow(state => state)
   );
 

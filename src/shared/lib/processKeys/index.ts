@@ -32,17 +32,15 @@ const processKeys = (
 
   // Decode base64 value
   const decodedValue = decodeBase64(value);
-  //test
+
   // Determine key type and process accordingly
   for (const [type, patterns] of Object.entries(regexPatterns)) {
     if (patterns.some((pattern) => pattern.test(key))) {
       switch (type) {
         case "accounts":
-          processedValue = stellarSdk.StrKey.encodeEd25519PublicKey(
-            decodedValue
-          )
-            ? `<a href="/public/account?id=${decodedValue}">Ready</a>`
-            : `<a href="#">${decodedValue}</a>`;
+          processedValue = stellarSdk.StrKey.isValidEd25519PublicKey(decodedValue)
+            ? `<a href="/public/account?id=${decodedValue}">${decodedValue}</a>`
+            : `<span>${decodedValue}</span>`;
           break;
         case "links":
           processedValue = `<a target="_blank" href="${decodedValue}">${decodedValue}</a>`;

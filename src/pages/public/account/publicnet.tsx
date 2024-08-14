@@ -17,6 +17,15 @@ import { Balance, Information, Signer } from "@/shared/types";
 import { DocumentInfo, Issuer } from "@/shared/types";
 import { processKeys } from "@/shared/lib";
 
+export const collapseAccount = (accountId: string) => {
+  if (accountId == "" || accountId == null || accountId == undefined) {
+    return <br />;
+  }
+  const first4Str = accountId.substring(0, 4);
+  const last4Str = accountId.substr(-4);
+  return first4Str + "..." + last4Str;
+};
+
 interface Props {
   id: string | undefined | null;
 }
@@ -125,14 +134,6 @@ const PublicNet: FC<Props> = ({ id }) => {
     handler();
   }, [account]);
 
-  const collapseAccount = (accountId: string) => {
-    if (accountId == "" || accountId == null || accountId == undefined) {
-      return <br />;
-    }
-    const first4Str = accountId.substring(0, 4);
-    const last4Str = accountId.substr(-4);
-    return first4Str + "..." + last4Str;
-  };
 
   return (
     <MainLayout>

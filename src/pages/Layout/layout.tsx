@@ -22,33 +22,23 @@ const PageLayout: FC<Props> = ({ children }) => {
   useEffect(() => {
     setIsWindowDefined(typeof window !== "undefined");
     if (isWindowDefined) {
-
       if (localStorage.getItem("theme")) {
         setTheme(localStorage.getItem("theme")!);
       }
-
+  
       if (localStorage.getItem("net")) {
         setNet(localStorage.getItem("net")!);
       }
-
+  
       if (localStorage.getItem("accounts")) {
         setAccounts(JSON.parse(localStorage.getItem("accounts")!));
       }
     }
-    }, [isWindowDefined]);
-
-    useEffect(() => {
-      console.log(currentAccount, "123")
-    }, [currentAccount])
-
+  }, [isWindowDefined, setTheme, setNet, setAccounts]);
+  
   useEffect(() => {
-    console.log(accounts)
-    setIsAuth(accounts.filter(account => account.isCurrent).length > 0)
-  }, [accounts])
-
-  useEffect(() => {
-    console.log(isAuth)
-  }, [isAuth])
+    setIsAuth(accounts.filter(account => account.isCurrent).length > 0);
+  }, [accounts, setIsAuth]);
 
   const themeLS: string | undefined | null = isWindowDefined
     ? window.localStorage.getItem("theme")

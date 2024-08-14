@@ -10,7 +10,7 @@ interface Props {
   setIsOpenAccount: (isOpenAccount: boolean) => void;
 }
 
-const accountItem: FC<Props> = ({ id, isOpenAccount, setIsOpenAccount }) => {
+const AccountItem: FC<Props> = ({ id, isOpenAccount, setIsOpenAccount }) => {
   const { net, theme, accounts } = useStore(
     useShallow(state => state)
   );
@@ -36,4 +36,4 @@ const accountItem: FC<Props> = ({ id, isOpenAccount, setIsOpenAccount }) => {
   );
 };
 
-export default accountItem;
+export default AccountItem;

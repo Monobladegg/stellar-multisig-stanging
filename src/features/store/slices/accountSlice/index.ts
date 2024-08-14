@@ -1,5 +1,4 @@
 import { IAccountsSlice, IAccount } from "@/shared/types";
-import { useEffect, useState } from "react";
 import { StateCreator } from "zustand";
 
 export const accountSlice: StateCreator<

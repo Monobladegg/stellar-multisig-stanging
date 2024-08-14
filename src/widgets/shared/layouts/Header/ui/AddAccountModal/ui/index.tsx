@@ -15,7 +15,7 @@ const AddAccountModal: FC = () => {
   const [error, setError] = useState<string>("");
   const modalRef = useRef<HTMLDivElement>(null);
 
-  const { setIsOpenAddAccountModal, net, accounts, setAccounts, isAuth, setIsAuth } = useStore(
+  const { setIsOpenAddAccountModal, net, accounts, setAccounts, setIsAuth } = useStore(
     useShallow(state => state)
   );
 

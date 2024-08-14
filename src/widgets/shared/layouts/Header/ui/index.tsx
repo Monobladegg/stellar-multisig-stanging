@@ -72,7 +72,7 @@ export const Header: FC = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isOpenAddAccountModal]);
+  }, [isOpenAddAccountModal, setIsOpenAddAccountModal]); // Добавляем зависимость
 
   const toggleDropdownNet = () => setIsOpenNet(!isOpenNet);
   const toggleDropdownAccount = () => setIsOpenAccount(!isOpenAccount);
@@ -113,24 +113,24 @@ export const Header: FC = () => {
 
   const logout = () => {
     // Удаляем текущий аккаунт
-    const updatedAccounts = accounts.filter(account => !account.isCurrent);
-  
+    const updatedAccounts = accounts.filter((account) => !account.isCurrent);
+
     // Определяем новый текущий аккаунт
     const newCurrentAccount = updatedAccounts[0];
-  
+
     // Если новый текущий аккаунт существует, устанавливаем его как текущий
     if (newCurrentAccount) {
       setAccounts(
-        updatedAccounts.map(account => ({
+        updatedAccounts.map((account) => ({
           ...account,
-          isCurrent: account.id === newCurrentAccount.id
+          isCurrent: account.id === newCurrentAccount.id,
         }))
       );
     } else {
       setAccounts(updatedAccounts);
     }
   };
-  
+
   return (
     <div className="top-block">
       <div className="container nav relative">
@@ -240,7 +240,10 @@ export const Header: FC = () => {
                       </div>
                       <hr />
                       {accounts.map((account: IAccount, index: number) => (
-                        <div key={index} onClick={() => {}}>
+                        <div
+                          key={index}
+                          onClick={() => handleSelectAccount(account)}
+                        >
                           <AccountItem
                             key={index}
                             id={account.accountID}
@@ -249,6 +252,7 @@ export const Header: FC = () => {
                           />
                         </div>
                       ))}
+
                       <li
                         className={
                           theme === "night"
@@ -278,11 +282,7 @@ export const Header: FC = () => {
                         }
                         style={{ textAlign: "center" }}
                       >
-                        <span
-                          onClick={logout}
-                        >
-                          Logout
-                        </span>
+                        <span onClick={logout}>Logout</span>
                       </li>
                     </ul>
                   </div>

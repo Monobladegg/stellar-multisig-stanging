@@ -36,7 +36,8 @@ const AddAccountModal: FC = () => {
         .includes(accountIdInput);
 
       if (accountExistsInCurrentNet) {
-        setError("Account already exists in this network");
+        setError(`Account already exists`);
+
         return;
       }
 

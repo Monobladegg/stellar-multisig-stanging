@@ -1,3 +1,4 @@
+
 "use client";
 
 import { MainLayout } from "@/widgets";
@@ -17,6 +18,10 @@ import { Balance, Information, Signer } from "@/shared/types";
 import { DocumentInfo, Issuer } from "@/shared/types";
 import { processKeys } from "@/shared/lib";
 
+interface Props {
+  id: string | undefined | null;
+}
+
 export const collapseAccount = (accountId: string) => {
   if (accountId == "" || accountId == null || accountId == undefined) {
     return <br />;
@@ -25,10 +30,6 @@ export const collapseAccount = (accountId: string) => {
   const last4Str = accountId.substr(-4);
   return first4Str + "..." + last4Str;
 };
-
-interface Props {
-  id: string | undefined | null;
-}
 
 const PublicNet: FC<Props> = ({ id }) => {
   const account = id
@@ -526,11 +527,11 @@ const PublicNet: FC<Props> = ({ id }) => {
                         <ul className="text-small condensed">
                           {information?.entries &&
                             Object.keys(information?.entries).map(
-                              (entry, key) => {
+                              (entry: string, key: number) => {
                                 const { processedKey, processedValue } =
                                   processKeys(
                                     entry,
-                                    information?.entries[entry]
+                                    information.entries[entry]
                                   );
                                 return (
                                   <li className="word-break" key={key}>

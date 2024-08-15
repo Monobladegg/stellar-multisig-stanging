@@ -224,7 +224,6 @@ export const Header: FC = () => {
                             )
                             .map((account: IAccount) => account.id)[0]
                         }
-                        onClick={() => {}}
                       >
                         <AccountItem
                           id={
@@ -240,11 +239,24 @@ export const Header: FC = () => {
                           }
                           isOpenAccount={isOpenAccount}
                           setIsOpenAccount={setIsOpenAccount}
+                          isMain={false}
+                          account={
+                            accounts
+                              .filter(
+                                (account: IAccount) =>
+                                  account.isCurrent === true
+                              )
+                              .filter(
+                                (account: IAccount) => account.net === net
+                              )
+                              .map((account: IAccount) => account)[0]
+                            }
                         />
                       </div>
                       <hr />
                       {accounts
                         .filter((account: IAccount) => account.net === net)
+                        .filter((account: IAccount) => account.isMultiSig)
                         .map((account: IAccount, index: number) => (
                           <div key={index}>
                             <AccountItem
@@ -252,17 +264,35 @@ export const Header: FC = () => {
                               id={account.accountID}
                               isOpenAccount={isOpenAccount}
                               setIsOpenAccount={setIsOpenAccount}
+                              isMain={!account.isCurrent}
+                              account={account}
                             />
                           </div>
                         ))}
 
+                      <hr />
+                      {accounts
+                        .filter((account: IAccount) => account.net === net)
+                        .filter((account: IAccount) => !account.isMultiSig)
+                        .map((account: IAccount, index: number) => (
+                          <div key={index}>
+                            <AccountItem
+                              key={index}
+                              id={account.accountID}
+                              isOpenAccount={isOpenAccount}
+                              setIsOpenAccount={setIsOpenAccount}
+                              isMain={!account.isCurrent}
+                              account={account}
+                            />
+                          </div>
+                        ))}
+
+                      <hr />
                       <li
                         className={
                           theme === "night"
-                            ? `dropdown-item ${net === "testnet" && "selected"}`
-                            : `dropdown-item-light ${
-                                net === "testnet" && "selected"
-                              }`
+                            ? `dropdown-item selected`
+                            : `dropdown-item-light selected`
                         }
                         style={{ textAlign: "center" }}
                       >
@@ -278,10 +308,8 @@ export const Header: FC = () => {
                       <li
                         className={
                           theme === "night"
-                            ? `dropdown-item ${net === "testnet" && "selected"}`
-                            : `dropdown-item-light ${
-                                net === "testnet" && "selected"
-                              }`
+                            ? `dropdown-item selected`
+                            : `dropdown-item-light selected`
                         }
                         style={{ textAlign: "center" }}
                       >
@@ -304,7 +332,7 @@ export const Header: FC = () => {
                   onClick={() => setIsOpenAddAccountModal(true)}
                   style={{ cursor: "pointer", marginTop: "-4px" }}
                 >
-                  Add account
+                  Login
                 </span>
               </div>
             </div>

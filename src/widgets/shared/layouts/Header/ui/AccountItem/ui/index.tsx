@@ -3,14 +3,23 @@ import Link from "next/link";
 import { useStore } from "@/features/store";
 import { useShallow } from "zustand/react/shallow";
 import { collapseAccount } from "@/pages/public/account/publicnet";
+import { IAccount } from "@/shared/types";
 
 interface Props {
   id: string;
   isOpenAccount: boolean;
   setIsOpenAccount: (isOpenAccount: boolean) => void;
+  isMain?: boolean;
+  account: IAccount;
 }
 
-const AccountItem: FC<Props> = ({ id, isOpenAccount, setIsOpenAccount }) => {
+const AccountItem: FC<Props> = ({
+  id,
+  isOpenAccount,
+  setIsOpenAccount,
+  isMain = true,
+  account,
+}) => {
   const { net, theme, accounts, setAccounts } = useStore(
     useShallow((state) => ({
       net: state.net,
@@ -41,12 +50,17 @@ const AccountItem: FC<Props> = ({ id, isOpenAccount, setIsOpenAccount }) => {
       <li
         className={
           theme === "night"
-            ? `dropdown-item ${net === "testnet" && "selected"}`
-            : `dropdown-item-light ${net === "testnet" && "selected"}`
+            ? `dropdown-item ${isMain && "selected"}`
+            : `dropdown-item-light ${isMain && "selected"}`
         }
         style={{ textAlign: "center" }}
         onClick={handleAccount}
       >
+        {account?.isMultiSig ? (
+          <i className="fa-solid fa-users"></i>
+        ) : (
+          <i className="fa-solid fa-user"></i>
+        )}{" "}
         {collapseAccount(id)}
       </li>
     </Link>

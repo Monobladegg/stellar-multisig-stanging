@@ -6,6 +6,7 @@ import { useStore } from "@/features/store";
 import { useShallow } from "zustand/react/shallow";
 import StellarSdk from "stellar-sdk";
 import { IAccount } from "@/shared/types";
+import { useRouter } from "next/navigation";
 
 type AccountType = "Personal" | "Corporate";
 
@@ -14,6 +15,7 @@ const AddAccountModal: FC = () => {
   const [accountIdInput, setAccountIdInput] = useState<string>("");
   const [error, setError] = useState<string>("");
   const modalRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   const { setIsOpenAddAccountModal, net, accounts, setAccounts, setIsAuth } =
     useStore(useShallow((state) => state));
@@ -62,7 +64,7 @@ const AddAccountModal: FC = () => {
       // Устанавливаем статус авторизованного пользователя
       setIsAuth(true);
 
-      window.location.pathname = `/${net}/account?id=${newAccount.accountID}`;
+      router.push(`/${net}/account?id=${accountIdInput}`);
 
     } else {
       setError("Invalid account ID");

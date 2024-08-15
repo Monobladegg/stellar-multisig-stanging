@@ -23,7 +23,7 @@ const AddAccountModal: FC = () => {
   const handleAccountTypeChange = (type: AccountType) => {
     setAccountType(type);
   };
-
+  
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -64,7 +64,8 @@ const AddAccountModal: FC = () => {
       // Устанавливаем статус авторизованного пользователя
       setIsAuth(true);
 
-      router.push(`/${net}/account?id=${accountIdInput}`);
+      window.location.pathname = `/${net}/account?id=${newAccount.accountID}`;
+
     } else {
       setError("Invalid account ID");
     }

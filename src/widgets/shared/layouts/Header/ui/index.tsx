@@ -83,7 +83,6 @@ export const Header: FC = () => {
     setIsOpenNet(false);
 
     const currentPath = window.location.pathname;
-    // Check if the current path contains 'public' or 'testnet'
     if (currentPath === "/public" || currentPath === "/testnet") {
       const newPath = `/${network}`;
       router.push(newPath);
@@ -92,9 +91,7 @@ export const Header: FC = () => {
       currentPath.includes("/testnet/")
     ) {
       // Construct the new path with updated network segment
-      const newPath = `/${network}${currentPath.substring(
-        currentPath.indexOf("/", 1)
-      )}`;
+      const newPath = `/${network}`
       router.push(newPath);
     }
   };

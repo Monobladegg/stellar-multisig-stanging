@@ -62,7 +62,7 @@ const AddAccountModal: FC = () => {
       // Устанавливаем статус авторизованного пользователя
       setIsAuth(true);
 
-      window.location.href = `/${net}/account/${newAccount.accountID}`;
+      window.location.href = `/${net}/account?id=${newAccount.accountID}`;
     } else {
       setError("Invalid account ID");
     }

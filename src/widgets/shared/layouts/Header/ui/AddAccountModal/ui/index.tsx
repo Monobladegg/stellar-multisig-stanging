@@ -17,7 +17,7 @@ const AddAccountModal: FC = () => {
   const modalRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  const { setIsOpenAddAccountModal, net, accounts, setAccounts, setIsAuth } =
+  const { setIsOpenAddAccountModal, net, accounts, setAccounts, setIsAuth, theme } =
     useStore(useShallow((state) => state));
 
   const handleAccountTypeChange = (type: AccountType) => {
@@ -88,25 +88,25 @@ const AddAccountModal: FC = () => {
   }, [setIsOpenAddAccountModal]);
 
   return (
-    <div className="add-account-container">
-      <div className="add-account-container-content" ref={modalRef}>
+    <div className={theme === "night" ? "add-account-container" : "add-account-container-light"}>
+      <div className={theme === "night" ? "add-account-container-content" : "add-account-container-content-light"} ref={modalRef}>
         <form onSubmit={handleSubmit}>
           <span
             onClick={() => setIsOpenAddAccountModal(false)}
-            className="add-account-container-content-close"
+            className={theme === "night" ? "add-account-container-content-close" : "add-account-container-content-close-light"}
             aria-label="Close"
           >
             <i
               className="fa-regular fa-circle-xmark"
-              style={{ fontSize: "2rem", color: "#08b5e5" }}
+              style={{ fontSize: "2rem", color: theme === "night" ? "#08b5e5" : "#666" }}
             />
           </span>
-          <div className="add-account-container-content-buttons">
+          <div className={theme === "night" ? "add-account-container-content-title" : "add-account-container-content-title-light"}>
             {["Personal", "Corporate"].map((type) => (
               <button
                 key={type}
                 type="button"
-                className={accountType === type ? "button disabled" : "button"}
+                className={accountType === type ? "button disabled add-account-container-content-button-disabled" : "button"}
                 onClick={() => handleAccountTypeChange(type as AccountType)}
               >
                 {type}

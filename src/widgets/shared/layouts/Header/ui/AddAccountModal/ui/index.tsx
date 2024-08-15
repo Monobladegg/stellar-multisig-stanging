@@ -6,7 +6,6 @@ import { useStore } from "@/features/store";
 import { useShallow } from "zustand/react/shallow";
 import StellarSdk from "stellar-sdk";
 import { IAccount } from "@/shared/types";
-import { useRouter } from "next/navigation";
 
 type AccountType = "Personal" | "Corporate";
 
@@ -14,7 +13,6 @@ const AddAccountModal: FC = () => {
   const [accountType, setAccountType] = useState<AccountType>("Personal");
   const [accountIdInput, setAccountIdInput] = useState<string>("");
   const [error, setError] = useState<string>("");
-  const router = useRouter();
   const modalRef = useRef<HTMLDivElement>(null);
 
   const { setIsOpenAddAccountModal, net, accounts, setAccounts, setIsAuth } =

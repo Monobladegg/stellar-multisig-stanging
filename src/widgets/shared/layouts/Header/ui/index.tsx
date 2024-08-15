@@ -99,17 +99,17 @@ export const Header: FC = () => {
     }
   };
 
-  const handleSelectAccount = (account: IAccount) => {
-    setAccounts([...accounts, account]);
-    const accountLS = JSON.parse(localStorage.getItem("accounts")!) as
-      | IAccount[]
-      | null;
-    localStorage.setItem(
-      "accounts",
-      JSON.stringify([account, ...(accountLS ?? [])])
-    );
-    setIsOpenAccount(false);
-  };
+  // const handleSelectAccount = (account: IAccount) => {
+  //   setAccounts([...accounts, account]);
+  //   const accountLS = JSON.parse(localStorage.getItem("accounts")!) as
+  //     | IAccount[]
+  //     | null;
+  //   localStorage.setItem(
+  //     "accounts",
+  //     JSON.stringify([account, ...(accountLS ?? [])])
+  //   );
+  //   setIsOpenAccount(false);
+  // };
 
   const logout = () => {
     // Удаляем текущий аккаунт
@@ -183,6 +183,7 @@ export const Header: FC = () => {
                           .filter(
                             (account: IAccount) => account.isCurrent === true
                           )
+                          .filter((account: IAccount) => account.net === net)
                           .map((account: IAccount) => account.accountID)[0]
                       )}
                     </span>
@@ -221,7 +222,7 @@ export const Header: FC = () => {
                             .filter(
                               (account: IAccount) => account.isCurrent === true
                             )
-                            .map((account: IAccount) => account.accountID)[0]
+                            .map((account: IAccount) => account.id)[0]
                         }
                         onClick={() => {}}
                       >
@@ -232,6 +233,9 @@ export const Header: FC = () => {
                                 (account: IAccount) =>
                                   account.isCurrent === true
                               )
+                              .filter(
+                                (account: IAccount) => account.net === net
+                              )
                               .map((account: IAccount) => account.accountID)[0]
                           }
                           isOpenAccount={isOpenAccount}
@@ -239,19 +243,18 @@ export const Header: FC = () => {
                         />
                       </div>
                       <hr />
-                      {accounts.map((account: IAccount, index: number) => (
-                        <div
-                          key={index}
-                          onClick={() => handleSelectAccount(account)}
-                        >
-                          <AccountItem
-                            key={index}
-                            id={account.accountID}
-                            isOpenAccount={isOpenAccount}
-                            setIsOpenAccount={setIsOpenAccount}
-                          />
-                        </div>
-                      ))}
+                      {accounts
+                        .filter((account: IAccount) => account.net === net)
+                        .map((account: IAccount, index: number) => (
+                          <div key={index}>
+                            <AccountItem
+                              key={index}
+                              id={account.accountID}
+                              isOpenAccount={isOpenAccount}
+                              setIsOpenAccount={setIsOpenAccount}
+                            />
+                          </div>
+                        ))}
 
                       <li
                         className={
@@ -352,25 +355,17 @@ export const Header: FC = () => {
                   }
                 >
                   <div
-                    className={
-                      theme === "night"
-                        ? `dropdown-item ${net === "testnet" && "selected"}`
-                        : `dropdown-item-light ${
-                            net === "testnet" && "selected"
-                          }`
-                    }
+                    className={`dropdown-item${
+                      theme === "night" ? "" : "-light"
+                    } ${net !== "testnet" ? "selected" : ""}`}
                     onClick={() => handleSelectNet("testnet")}
                   >
                     Testnet
                   </div>
                   <div
-                    className={
-                      theme === "night"
-                        ? `dropdown-item ${net === "public" && "selected"}`
-                        : `dropdown-item-light ${
-                            net === "public" && "selected"
-                          }`
-                    }
+                    className={`dropdown-item${
+                      theme === "night" ? "" : "-light"
+                    } ${net !== "public" ? "selected" : ""}`}
                     onClick={() => handleSelectNet("public")}
                   >
                     Public

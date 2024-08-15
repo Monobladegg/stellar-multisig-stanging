@@ -15,9 +15,16 @@ type Props = {
 const PageLayout: FC<Props> = ({ children }) => {
   const [isWindowDefined, setIsWindowDefined] = useState(false);
 
-  const { theme, setTheme, setNet, setAccounts, accounts, isOpenAddAccountModal, setIsAuth } = useStore(
-    useShallow(state => state)
-  );
+  const {
+    theme,
+    setTheme,
+    setNet,
+    setAccounts,
+    accounts,
+    isOpenAddAccountModal,
+    setIsAuth,
+    net,
+  } = useStore(useShallow((state) => state));
 
   useEffect(() => {
     setIsWindowDefined(typeof window !== "undefined");
@@ -25,20 +32,24 @@ const PageLayout: FC<Props> = ({ children }) => {
       if (localStorage.getItem("theme")) {
         setTheme(localStorage.getItem("theme")!);
       }
-  
+
       if (localStorage.getItem("net")) {
         setNet(localStorage.getItem("net")!);
       }
-  
+
       if (localStorage.getItem("accounts")) {
         setAccounts(JSON.parse(localStorage.getItem("accounts")!));
       }
     }
   }, [isWindowDefined, setTheme, setNet, setAccounts]);
-  
+
   useEffect(() => {
-    setIsAuth(accounts.filter(account => account.isCurrent).length > 0);
-  }, [accounts, setIsAuth]);
+    setIsAuth(
+      accounts
+        .filter((account) => account.net === net)
+        .filter((account) => account.isCurrent).length > 0
+    );
+  }, [accounts, net, setIsAuth]);
 
   const themeLS: string | undefined | null = isWindowDefined
     ? window.localStorage.getItem("theme")
@@ -76,14 +87,21 @@ const PageLayout: FC<Props> = ({ children }) => {
         <title>Stellar Multisig</title>
       </Head>
       <body>
-        <main className={`flex min-h-screen flex-col ${isOpenAddAccountModal && "is-open-add-account-modal"}`}>
+        <main
+          className={`flex min-h-screen flex-col ${
+            isOpenAddAccountModal && "is-open-add-account-modal"
+          }`}
+        >
           <hr className="blue-ribbon" />
           <Header />
           {children}
           <Footer />
         </main>
         {isOpenAddAccountModal && <AddAccountModal />}
-        <Script src="https://kit.fontawesome.com/b02b92140a.js" crossOrigin="anonymous" />
+        <Script
+          src="https://kit.fontawesome.com/b02b92140a.js"
+          crossOrigin="anonymous"
+        />
       </body>
     </html>
   );

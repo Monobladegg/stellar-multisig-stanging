@@ -15,9 +15,8 @@ const AddAccountModal: FC = () => {
   const [error, setError] = useState<string>("");
   const modalRef = useRef<HTMLDivElement>(null);
 
-  const { setIsOpenAddAccountModal, net, accounts, setAccounts, setIsAuth } = useStore(
-    useShallow(state => state)
-  );
+  const { setIsOpenAddAccountModal, net, accounts, setAccounts, setIsAuth } =
+    useStore(useShallow((state) => state));
 
   const handleAccountTypeChange = (type: AccountType) => {
     setAccountType(type);
@@ -25,20 +24,45 @@ const AddAccountModal: FC = () => {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // Проверяем валидность публичного ключа
     if (StellarSdk.StrKey.isValidEd25519PublicKey(accountIdInput)) {
-      if (accounts.length > 0)
-        accounts.filter((account) => account.isCurrent)[0].isCurrent = false; // Удаляем текущость в текущем аккаунте
+      // Проверка на наличие аккаунта в текущей сети
+      const accountExistsInCurrentNet = accounts
+        .filter((account) => account.net === net)
+        .map((account) => account.accountID)
+        .includes(accountIdInput);
+
+      if (accountExistsInCurrentNet) {
+        setError("Account already exists in this network");
+        return;
+      }
+
+      // Убираем статус isCurrent только для аккаунтов в текущей сети
+      const updatedAccounts = accounts.map((account) =>
+        account.net === net ? { ...account, isCurrent: false } : account
+      );
+
+      // Создаем новый аккаунт
       const newAccount: IAccount = {
-        id: (accounts.length+1).toString(),
+        id: (accounts.length + 1).toString(),
         accountID: accountIdInput,
         net: net,
         isMultiSig: accountType === "Corporate",
         isCurrent: true,
-      }; // Создаем новый аккаунт
-      setAccounts([...accounts, newAccount]); // Добавляем новый аккаунт
-      setError(""); 
-      setIsOpenAddAccountModal(false); // Закрываем модалку
-      setIsAuth(true); // Переводим пользователя в авторизованное состояние
+      };
+
+      // Обновляем список аккаунтов и добавляем новый
+      setAccounts([...updatedAccounts, newAccount]);
+
+      // Очищаем ошибки и закрываем модалку
+      setError("");
+      setIsOpenAddAccountModal(false);
+
+      // Устанавливаем статус авторизованного пользователя
+      setIsAuth(true);
+
+      window.location.href = `/${net}/account/${newAccount.accountID}`;
     } else {
       setError("Invalid account ID");
     }
@@ -55,7 +79,8 @@ const AddAccountModal: FC = () => {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
   }, [setIsOpenAddAccountModal]);
 
   return (
@@ -98,7 +123,13 @@ const AddAccountModal: FC = () => {
               Add
             </button>
           </div>
-          {error && <p className="error-message">{error}</p>}
+          {error && (
+            <div>
+              <p className="text-center" style={{ color: "red" }}>
+                {error}
+              </p>
+            </div>
+          )}
         </form>
       </div>
     </div>

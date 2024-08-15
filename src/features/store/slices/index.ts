@@ -1,3 +1,3 @@
 export { netSlice } from "./netSlice"
 export { themeSlice } from "./themeSlice"
-export { accountSlice } from "./accountSlice"
+export { accountSlice } from "./accountsSlice"

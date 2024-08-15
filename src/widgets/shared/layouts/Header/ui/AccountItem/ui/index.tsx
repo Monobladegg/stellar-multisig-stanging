@@ -11,28 +11,45 @@ interface Props {
 }
 
 const AccountItem: FC<Props> = ({ id, isOpenAccount, setIsOpenAccount }) => {
-  const { net, theme, accounts } = useStore(
-    useShallow(state => state)
+  const { net, theme, accounts, setAccounts } = useStore(
+    useShallow((state) => ({
+      net: state.net,
+      theme: state.theme,
+      accounts: state.accounts,
+      setAccounts: state.setAccounts,
+    }))
   );
 
   const handleAccount = () => {
     setIsOpenAccount(!isOpenAccount);
-    const currentAccount = accounts.find((account) => account.isCurrent === true);
-    const selectedAccount = accounts.find((account) => String(account.accountID) === String(id));
-    if (currentAccount) currentAccount.isCurrent = false;
-    if (selectedAccount) selectedAccount.isCurrent = true;
+
+    // Обновляем аккаунты только если они находятся на одном и том же 'net'
+    const updatedAccounts = accounts.map(
+      (account) =>
+        account.net === net
+          ? account.accountID === id
+            ? { ...account, isCurrent: true }
+            : { ...account, isCurrent: false }
+          : account // Не трогаем аккаунты с другим 'net'
+    );
+
+    setAccounts(updatedAccounts);
   };
-  
+
   return (
-    <li className={
-      theme === "night"
-        ? `dropdown-item ${net === "testnet" && "selected"}`
-        : `dropdown-item-light ${
-            net === "testnet" && "selected"
-          }`
-    } style={{textAlign: "center"}} onClick={handleAccount}>
-      <Link href={`/${net}/account?id=${id}`}>{collapseAccount(id)}</Link>
-    </li>
+    <Link href={`/${net}/account?id=${id}`}>
+      <li
+        className={
+          theme === "night"
+            ? `dropdown-item ${net === "testnet" && "selected"}`
+            : `dropdown-item-light ${net === "testnet" && "selected"}`
+        }
+        style={{ textAlign: "center" }}
+        onClick={handleAccount}
+      >
+        {collapseAccount(id)}
+      </li>
+    </Link>
   );
 };
 

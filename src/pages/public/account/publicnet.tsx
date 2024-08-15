@@ -1,4 +1,3 @@
-
 "use client";
 
 import { MainLayout } from "@/widgets";
@@ -32,7 +31,7 @@ export const collapseAccount = (accountId: string) => {
 };
 
 const PublicNet: FC<Props> = ({ id }) => {
-  const account = id
+  const account = id;
   const { net } = useStore(useShallow((state) => ({ net: state.net })));
   const [information, setInformation] = useState<Information>(
     {} as Information
@@ -135,6 +134,9 @@ const PublicNet: FC<Props> = ({ id }) => {
     handler();
   }, [account]);
 
+  useEffect(() => {
+    console.log(information.balances);
+  }, [information.balances]);
 
   return (
     <MainLayout>
@@ -553,74 +555,80 @@ const PublicNet: FC<Props> = ({ id }) => {
                   </div>
                 </div>
                 <div className="column column-50">
-                  <div className="segment blank">
-                    <h3>
-                      Account Balances
-                      <i className="trigger icon info-tooltip small icon-help">
-                        <div
-                          className="tooltip-wrapper"
-                          style={{
-                            maxWidth: "20em",
-                            left: "0px",
-                            top: "0px",
-                          }}
-                        >
-                          <div className="tooltip top">
-                            <div className="tooltip-content">
-                              The number of lumens and other assets held by the
-                              account.
-                              <a
-                                href="https://developers.stellar.org/docs/learn/glossary#balance"
-                                className="info-tooltip-link"
-                                target="_blank"
-                              >
-                                Read more…
-                              </a>
-                            </div>
-                          </div>
-                        </div>
-                      </i>
-                    </h3>
-                    <hr className="flare"></hr>
-                    <div className="all-account-balances micro-space text-header">
-                      {information?.balances?.map(
-                        (item: Balance, key: number) => {
-                          const totalInfo = item.balance.split(".");
-                          const number = totalInfo[0];
-                          const decimal =
-                            Number(totalInfo[1]) == 0 ? "" : "." + totalInfo[1];
+  <div className="segment blank">
+    <h3>
+      Account Balances
+      <i className="trigger icon info-tooltip small icon-help">
+        <div
+          className="tooltip-wrapper"
+          style={{
+            maxWidth: "20em",
+            left: "0px",
+            top: "0px",
+          }}
+        >
+          <div className="tooltip top">
+            <div className="tooltip-content">
+              The number of lumens and other assets held by the
+              account.
+              <a
+                href="https://developers.stellar.org/docs/learn/glossary#balance"
+                className="info-tooltip-link"
+                target="_blank"
+              >
+                Read more…
+              </a>
+            </div>
+          </div>
+        </div>
+      </i>
+    </h3>
+    <hr className="flare"></hr>
+    <div>
+      <div className="asset-list-view">
+        <table className="table exportable space" style={{ width: '100%' }}>
+          <thead>
+            <tr>
+              <th style={{ width: '33%', textAlign: 'left' }}>Amount</th>
+              <th style={{ width: '33%', textAlign: 'left' }}>Asset</th>
+              <th style={{ width: '34%', textAlign: 'left' }}>Issuer</th>
+            </tr>
+          </thead>
+          <tbody>
+            {information?.balances?.map((item: Balance, index: number) => {
+              const totalInfo = item.balance.split(".");
+              const number = totalInfo[0];
+              const decimal = Number(totalInfo[1]) === 0 ? "" : "." + totalInfo[1];
 
-                          return (
-                            <a href="#" key={key} className="account-balance">
-                              <div className="condensed">
-                                {number}
-                                <span className="text-small">{decimal}</span>
-                              </div>
-                              <div className="text-tiny condensed">
-                                {item.asset_issuer && (
-                                  <div>
-                                    {collapseAccount(item.asset_issuer)}
-                                  </div>
-                                )}
-                              </div>
-                              <span className="text-small">
-                                <span
-                                  aria-label={item.asset_issuer}
-                                  className="asset-link"
-                                >
-                                  {/* <span className="asset-icon icon icon-stellar"></span> */}
-                                  {item.asset_code == undefined
-                                    ? "XLM"
-                                    : item.asset_code}
-                                </span>
-                              </span>
-                            </a>
-                          );
-                        }
-                      )}
-                    </div>
-                  </div>
-                </div>
+              return (
+                <tr key={index}>
+                  <td style={{ padding: '5px', textAlign: 'left' }}>
+                    {number}
+                    {decimal}
+                    <span className="text-small dimmed"> USD</span>
+                  </td>
+                  <td style={{ padding: '5px', textAlign: 'left' }}>
+                    <a
+                      aria-label={item.asset_code || "Asset"}
+                      className="asset-link"
+                      href={`/explorer/public/asset/${item.asset_code || 'XLM'}`}
+                    >
+                      {item.asset_code || "XLM"}
+                    </a>
+                  </td>
+                  <td style={{ padding: '5px', textAlign: 'left' }}>
+                    {collapseAccount(item?.asset_issuer || "")}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
               </div>
               {information?.meta_data &&
               information?.meta_data["ORG_NAME"] == undefined ? (

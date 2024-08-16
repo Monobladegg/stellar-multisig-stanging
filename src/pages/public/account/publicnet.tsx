@@ -137,8 +137,8 @@ const PublicNet: FC<Props> = ({ id }) => {
   }, [account]);
 
   useEffect(() => {
-    console.log(information.meta_data);
-  }, [information.meta_data]);
+    console.log(information);
+  }, [information]);
 
   return (
     <MainLayout>
@@ -641,8 +641,9 @@ const PublicNet: FC<Props> = ({ id }) => {
               {information?.meta_data &&
               information?.meta_data["ORG_NAME"] !== undefined &&
               ignoredHomeDomains &&
+              information?.home_domain &&
                 ignoredHomeDomains.includes(
-                  information?.meta_data["ORG_URL"]
+                  information?.home_domain
                 ) ? (
                 ""
               ) : (

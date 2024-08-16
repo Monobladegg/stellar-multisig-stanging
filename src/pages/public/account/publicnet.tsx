@@ -539,12 +539,7 @@ const PublicNet: FC<Props> = ({ id }) => {
                                   );
                                 return (
                                   <li className="word-break" key={key}>
-                                    {processedKey}:{" "}
-                                    <span
-                                      dangerouslySetInnerHTML={{
-                                        __html: processedValue,
-                                      }}
-                                    />
+                                    {processedKey}: {" "}{processedValue}
                                   </li>
                                 );
                               }
@@ -642,9 +637,7 @@ const PublicNet: FC<Props> = ({ id }) => {
               information?.meta_data["ORG_NAME"] !== undefined &&
               ignoredHomeDomains &&
               information?.home_domain &&
-                ignoredHomeDomains.includes(
-                  information?.home_domain
-                ) ? (
+              ignoredHomeDomains.includes(information?.home_domain) ? (
                 ""
               ) : (
                 <div className="toml-props">

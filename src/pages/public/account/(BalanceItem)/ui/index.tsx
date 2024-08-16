@@ -28,14 +28,14 @@ const BalanceItem: FC<Props> = ({ number, decimal, item }) => {
         }}
       >
         <a
-          aria-label={item.asset_code || "Asset"}
+          aria-label={item?.asset_code || "Asset"}
           className="asset-link"
           href={`https://stellar.expert/explorer/public/asset/${
-            item.asset_code || "XLM"
+            item?.asset_code || "XLM"
           }-${item?.asset_issuer}`}
           target="_blank"
         >
-          {item.asset_code || "XLM"}
+          {item?.asset_code || "XLM"}
         </a>
       </td>
       <td

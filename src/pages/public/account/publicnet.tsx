@@ -16,7 +16,7 @@ import { useShallow } from "zustand/react/shallow";
 import { Balance, Information, Signer } from "@/shared/types";
 import { DocumentInfo, Issuer } from "@/shared/types";
 import { processKeys } from "@/shared/lib";
-import BalanceItem from "@/pages/public/account/BalanceItem/ui";
+import BalanceItem from "@/pages/public/account/(BalanceItem)";
 
 interface Props {
   id: string | undefined | null;

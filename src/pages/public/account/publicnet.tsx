@@ -418,7 +418,7 @@ const PublicNet: FC<Props> = ({ id }) => {
                                         aria-label={issuer.paging_token}
                                         className="asset-link"
                                       >
-                                        {issuer.asset_code}
+                                        {issuer?.asset_code}
                                       </a>
                                     </Link>
                                     &nbsp;

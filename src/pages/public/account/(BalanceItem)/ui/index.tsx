@@ -6,12 +6,12 @@ import { Balance } from "@/shared/types";
 interface Props {
   number: string;
   decimal: string;
-  item?: Balance;  // Сделаем item необязательным
+  item?: Balance; 
 }
 
 const BalanceItem: FC<Props> = ({ number, decimal, item }) => {
   const assetCode = item?.asset_code || "XLM";
-  const assetIssuer = item?.asset_issuer || "";
+  const assetIssuer = item?.asset_issuer ? `${item?.asset_issuer}` : "";
 
   return (
     <tr>
@@ -33,7 +33,7 @@ const BalanceItem: FC<Props> = ({ number, decimal, item }) => {
         <a
           aria-label={assetCode}
           className="asset-link"
-          href={`https://stellar.expert/explorer/public/asset/${assetCode}-${assetIssuer}`}
+          href={`https://stellar.expert/explorer/public/asset/${assetCode}${assetCode === "XLM" ? "" : "-"}${assetIssuer}`}
           target="_blank"
           rel="noopener noreferrer"
         >

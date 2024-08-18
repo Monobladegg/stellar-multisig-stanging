@@ -44,7 +44,8 @@ const PublicNet: FC<Props> = ({ id }) => {
   const [tabIndex, setTabIndex] = useState<number>(1);
   const [errorvalid, setErrorvalid] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const [isVisibleBlockInfo, setIsVisibleBlockInfo] = useState<boolean>(true);
+  const [isVisibleHomeDomainInfo, setIsVisibleHomeDomainInfo] =
+    useState<boolean>(true);
 
   useEffect(() => {
     const checkAccount = async () => {
@@ -152,24 +153,31 @@ const PublicNet: FC<Props> = ({ id }) => {
           .map((line) => line.replace(/^"|"$|,$|"$/g, ""))
           .map((line) => line.replace(/"$/, ""));
 
+          /**
+           * Logic to create an array of strings where item is an accountID
+           * that is not fake in the home_domain set by the account
+           * 
+           * example:
+           * ['GCGLKWJX5BPX2BOCOHYA6KUBZ67FR23DAHLG7VD3YRTGEYGZX57KUGFP',
+           * 'GBEUDKANIFPTFHPWJ5T3R6RIO36RQBFGHYPAQ6STH7KMNDHAT36LHOLD',
+           * 'GA2T6GR7VXXXBETTERSAFETHANSORRYXXXPROTECTEDBYLOBSTRVAULT']
+           */
+
+          console.log(newAccounts)
         const foundAccount = newAccounts.find((accountId) => accountId === id);
 
         if (foundAccount) {
-          setIsVisibleBlockInfo(true);
+          setIsVisibleHomeDomainInfo(true);
         } else {
-          setIsVisibleBlockInfo(false);
+          setIsVisibleHomeDomainInfo(false);
         }
       } else {
-        setIsVisibleBlockInfo(false);
+        setIsVisibleHomeDomainInfo(false);
       }
     } else {
-      setIsVisibleBlockInfo(false);
+      setIsVisibleHomeDomainInfo(false);
     }
   }, [information.tomlInfo, id]);
-
-  useEffect(() => {
-    console.log(isVisibleBlockInfo);
-  }, [isVisibleBlockInfo]);
 
   return (
     <MainLayout>
@@ -219,22 +227,23 @@ const PublicNet: FC<Props> = ({ id }) => {
                     <h3>Summary</h3>
                     <hr className="flare"></hr>
                     <dl>
-                      {information?.home_domain == undefined ? (
-                        ""
-                      ) : (
+                      {information?.home_domain !== undefined &&
+                      isVisibleHomeDomainInfo &&
+                      information.home_domain &&
+                      !ignoredHomeDomains.includes(information.home_domain) ? (
                         <>
                           <dt>Home domain:</dt>
                           <dd>
                             <a
                               href={`${
-                                information?.home_domain == undefined
+                                information?.home_domain === undefined
                                   ? "#"
                                   : information?.home_domain
                               }`}
                               rel="noreferrer noopener"
                               target="_blank"
                             >
-                              {information?.home_domain == undefined
+                              {information?.home_domain === undefined
                                 ? "none"
                                 : information?.home_domain}
                             </a>
@@ -268,7 +277,7 @@ const PublicNet: FC<Props> = ({ id }) => {
                             </i>
                           </dd>
                         </>
-                      )}
+                      ) : null}
                       <dt>Account lock status:</dt>
                       <dd>
                         unlocked
@@ -669,7 +678,7 @@ const PublicNet: FC<Props> = ({ id }) => {
               ignoredHomeDomains &&
               information?.home_domain &&
               !ignoredHomeDomains.includes(information.home_domain) &&
-              isVisibleBlockInfo ? (
+              isVisibleHomeDomainInfo ? (
                 <div className="toml-props">
                   <div className="tabs space inline-right">
                     <div className="tabs-header">

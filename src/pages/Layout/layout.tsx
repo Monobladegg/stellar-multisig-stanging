@@ -66,10 +66,6 @@ const PageLayout: FC<Props> = ({ children }) => {
             name="viewport"
             content="width=device-width, initial-scale=1.0"
           />
-          <meta
-            name="commit-hash"
-            content={process.env.NEXT_PUBLIC_COMMIT_HASH || ""}
-          />
           <title>Stellar Multisig</title>
         </Head>
         <body></body>
@@ -99,10 +95,6 @@ const PageLayout: FC<Props> = ({ children }) => {
           <Footer />
         </main>
         {isOpenAddAccountModal && <AddAccountModal />}
-        <Script
-          src="https://kit.fontawesome.com/b02b92140a.js"
-          crossOrigin="anonymous"
-        />
       </body>
     </html>
   );

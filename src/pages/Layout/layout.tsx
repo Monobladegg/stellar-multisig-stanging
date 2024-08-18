@@ -5,7 +5,6 @@ import { useStore } from "@/features/store";
 import { Footer, Header } from "@/widgets";
 import { useShallow } from "zustand/react/shallow";
 import AddAccountModal from "@/widgets/shared/layouts/Header/ui/AddAccountModal";
-import Script from "next/script";
 import Head from "next/head";
 
 type Props = {

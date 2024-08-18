@@ -72,29 +72,32 @@ export const Header: FC = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isOpenAddAccountModal, setIsOpenAddAccountModal]); // Добавляем зависимость
+  }, [isOpenAddAccountModal, setIsOpenAddAccountModal]);
 
   const toggleDropdownNet = () => setIsOpenNet(!isOpenNet);
   const toggleDropdownAccount = () => setIsOpenAccount(!isOpenAccount);
 
   const handleSelectNet = (network: string) => {
     setNet(network);
-    localStorage.setItem("net", network);
+    localStorage.setItem("net", network); // Store the network in localStorage
     setIsOpenNet(false);
 
     const currentPath = window.location.pathname;
+    // Check if the current path contains 'public' or 'testnet'
     if (currentPath === "/public" || currentPath === "/testnet") {
-      const newPath = `/${network}`;
-      router.push(newPath);
+        const newPath = `/${network}`;
+        router.push(newPath);
     } else if (
-      currentPath.includes("/public/") ||
-      currentPath.includes("/testnet/")
+        currentPath.includes("/public/") ||
+        currentPath.includes("/testnet/")
     ) {
-      // Construct the new path with updated network segment
-      const newPath = `/${network}`
-      router.push(newPath);
+        // Construct the new path with updated network segment
+        const newPath = `/${network}${currentPath.substring(
+            currentPath.indexOf("/", 1)
+        )}`;
+        router.push(newPath);
     }
-  };
+};
 
   // const handleSelectAccount = (account: IAccount) => {
   //   setAccounts([...accounts, account]);

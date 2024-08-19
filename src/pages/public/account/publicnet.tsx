@@ -141,14 +141,11 @@ const PublicNet: FC<Props> = ({ id }) => {
   }, [account]);
 
   useEffect(() => {
-    console.log("TOML Info:", information.tomlInfo);
-    console.log("Account ID to check:", id);
   
     if (information.tomlInfo) {
       const accountsMatch = information.tomlInfo.match(
         /ACCOUNTS\s*=\s*\[([\s\S]*?)\]/
       );
-      console.log("Accounts match:", accountsMatch);
   
       if (accountsMatch && accountsMatch[1]) {
         const newAccounts = accountsMatch[1]
@@ -157,13 +154,10 @@ const PublicNet: FC<Props> = ({ id }) => {
           .filter(line => line.length > 0)
           .map(line => line.replace(/^"|"$|,$/g, ''));
         
-        console.log("Parsed accounts:", newAccounts);
         
         const cleanedAccounts = newAccounts.map(account => account.replace(/"/g, ''));
-        cleanedAccounts.forEach(account => console.log("Cleaned account:", account));
   
         const foundAccount = cleanedAccounts.some(accountId => accountId === id);
-        console.log("Found account:", foundAccount ? "Account found" : "No account found");
   
         setIsVisibleHomeDomainInfo(foundAccount);
       } else {

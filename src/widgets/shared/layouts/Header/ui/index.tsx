@@ -102,6 +102,11 @@ export const Header: FC = () => {
     }
   };
 
+  const addAccountOpen = () => {
+    setIsOpenAddAccountModal(true);
+    setIsOpenAccount(false);
+  }
+
   return (
     <div className="top-block">
       <div className="container nav relative">
@@ -268,12 +273,9 @@ export const Header: FC = () => {
                             : `dropdown-item-light selected`
                         }
                         style={{ textAlign: "center" }}
+                        onClick={addAccountOpen}
                       >
                         <span
-                          onClick={() => {
-                            setIsOpenAddAccountModal(true);
-                            setIsOpenAccount(false);
-                          }}
                         >
                           Add account
                         </span>
@@ -285,8 +287,9 @@ export const Header: FC = () => {
                             : `dropdown-item-light selected`
                         }
                         style={{ textAlign: "center" }}
+                        onClick={logout}
                       >
-                        <span onClick={logout}>Logout</span>
+                        <span>Logout</span>
                       </li>
                     </ul>
                   </div>
@@ -300,13 +303,13 @@ export const Header: FC = () => {
                   theme === "day" ? "dropdown-header-light" : "dropdown-header"
                 }
               >
-                <span
+                <button
                   className="dropdown-selected"
                   onClick={() => setIsOpenAddAccountModal(true)}
                   style={{ cursor: "pointer", marginTop: "-4px" }}
                 >
                   Login
-                </span>
+                </button>
               </div>
             </div>
           )}

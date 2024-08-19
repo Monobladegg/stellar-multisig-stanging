@@ -151,17 +151,21 @@ const PublicNet: FC<Props> = ({ id }) => {
       console.log("Accounts match:", accountsMatch);
   
       if (accountsMatch && accountsMatch[1]) {
-        const newAccounts = accountsMatch[1].trim().replace(/^"|"$/g, "").split(",");
+        const newAccounts = accountsMatch[1]
+          .split('\n')
+          .map(line => line.trim())
+          .filter(line => line.length > 0)
+          .map(line => line.replace(/^"|"$|,$/g, ''));
+        
         console.log("Parsed accounts:", newAccounts);
+        
+        const cleanedAccounts = newAccounts.map(account => account.replace(/"/g, ''));
+        cleanedAccounts.forEach(account => console.log("Cleaned account:", account));
   
-        const foundAccount = newAccounts.find((accountId) => accountId.trim() === id);
-        console.log("Found account:", foundAccount || "No account found");
+        const foundAccount = cleanedAccounts.some(accountId => accountId === id);
+        console.log("Found account:", foundAccount ? "Account found" : "No account found");
   
-        if (foundAccount) {
-          setIsVisibleHomeDomainInfo(true);
-        } else {
-          setIsVisibleHomeDomainInfo(false);
-        }
+        setIsVisibleHomeDomainInfo(foundAccount);
       } else {
         console.error("No accounts found in TOML");
         setIsVisibleHomeDomainInfo(false);

@@ -3,7 +3,7 @@ import stellarSdk from "stellar-sdk";
 import Link from "next/link";
 
 // Function to decode base64 strings
-const decodeBase64 = (str: string | undefined): string => {
+export const decodeBase64 = (str: string | undefined): string => {
   if (typeof str !== "string") {
     return "";
   }

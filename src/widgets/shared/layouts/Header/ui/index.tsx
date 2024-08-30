@@ -303,13 +303,13 @@ export const Header: FC = () => {
                   theme === "day" ? "dropdown-header-light" : "dropdown-header"
                 }
               >
-                <button
+                <span
                   className="dropdown-selected"
                   onClick={() => setIsOpenAddAccountModal(true)}
                   style={{ cursor: "pointer", marginTop: "-4px" }}
                 >
                   Login
-                </button>
+                </span>
               </div>
             </div>
           )}

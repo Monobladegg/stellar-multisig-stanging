@@ -1,6 +1,7 @@
 export type Information = {
   home_domain?: string;
   last_modified_time?: string;
+  sequence?: number;
   thresholds?: {
       low_threshold: number;
       med_threshold: number;
@@ -33,6 +34,12 @@ export type Information = {
   tomlInfo?: string;
   entries: Record<string, string>
   created_at?: string;
+  _links?: transactions
+}
+
+export type transactions = {
+    href: string
+    templated?: boolean
 }
 
 export type Issuer = {

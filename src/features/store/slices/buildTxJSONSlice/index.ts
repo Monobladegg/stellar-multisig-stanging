@@ -67,30 +67,9 @@ export const buildTxJSONSlice: ImmerStateCreator<IBuildTxJSONSlice> = (set) => {
         state.tx.tx.operations = operations;
         state.fullTransaction = { tx: state.tx };
       }),
-    addOperation: (operationType: "set_options" | "manage_data") =>
+    addOperation: () =>
       set((state) => {
-        const body: IOperation["body"] = {
-          ...(operationType === "manage_data"
-            ? {
-                manage_data: {
-                  data_name: "",
-                  data_value: null,
-                },
-              }
-            : {
-                set_options: {
-                  inflation_dest: null,
-                  clear_flags: null,
-                  set_flags: null,
-                  master_weight: null,
-                  low_threshold: null,
-                  med_threshold: null,
-                  high_threshold: null,
-                  home_domain: null,
-                  signer: null,
-                },
-              }),
-        };
+        const body: IOperation["body"] = {};
         state.tx.tx.operations.push({
           source_account: StellarSdk.StrKey.isValidEd25519PublicKey(
             state.tx.tx.source_account

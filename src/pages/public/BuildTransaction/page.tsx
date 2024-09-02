@@ -7,16 +7,16 @@ import axios from "axios";
 import { Information } from "@/shared/types";
 import { useStore } from "@/features/store";
 import { useShallow } from "zustand/react/shallow";
-import __wbg_init, { encode } from "@stellar/stellar-xdr-json-web"
+import __wbg_init, { encode } from "@stellar/stellar-xdr-json-web";
 import { IOperation } from "@/shared/types/store/slices/buildTxJSONSlice";
 
 type MemoType = "None" | "Text" | "ID" | "Hash" | "Return";
-type OperationType = "set_options" | "manage_data"
+type OperationType = "set_options" | "manage_data" | "select_operation_type";
 
-const memoTypes: MemoType[] = ["None", "Text", "ID", "Hash", "Return"]
+const memoTypes: MemoType[] = ["None", "Text", "ID", "Hash", "Return"];
 
 export function stringToHex(str: string) {
-  let hex = '';
+  let hex = "";
   for (let i = 0; i < str.length; i++) {
     hex += str.charCodeAt(i).toString(16);
   }
@@ -24,7 +24,7 @@ export function stringToHex(str: string) {
 }
 
 export function hexToString(hex: string) {
-  let str = '';
+  let str = "";
   for (let i = 0; i < hex.length; i += 2) {
     str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
   }
@@ -41,7 +41,7 @@ const Page: React.FC = () => {
     setMemo,
     addOperation,
     setOperations,
-    fullTransaction
+    fullTransaction,
   } = useStore(useShallow((state) => state));
 
   const [memoInput, setMemoInput] = useState<string>("");
@@ -57,18 +57,18 @@ const Page: React.FC = () => {
   }, [tx.tx.source_account]);
 
   const handleAddOperation = () => {
-    addOperation("manage_data");
+    addOperation();
   };
 
   const updateErrors = (condition: boolean, errorMessage: string) => {
-    setTxBuildErrors(prevErrors =>
+    setTxBuildErrors((prevErrors) =>
       condition
         ? !prevErrors.includes(errorMessage)
           ? prevErrors.concat(errorMessage)
           : prevErrors
         : prevErrors.includes(errorMessage)
-          ? prevErrors.filter(error => error !== errorMessage)
-          : prevErrors
+        ? prevErrors.filter((error) => error !== errorMessage)
+        : prevErrors
     );
   };
 
@@ -87,10 +87,7 @@ const Page: React.FC = () => {
   }, [tx.tx.seq_num]);
 
   useEffect(() => {
-    updateErrors(
-      !tx.tx.fee,
-      "Fee is a required field"
-    );
+    updateErrors(!tx.tx.fee, "Fee is a required field");
   }, [tx.tx.fee]);
 
   useEffect(() => {
@@ -99,6 +96,19 @@ const Page: React.FC = () => {
       "Memo value is required when memo type is selected"
     );
   }, [tx.tx.memo, memoInput]);
+
+  useEffect(() => {
+    updateErrors(
+      tx.tx.operations.length === 0,
+      "At least one operation is required"
+    );
+    updateErrors(
+      fullTransaction.tx.tx.operations.some((operation) =>
+        operation.body.set_options === undefined && operation.body.manage_data === undefined
+      ),
+      "Select operation type"
+    );
+  }, [fullTransaction.tx.tx.operations]);
 
   useEffect(() => {
     if (memoInput !== "" && tx.tx.memo !== "none") {
@@ -110,18 +120,27 @@ const Page: React.FC = () => {
         (tx.tx.memo.hash !== undefined || tx.tx.memo.return !== undefined) &&
         !/^[0-9a-f]{64}$/.test(memoInput)
       ) {
-        updateErrors(true, "Memo hash or return must be a 64 character hexadecimal string.");
+        updateErrors(
+          true,
+          "Memo hash or return must be a 64 character hexadecimal string."
+        );
       } else {
-        updateErrors(false, "Memo text is too long. Max 28 characters allowed.");
+        updateErrors(
+          false,
+          "Memo text is too long. Max 28 characters allowed."
+        );
         updateErrors(false, "Memo ID must be a number.");
-        updateErrors(false, "Memo hash or return must be a 64 character hexadecimal string.");
+        updateErrors(
+          false,
+          "Memo hash or return must be a 64 character hexadecimal string."
+        );
       }
     }
   }, [memoInput, tx.tx.memo]);
 
   useEffect(() => {
-    console.log(txBuildErrors)
-  }, [txBuildErrors])
+    console.log(txBuildErrors);
+  }, [txBuildErrors]);
 
   const duplicateOperation = (index: number) => {
     if (index >= 0 && index < tx.tx.operations.length) {
@@ -129,7 +148,10 @@ const Page: React.FC = () => {
       if (operationToDuplicate) {
         setOperations([
           ...tx.tx.operations,
-          { ...operationToDuplicate, source_account: operationToDuplicate.source_account }
+          {
+            ...operationToDuplicate,
+            source_account: operationToDuplicate.source_account,
+          },
         ]);
       }
     }
@@ -160,46 +182,62 @@ const Page: React.FC = () => {
       const updatedOperations = [...tx.tx.operations];
       updatedOperations[index] = {
         ...updatedOperations[index],
-        body: type === "set_options" ? { set_options: {} } : { manage_data: { data_name: "", data_value: null } }
+        body:
+          type === "set_options"
+            ? { set_options: {} }
+            : { manage_data: { data_name: "", data_value: null } },
       };
       setOperations(updatedOperations);
     }
   };
 
   const getOperationType = (operation: IOperation): OperationType => {
-    return operation.body.set_options ? "set_options" : "manage_data";
+    if (operation.body.set_options) {
+      return "set_options";
+    } else if (operation.body.manage_data) {
+      return "manage_data";
+    } else {
+      return "select_operation_type";
+    }
   };
 
   useEffect(() => {
     const initializeWasm = async () => {
       try {
-        console.log('Initializing WebAssembly module...');
+        console.log("Initializing WebAssembly module...");
         await __wbg_init(/* path to your module */);
-        console.log('WebAssembly module initialized.');
+        console.log("WebAssembly module initialized.");
 
-        if (!fullTransaction || typeof fullTransaction !== 'object' || !fullTransaction.tx) {
-          throw new Error('Invalid fullTransaction object structure');
+        if (
+          !fullTransaction ||
+          typeof fullTransaction !== "object" ||
+          !fullTransaction.tx
+        ) {
+          throw new Error("Invalid fullTransaction object structure");
         }
 
         // Create the correct TransactionEnvelope structure
         const transactionEnvelope = {
-          tx: fullTransaction.tx
+          tx: fullTransaction.tx,
         };
 
         const jsonTx = JSON.stringify(transactionEnvelope, null, 2);
-        console.log('JSON TransactionEnvelope:', jsonTx);
+        console.log("JSON TransactionEnvelope:", jsonTx);
 
-        const xdrType = 'TransactionEnvelope';
-        console.log('Input to encode:', jsonTx);
+        const xdrType = "TransactionEnvelope";
+        console.log("Input to encode:", jsonTx);
         const xdrEncoded = encode(xdrType, jsonTx);
-        console.log('Encoded XDR:', xdrEncoded);
+        console.log("Encoded XDR:", xdrEncoded);
         setCurrentXDR(xdrEncoded);
       } catch (error) {
-        console.error('Error:', error instanceof Error ? error.message : error);
+        console.error("Error:", error instanceof Error ? error.message : error);
       }
     };
 
-    console.log('Calling initializeWasm with fullTransaction:', fullTransaction);
+    console.log(
+      "Calling initializeWasm with fullTransaction:",
+      fullTransaction
+    );
     initializeWasm();
   }, [fullTransaction]);
 
@@ -276,31 +314,41 @@ const Page: React.FC = () => {
               return (
                 <button
                   key={type}
-                  className={`button ${tx.tx.memo === type.toLowerCase() ? 'disabled' : ''}`}
+                  className={`button ${
+                    tx.tx.memo === type.toLowerCase() ? "disabled" : ""
+                  }`}
                   onClick={() => {
-                    if (type === 'None') {
-                      setMemo('none');
-                    } else if (type === 'Text') {
+                    if (type === "None") {
+                      setMemo("none");
+                    } else if (type === "Text") {
                       setMemo({ text: memoInput });
-                    } else if (type === 'ID') {
+                    } else if (type === "ID") {
                       setMemo({ id: memoInput });
-                    } else if (type === 'Hash') {
+                    } else if (type === "Hash") {
                       setMemo({ hash: memoInput });
-                    } else if (type === 'Return') {
+                    } else if (type === "Return") {
                       setMemo({ return: memoInput });
                     }
                   }}
                   disabled={
                     tx.tx.memo === type.toLowerCase() ||
-                    (type === "Text" && typeof tx.tx.memo === "object" && tx.tx.memo.text !== undefined) ||
-                    (type === "ID" && typeof tx.tx.memo === "object" && tx.tx.memo.id !== undefined) ||
-                    (type === "Hash" && typeof tx.tx.memo === "object" && tx.tx.memo.hash !== undefined) ||
-                    (type === "Return" && typeof tx.tx.memo === "object" && tx.tx.memo.return !== undefined)
+                    (type === "Text" &&
+                      typeof tx.tx.memo === "object" &&
+                      tx.tx.memo.text !== undefined) ||
+                    (type === "ID" &&
+                      typeof tx.tx.memo === "object" &&
+                      tx.tx.memo.id !== undefined) ||
+                    (type === "Hash" &&
+                      typeof tx.tx.memo === "object" &&
+                      tx.tx.memo.hash !== undefined) ||
+                    (type === "Return" &&
+                      typeof tx.tx.memo === "object" &&
+                      tx.tx.memo.return !== undefined)
                   }
                 >
                   {type}
                 </button>
-              )
+              );
             })}
 
             {tx.tx.memo !== "none" && (
@@ -309,14 +357,14 @@ const Page: React.FC = () => {
                   tx.tx.memo.text !== undefined
                     ? "UTF-8 string of up to 28 bytes"
                     : tx.tx.memo.id !== undefined
-                      ? "Unsigned 64-bit integer"
-                      : tx.tx.memo.hash !== undefined
-                        ? "32-byte hash in hexadecimal format (64 [0-9a-f] characters)"
-                        : "Return value"
+                    ? "Unsigned 64-bit integer"
+                    : tx.tx.memo.hash !== undefined
+                    ? "32-byte hash in hexadecimal format (64 [0-9a-f] characters)"
+                    : "Return value"
                 }
                 value={memoInput}
                 onChange={(e) => {
-                  setMemoInput(e.target.value)
+                  setMemoInput(e.target.value);
                   if (typeof tx.tx.memo === "object") {
                     if (tx.tx.memo.text !== undefined) {
                       setMemo({ text: e.target.value });
@@ -333,20 +381,31 @@ const Page: React.FC = () => {
             )}
             {tx.tx.memo !== "none" && (
               <p className="error">
-                {memoInput !== "" && (<>
-                  {tx.tx.memo.text !== undefined && memoInput.length > 28 && (
-                    <span>Text memo cannot be longer than 28 bytes</span>
-                  )}
-                  {tx.tx.memo.id !== undefined && isNaN(parseInt(memoInput)) && (
-                    <span>ID memo must be an unsigned 64-bit integer</span>
-                  )}
-                  {tx.tx.memo.hash !== undefined && !/^[0-9a-f]{64}$/.test(memoInput) && (
-                    <span>Hash memo must be a 32-byte hash in hexadecimal format (64 [0-9a-f] characters)</span>
-                  )}
-                  {tx.tx.memo.return !== undefined && !/^[0-9a-f]{64}$/.test(memoInput) && (
-                    <span>Return memo must be a 32-byte hash in hexadecimal format (64 [0-9a-f] characters)</span>
-                  )}
-                </>)}
+                {memoInput !== "" && (
+                  <>
+                    {tx.tx.memo.text !== undefined && memoInput.length > 28 && (
+                      <span>Text memo cannot be longer than 28 bytes</span>
+                    )}
+                    {tx.tx.memo.id !== undefined &&
+                      isNaN(parseInt(memoInput)) && (
+                        <span>ID memo must be an unsigned 64-bit integer</span>
+                      )}
+                    {tx.tx.memo.hash !== undefined &&
+                      !/^[0-9a-f]{64}$/.test(memoInput) && (
+                        <span>
+                          Hash memo must be a 32-byte hash in hexadecimal format
+                          (64 [0-9a-f] characters)
+                        </span>
+                      )}
+                    {tx.tx.memo.return !== undefined &&
+                      !/^[0-9a-f]{64}$/.test(memoInput) && (
+                        <span>
+                          Return memo must be a 32-byte hash in hexadecimal
+                          format (64 [0-9a-f] characters)
+                        </span>
+                      )}
+                  </>
+                )}
               </p>
             )}
           </div>
@@ -358,14 +417,20 @@ const Page: React.FC = () => {
               placeholder="Lower time bound unix timestamp. Example: 1479151713"
               value={tx.tx.cond.time.min_time}
               onChange={(e) => {
-                setTimeCondition(Number(e.target.value), tx.tx.cond.time.max_time);
+                setTimeCondition(
+                  Number(e.target.value),
+                  tx.tx.cond.time.max_time
+                );
               }}
             />
             <input
               placeholder="Upper time bound unix timestamp. Example: 1479151713"
               value={tx.tx.cond.time.max_time}
               onChange={(e) => {
-                setTimeCondition(tx.tx.cond.time.min_time, Number(e.target.value));
+                setTimeCondition(
+                  tx.tx.cond.time.min_time,
+                  Number(e.target.value)
+                );
               }}
             />
             <button onClick={setTimeBoundsToFiveMinutes}>
@@ -374,75 +439,75 @@ const Page: React.FC = () => {
           </div>
 
           {/* Operations */}
-          <div className="segment blank items-center mt-5">
-            {tx.tx.operations.map((operation, index) => (
-              <div key={index} className="blank flex">
+          {tx.tx.operations.map((operation, index) => (
+            <div key={index} className="blank flex">
+              <div
+                style={{
+                  borderRight: "1px solid #535759",
+                  borderBottom: "1px solid #535759",
+                  paddingRight: "10px",
+                }}
+                className="flex flex-col"
+              >
                 <div
                   style={{
-                    borderRight: "1px solid #535759",
-                    borderBottom: "1px solid #535759",
-                    paddingRight: "10px",
+                    width: "140px",
+                    height: "140px",
+                    textAlign: "center",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
                   }}
-                  className="flex flex-col"
+                  className="text-center blank"
                 >
-                  <div
-                    style={{
-                      width: "140px",
-                      height: "140px",
-                      textAlign: "center",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                    className="text-center blank"
-                  >
-                    {index + 1}
-                  </div>
-                  <button onClick={() => duplicateOperation(index)}>
-                    Duplicate
-                  </button>
-                  {tx.tx.operations.length > 1 && (
-                    <button onClick={() => removeOperation(index)}>
-                      Remove
-                    </button>
+                  {index + 1}
+                </div>
+                <button onClick={() => duplicateOperation(index)}>
+                  Duplicate
+                </button>
+                {tx.tx.operations.length > 1 && (
+                  <button onClick={() => removeOperation(index)}>Remove</button>
+                )}
+              </div>
+              <div
+                style={{
+                  borderBottom: "1px solid #535759",
+                  paddingLeft: "10px",
+                }}
+              >
+                <h4>Operation Type</h4>
+                <select
+                  className="input"
+                  value={getOperationType(operation)}
+                  onChange={(e) =>
+                    setOperationType(index, e.target.value as OperationType)
+                  }
+                >
+                  <option value="select_operation_type">
+                    Select Operation Type
+                  </option>
+                  <option value="manage_data">Manage Data</option>
+                  <option value="set_options">Set Options</option>
+                </select>
+
+                <div className="mt-3">
+                  {getOperationType(operation) === "set_options" && (
+                    <SetOptions id={index} />
+                  )}
+                  {getOperationType(operation) === "manage_data" && (
+                    <ManageData id={index} />
                   )}
                 </div>
-                <div
-                  style={{
-                    borderBottom: "1px solid #535759",
-                    paddingLeft: "10px",
-                  }}
-                >
-                  <h4>Operation Type</h4>
-                  <select
-                    className="input"
-                    value={getOperationType(operation)}
-                    onChange={(e) =>
-                      setOperationType(
-                        index,
-                        e.target.value as OperationType
-                      )
-                    }
-                  >
-                    <option value="manage_data">Manage Data</option>
-                    <option value="set_options">Set Options</option>
-                  </select>
-
-                  <div className="mt-3">
-                    {getOperationType(operation) === "set_options" && (
-                      <SetOptions id={index} />
-                    )}
-                    {getOperationType(operation) === "manage_data" && (
-                      <ManageData id={index} />
-                    )}
-                  </div>
-                </div>
               </div>
-            ))}
-            <button onClick={handleAddOperation} className="mt-3">
-              Add New Operation
-            </button>
-          </div>
+            </div>
+          ))}
+          <button
+            style={{ marginTop: "10px" }}
+            onClick={handleAddOperation}
+            className="mt-3"
+          >
+            Add New Operation
+          </button>
         </div>
         <div style={{ marginTop: "20px" }} className="segment blank">
           {txBuildErrors.length > 0 ? (
@@ -457,7 +522,18 @@ const Page: React.FC = () => {
           ) : (
             <>
               <h1>Here your XDR transaction:</h1>
-              <h3>{currentXDR}{" "}<span style={{ cursor: "pointer" }} onClick={() => navigator.clipboard.writeText(currentXDR)}><i className="fa-regular fa-copy"></i></span></h3>
+              <h3 style={{ wordWrap: "break-word" }}>
+                {currentXDR}{" "}
+                <span
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    navigator.clipboard.writeText(currentXDR);
+                    alert("XDR copied to clipboard");
+                  }}
+                >
+                  <i className="fa-regular fa-copy"></i>
+                </span>
+              </h3>
             </>
           )}
         </div>

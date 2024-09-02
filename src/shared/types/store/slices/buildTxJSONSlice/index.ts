@@ -40,7 +40,7 @@ export interface IBuildTxJSONActions {
       | string
       | { text?: string; id?: string; hash?: string; return?: string }
   ) => void;
-  addOperation: (operationType: "set_options" | "manage_data") => void;
+  addOperation: () => void;
   removeOperation: (index: number) => void;
   addSignature: (signature: ISignature) => void;
   removeSignature: (index: number) => void;

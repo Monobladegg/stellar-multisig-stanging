@@ -30,8 +30,6 @@ const SetOptions: FC<Props> = ({ id }) => {
 
   const operation = fullTransaction.tx.tx.operations[id];
   const inflationDestination = operation.body.set_options?.inflation_dest || "";
-  const setFlags = operation.body.set_options?.set_flags || 0;
-  const clearFlags = operation.body.set_options?.clear_flags || 0;
   const masterWeight = operation.body.set_options?.master_weight || 0;
   const lowThreshold = operation.body.set_options?.low_threshold || 0;
   const mediumThreshold = operation.body.set_options?.med_threshold || 0;

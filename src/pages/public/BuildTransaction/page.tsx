@@ -11,7 +11,6 @@ import __wbg_init, { encode } from "@stellar/stellar-xdr-json-web"
 import { IOperation } from "@/shared/types/store/slices/buildTxJSONSlice";
 
 type MemoType = "None" | "Text" | "ID" | "Hash" | "Return";
-type TransactionType = "Transaction" | "Fee Bump";
 type OperationType = "set_options" | "manage_data"
 
 const memoTypes: MemoType[] = ["None", "Text", "ID", "Hash", "Return"]
@@ -41,7 +40,6 @@ const Page: React.FC = () => {
     setTimeCondition,
     setMemo,
     addOperation,
-    removeOperation: storeRemoveOperation,
     setOperations,
     fullTransaction
   } = useStore(useShallow((state) => state));

@@ -1,17 +1,21 @@
-import React, { FC, ChangeEvent } from "react";
+"use client"
+
+import React, { FC, ChangeEvent, useEffect } from "react";
 import s from "@/widgets/OperationTypes/index.module.scss";
 import InputField from "@/widgets/OperationTypes/shared/InputField";
 import { useStore } from "@/features/store";
 import { useShallow } from "zustand/react/shallow";
-import { stringToHex, hexToString } from "@/pages/public/BuildTransaction/page";
 import StellarSdk from "stellar-sdk";
 import { IOperation } from "@/shared/types/store/slices";
+import { hexToString, stringToHex } from "@/pages/public/BuildTransaction/page";
+import {useHandleSourceAccountChange} from "@/features/hooks/lib";
 
 interface Props {
   id: number;
 }
 
 const ManageData: FC<Props> = ({ id }) => {
+  const handleSourceAccountChange = useHandleSourceAccountChange();
   const { tx, setOperations } = useStore(
     useShallow((state) => ({
       tx: state.tx,
@@ -19,51 +23,68 @@ const ManageData: FC<Props> = ({ id }) => {
     }))
   );
 
-  const operation = tx.tx.operations[id] as IOperation;
-  const entryName = operation.body.manage_data?.data_name || "";
-  const entryValue = operation.body.manage_data?.data_value || "";
+  const defaultOperation: IOperation = {
+    source_account: "",
+    body: {
+      manage_data: {
+        data_name: "",
+        data_value: null,
+      },
+    },
+  };
+
+  // Ensure we have an operation with default structure
+  const operation = tx.tx.operations[id] || defaultOperation;
+
+  // Ensure `data_name` and `data_value` are not `undefined`
+  const entryName = operation.body.manage_data?.data_name ?? "";
+  const entryValue = operation.body.manage_data?.data_value ?? null;
   const sourceAccount = operation.source_account || "";
 
   const validateSymbols = (value: string): boolean => value.length <= 64;
 
-  const handleEntryNameChange = (event: ChangeEvent<HTMLInputElement>) => {
+  // Update the operations list
+  const updateOperations = (updatedOperation: Partial<IOperation>) => {
     const newOperations = [...tx.tx.operations];
     newOperations[id] = {
       ...newOperations[id],
+      ...updatedOperation,
+    };
+    setOperations(newOperations);
+  };
+
+  const handleEntryNameChange = (event: ChangeEvent<HTMLInputElement>) => {
+    updateOperations({
       body: {
-        ...newOperations[id].body,
+        ...operation.body,
         manage_data: {
-          ...newOperations[id].body.manage_data,
+          ...operation.body.manage_data!,
           data_name: event.target.value,
         },
       },
-    };
-    setOperations(newOperations);
+    });
   };
 
-  const handleEntryValueChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const newOperations = [...tx.tx.operations];
-    newOperations[id] = {
-      ...newOperations[id],
+  const handleEntryValueChange = (event: ChangeEvent<HTMLInputElement> | null) => {
+    const hexValue = stringToHex(event?.target?.value ?? "");
+    updateOperations({
       body: {
-        ...newOperations[id].body,
+        ...operation.body,
         manage_data: {
-          ...newOperations[id].body.manage_data,
-          data_value: stringToHex(event.target.value),
+          ...operation.body.manage_data!,
+          data_value: hexValue,
         },
       },
-    };
-    setOperations(newOperations);
+    });
   };
 
-  const handleSourceAccountChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const newOperations = [...tx.tx.operations];
-    newOperations[id] = {
-      ...newOperations[id],
-      source_account: event.target.value,
-    };
-    setOperations(newOperations);
-  };
+
+  useEffect(() => {
+    // Set the default operation if it's not set already
+    if (!tx.tx.operations[id]) {
+      setOperations([...tx.tx.operations, defaultOperation]);
+    }
+  }, []);
 
   return (
     <>
@@ -80,19 +101,19 @@ const ManageData: FC<Props> = ({ id }) => {
           isOptional={false}
         />
         <InputField
-          title="Entry Value (Optional)"
+          title="Entry Value"
           placeholder="Enter optional entry value"
-          value={hexToString(entryValue)}
+          value={typeof entryValue === "string" ? hexToString(entryValue) : ""}
           onChange={handleEntryValueChange}
           validate={validateSymbols}
           warningMessage="If empty, this will delete the data entry named in this operation. Note: The Lab only supports strings."
-          errorMessage={`Entry value can only contain a maximum of 64 characters. ${hexToString(entryValue).length} characters.`}
+          errorMessage={`Entry value can only contain a maximum of 64 characters. ${typeof entryValue === "string" ? entryValue.length : 0} characters.`}
         />
         <InputField
           title="Source Account"
           placeholder="Example: GCEXAMPLE5HWNK4AYSTEQ4UWDKHTCKADVS2AHF3UI2ZMO3DPUSM6"
-          value={sourceAccount}
-          onChange={handleSourceAccountChange}
+          value={sourceAccount === null ? "" : sourceAccount}
+          onChange={(e) => handleSourceAccountChange(e, id)}
           validate={(value) => StellarSdk.StrKey.isValidEd25519PublicKey(value) || value === ""}
           errorMessage="Public key is invalid."
         />

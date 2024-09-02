@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import React, { useState, FC, useCallback } from "react";
 import FlagSelector from "../../shared/FlagSelector";
@@ -8,6 +8,8 @@ import StellarSdk from "stellar-sdk";
 import InputField from "../../shared/InputField";
 import { useStore } from "@/features/store";
 import { useShallow } from "zustand/react/shallow";
+import { IFlag } from "../../shared/FlagSelector";
+import { useHandleSourceAccountChange } from "@/features/hooks/lib";
 
 export const signerOptions: string[] = [
   "Select signer type",
@@ -20,50 +22,128 @@ export interface Props {
   id: number;
 }
 
-const SetOptions: FC<Props> = ({id}) => {
-  const {
-    tx,
-    setOperations,
-  } = useStore(useShallow((state) => state));
+const SetOptions: FC<Props> = ({ id }) => {
+  const handleSourceAccountChange = useHandleSourceAccountChange();
+  const { fullTransaction, setOperations } = useStore(
+    useShallow((state) => state)
+  );
 
-  const operation = tx.tx.operations[id]
+  const operation = fullTransaction.tx.tx.operations[id];
   const inflationDestination = operation.body.set_options?.inflation_dest || "";
-  const masterWeight = operation.body.set_options?.master_weight || "";
-  const lowThreshold = operation.body.set_options?.low_threshold || "";
-  const mediumThreshold = operation.body.set_options?.med_threshold || "";
-  const highThreshold = operation.body.set_options?.high_threshold || "";
+  const setFlags = operation.body.set_options?.set_flags || 0;
+  const clearFlags = operation.body.set_options?.clear_flags || 0;
+  const masterWeight = operation.body.set_options?.master_weight || 0;
+  const lowThreshold = operation.body.set_options?.low_threshold || 0;
+  const mediumThreshold = operation.body.set_options?.med_threshold || 0;
+  const highThreshold = operation.body.set_options?.high_threshold || 0;
   const homeDomain = operation.body.set_options?.home_domain || "";
-  const sourceAccount = tx.tx.operations[id]?.source_account || "";
+  const sourceAccount = operation.source_account;
 
   const [selectedSetFlags, setSelectedSetFlags] = useState<number[]>([]);
   const [selectedClearFlags, setSelectedClearFlags] = useState<number[]>([]);
-  const [currentSignerType, setCurrentSignerType] = useState<string>(signerOptions[0]);
+  const [currentSignerType, setCurrentSignerType] = useState<string>(
+    signerOptions[0]
+  );
+
+  const calculateFlagPoints = (flags: number[], flagData: IFlag[]) => {
+    return flags.reduce((total, flagId) => {
+      const flag = flagData.find((f) => f.id === flagId);
+      return total + (flag ? flag.points : 0);
+    }, 0);
+  };
 
   // Set Flags
-  const handleToggleSetFlag = useCallback((flagId: number) => {
-    setSelectedSetFlags((prevFlags) =>
-      prevFlags.includes(flagId)
-        ? prevFlags.filter((id) => id !== flagId)
-        : [...prevFlags, flagId]
-    );
-  }, []);
+  const handleToggleSetFlag = useCallback(
+    (flagId: number) => {
+      const newSelectedSetFlags = selectedSetFlags.includes(flagId)
+        ? selectedSetFlags.filter((id) => id !== flagId)
+        : [...selectedSetFlags, flagId];
+
+      const newSetFlags = calculateFlagPoints(
+        newSelectedSetFlags,
+        setFlagsData
+      );
+
+      const newOperations = [...fullTransaction.tx.tx.operations];
+      if (newOperations[id]) {
+        newOperations[id] = {
+          ...newOperations[id],
+          body: {
+            ...newOperations[id].body,
+            set_options: {
+              ...newOperations[id].body.set_options,
+              set_flags: newSetFlags,
+            },
+          },
+        };
+        setOperations(newOperations);
+      }
+
+      setSelectedSetFlags(newSelectedSetFlags);
+    },
+    [selectedSetFlags, fullTransaction.tx.tx.operations, id, setOperations]
+  );
 
   // Clear Flags
-  const handleToggleClearFlag = useCallback((flagId: number) => {
-    setSelectedClearFlags((prevFlags) =>
-      prevFlags.includes(flagId)
-        ? prevFlags.filter((id) => id !== flagId)
-        : [...prevFlags, flagId]
-    );
-  }, []);
+  const handleToggleClearFlag = useCallback(
+    (flagId: number) => {
+      const newSelectedClearFlags = selectedClearFlags.includes(flagId)
+        ? selectedClearFlags.filter((id) => id !== flagId)
+        : [...selectedClearFlags, flagId];
+
+      const newClearFlags = calculateFlagPoints(
+        newSelectedClearFlags,
+        clearFlagsData
+      );
+
+      const newOperations = [...fullTransaction.tx.tx.operations];
+      if (newOperations[id]) {
+        newOperations[id] = {
+          ...newOperations[id],
+          body: {
+            ...newOperations[id].body,
+            set_options: {
+              ...newOperations[id].body.set_options,
+              clear_flags: newClearFlags,
+            },
+          },
+        };
+        setOperations(newOperations);
+      }
+
+      setSelectedClearFlags(newSelectedClearFlags);
+    },
+    [selectedClearFlags, fullTransaction.tx.tx.operations, id, setOperations]
+  );
 
   const validateRange = useCallback((value: string): boolean => {
     const num = Number(value);
     return num >= 0 && num <= 255;
   }, []);
 
-  const handleInputChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newOperations = [...tx.tx.operations];
+  const handleInputChange =
+    (field: string, isNumber = true) =>
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (isNaN(Number(e.target.value)) && isNumber) return;
+        const newOperations = [...fullTransaction.tx.tx.operations];
+        if (newOperations[id]) {
+          newOperations[id] = {
+            ...newOperations[id],
+            body: {
+              ...newOperations[id].body,
+              set_options: {
+                ...newOperations[id].body.set_options,
+                [field]: isNumber ? Number(e.target.value) : e.target.value,
+              },
+            },
+          };
+          setOperations(newOperations);
+        }
+      };
+
+  const handleSignerChange = (field: 'key' | 'weight') => (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isNaN(Number(e.target.value)) && field === 'weight') return;
+    const newOperations = [...fullTransaction.tx.tx.operations];
     if (newOperations[id]) {
       newOperations[id] = {
         ...newOperations[id],
@@ -71,9 +151,12 @@ const SetOptions: FC<Props> = ({id}) => {
           ...newOperations[id].body,
           set_options: {
             ...newOperations[id].body.set_options,
-            [field]: e.target.value
-          }
-        }
+            signer: {
+              ...newOperations[id].body.set_options?.signer,
+              [field]: field === 'weight' ? Number(e.target.value) : e.target.value,
+            },
+          },
+        },
       };
       setOperations(newOperations);
     }
@@ -88,8 +171,10 @@ const SetOptions: FC<Props> = ({id}) => {
           title="Inflation Destination"
           placeholder="Example: GCEXAMPLE5HWNK4AYSTEQ4UWDKHTCKADVS2AHF3UI2ZMO3DPUSM6"
           value={inflationDestination}
-          onChange={handleInputChange('inflation_dest')}
-          validate={(value) => StellarSdk.StrKey.isValidEd25519PublicKey(value) || value === ""}
+          onChange={handleInputChange("inflation_dest", false)}
+          validate={(value) =>
+            StellarSdk.StrKey.isValidEd25519PublicKey(value) || value === ""
+          }
           errorMessage="Public key is invalid."
         />
 
@@ -111,7 +196,7 @@ const SetOptions: FC<Props> = ({id}) => {
           title="Master Weight"
           placeholder="0-255"
           value={masterWeight.toString()}
-          onChange={handleInputChange('master_weight')}
+          onChange={handleInputChange("master_weight")}
           validate={validateRange}
           errorMessage="Expected an integer between 0 and 255 (inclusive)."
           warningMessage="This can result in a permanently locked account. Are you sure you know what you're doing?"
@@ -121,7 +206,7 @@ const SetOptions: FC<Props> = ({id}) => {
           title="Low Threshold"
           placeholder="0-255"
           value={lowThreshold.toString()}
-          onChange={handleInputChange('low_threshold')}
+          onChange={handleInputChange("low_threshold")}
           validate={validateRange}
           errorMessage="Expected an integer between 0 and 255 (inclusive)."
         />
@@ -130,7 +215,7 @@ const SetOptions: FC<Props> = ({id}) => {
           title="Medium Threshold"
           placeholder="0-255"
           value={mediumThreshold.toString()}
-          onChange={handleInputChange('med_threshold')}
+          onChange={handleInputChange("med_threshold")}
           validate={validateRange}
           errorMessage="Expected an integer between 0 and 255 (inclusive)."
           warningMessage="This can result in a permanently locked account. Are you sure you know what you're doing?"
@@ -140,7 +225,7 @@ const SetOptions: FC<Props> = ({id}) => {
           title="High Threshold"
           placeholder="0-255"
           value={highThreshold.toString()}
-          onChange={handleInputChange('high_threshold')}
+          onChange={handleInputChange("high_threshold")}
           validate={validateRange}
           errorMessage="Expected an integer between 0 and 255 (inclusive)."
           warningMessage="This can result in a permanently locked account. Are you sure you know what you're doing?"
@@ -154,7 +239,28 @@ const SetOptions: FC<Props> = ({id}) => {
             <select
               className={s.selectCurrentSignerType}
               value={currentSignerType}
-              onChange={(e) => setCurrentSignerType(e.target.value)}
+              onChange={(e) => {
+                setCurrentSignerType(e.target.value);
+                if (e.target.value !== signerOptions[0]) {
+                  const newOperations = [...fullTransaction.tx.tx.operations];
+                  if (newOperations[id]) {
+                    newOperations[id] = {
+                      ...newOperations[id],
+                      body: {
+                        ...newOperations[id].body,
+                        set_options: {
+                          ...newOperations[id].body.set_options,
+                          signer: {
+                            key: null,
+                            weight: null
+                          }
+                        }
+                      }
+                    };
+                    setOperations(newOperations);
+                  }
+                }
+              }}
             >
               {signerOptions.map((option) => (
                 <option key={option} value={option}>
@@ -163,8 +269,35 @@ const SetOptions: FC<Props> = ({id}) => {
               ))}
             </select>
             <p>
-              Used to add/remove or adjust the weight of an additional signer on the account.
+              Used to add/remove or adjust the weight of an additional signer on
+              the account.
             </p>
+            {currentSignerType !== signerOptions[0] && (
+              <>
+                <InputField
+                  title="Key"
+                  placeholder={
+                    currentSignerType === signerOptions[1]
+                      ? "Ex: GCEXAMPLE5HWNK4AYSTEQ4UWDKHTCKADVS2AHF3UI2ZMO3DPUSM6Q4UG"
+                      : "Accepts a 32-byte hash in hexadecimal format (64 characters)"
+                  }
+                  value={fullTransaction.tx.tx.operations[id].body.set_options?.signer?.key?.toString() ?? ''}
+                  onChange={handleSignerChange('key')}
+                  validate={(value) =>
+                    StellarSdk.StrKey.isValidEd25519PublicKey(value) || value === ""
+                  }
+                  errorMessage={currentSignerType === signerOptions[3] ? "Accepts a 32-byte hash in hexadecimal format (64 characters)." : "Public key is invalid."}
+                />
+                <InputField
+                  title="Weight"
+                  placeholder="0-255"
+                  value={fullTransaction.tx.tx.operations[id].body.set_options?.signer?.weight?.toString() ?? ''}
+                  onChange={handleSignerChange('weight')}
+                  validate={validateRange}
+                  errorMessage="Expected an integer between 0 and 255 (inclusive)."
+                />
+              </>
+            )}
           </div>
         </div>
 
@@ -172,15 +305,17 @@ const SetOptions: FC<Props> = ({id}) => {
           title="Home Domain"
           placeholder="Example: example.com"
           value={homeDomain}
-          onChange={handleInputChange('home_domain')}
+          onChange={handleInputChange("home_domain", false)}
         />
 
         <InputField
           title="Source Account"
           placeholder="Example: GCEXAMPLE5HWNK4AYSTEQ4UWDKHTCKADVS2AHF3UI2ZMO3DPUSM6"
-          value={sourceAccount}
-          onChange={handleInputChange('source_account')}
-          validate={(value) => StellarSdk.StrKey.isValidEd25519PublicKey(value) || value === ""}
+          value={sourceAccount === null ? "" : sourceAccount}
+          onChange={(e) => handleSourceAccountChange(e, id)}
+          validate={(value) =>
+            StellarSdk.StrKey.isValidEd25519PublicKey(value) || value === ""
+          }
           errorMessage="Public key is invalid."
         />
       </div>

@@ -1,7 +1,6 @@
 "use client";
 
 import { MainLayout } from "@/widgets";
-import Image from "next/image";
 import {
   getAccountIssuerInformation,
   getDomainInformation,
@@ -170,6 +169,10 @@ const PublicNet: FC<Props> = ({ id }) => {
     }
   }, [information.tomlInfo, id]);
 
+  useEffect(() => {
+    console.log(information);
+  }, [information])
+
   return (
     <MainLayout>
       <div className="container">
@@ -179,7 +182,14 @@ const PublicNet: FC<Props> = ({ id }) => {
           ) : exists ? (
             <>
               <h2 className="word-break relative condensed">
-                <span className="dimmed">Account&nbsp;&nbsp;&nbsp;</span>
+                <span className="dimmed">
+                  {information.signers?.length === 1 ? (
+                    <span>Personal</span>
+                  ) : (
+                    <span>Corporate</span>
+                  )}{" "}
+                  Account&nbsp;&nbsp;&nbsp;
+                </span>
                 <span className="account-address plain">
                   <span className="account-key">{account}</span>
                   &nbsp;&nbsp;&nbsp;
@@ -192,21 +202,10 @@ const PublicNet: FC<Props> = ({ id }) => {
                   >
                     <a
                       href={`https://stellar.expert/explorer/${net}/account/${account}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
                       title="View on Stellar.Expert"
+                      target="_blank"
                     >
-                      <Image
-                        src="../stellar-expert-logo.png"
-                        alt="Stellar Expert Logo"
-                        className="dark:invert"
-                        width={30}
-                        style={{
-                          display: "inline-block",
-                        }}
-                        height={30}
-                        priority
-                      />
+                      <i className="fa-solid fa-up-right-from-square"></i>
                     </a>
                   </span>
                 </span>
@@ -415,7 +414,7 @@ const PublicNet: FC<Props> = ({ id }) => {
                             marginBottom: "0px",
                           }}
                         >
-                          Assets Issued by this Account
+                          Issued Assets
                           <i className="trigger icon info-tooltip small icon-help">
                             <div
                               className="tooltip-wrapper"
@@ -444,22 +443,19 @@ const PublicNet: FC<Props> = ({ id }) => {
                         </h4>
                         <div className="text-small">
                           <ul>
-                            {information?.issuers?.map(
+                            {Array.isArray(information?.issuers) && (information?.issuers as Issuer[]).map(
                               (issuer: Issuer, key: number) => {
                                 return (
                                   <li key={key}>
-                                    <Link href="#" legacyBehavior>
-                                      <a
-                                        aria-label={issuer.paging_token}
-                                        className="asset-link"
-                                      >
-                                        {issuer?.asset_code}
-                                      </a>
-                                    </Link>
+                                    <a
+                                      aria-label={issuer.paging_token}
+                                      className="asset-link"
+                                      href={`https://stellar.expert/explorer/${net}/asset/${issuer.asset_code}-${issuer.asset_issuer}`}
+                                      target="_blank"
+                                    >
+                                      {issuer?.asset_code}
+                                    </a>
                                     &nbsp;
-                                    <span className="">
-                                      ({issuer.accounts.authorized} trustlines)
-                                    </span>
                                   </li>
                                 );
                               }
@@ -618,44 +614,48 @@ const PublicNet: FC<Props> = ({ id }) => {
                           style={{ width: "100%" }}
                         >
                           <tbody>
-                            {information?.balances
-                              ?.filter((item: Balance) => !item?.asset_code)
-                              .map((item: Balance, index: number) => {
-                                const totalInfo = item.balance.split(".");
-                                const number = totalInfo[0];
-                                const decimal =
-                                  Number(totalInfo[1]) === 0
-                                    ? ""
-                                    : "." + totalInfo[1];
-
-                                return (
-                                  <BalanceItem
-                                    key={index}
-                                    number={number}
-                                    decimal={decimal}
-                                    item={item}
-                                  />
-                                );
-                              })}
-                            {information?.balances
-                              ?.filter((item: Balance) => item?.asset_code)
-                              .map((item: Balance, index: number) => {
-                                const totalInfo = item.balance.split(".");
-                                const number = totalInfo[0];
-                                const decimal =
-                                  Number(totalInfo[1]) === 0
-                                    ? ""
-                                    : "." + totalInfo[1];
-
-                                return (
-                                  <BalanceItem
-                                    key={index}
-                                    number={number}
-                                    decimal={decimal}
-                                    item={item}
-                                  />
-                                );
-                              })}
+                            {information.balances &&
+                              information.balances.map(
+                                (item: Balance, index: number) => {
+                                  const totalInfo = item.balance.split(".");
+                                  const number = totalInfo[0];
+                                  const decimal =
+                                    Number(totalInfo[1]) === 0
+                                      ? ""
+                                      : "." + totalInfo[1];
+                                  if (item.asset_type === "native") {
+                                    return (
+                                      <BalanceItem
+                                        key={index}
+                                        number={number}
+                                        decimal={decimal}
+                                        item={item}
+                                      />
+                                    );
+                                  }
+                                }
+                              )}
+                            {information.balances &&
+                              information.balances.map(
+                                (item: Balance, index: number) => {
+                                  const totalInfo = item.balance.split(".");
+                                  const number = totalInfo[0];
+                                  const decimal =
+                                    Number(totalInfo[1]) === 0
+                                      ? ""
+                                      : "." + totalInfo[1];
+                                  if (item.asset_code) {
+                                    return (
+                                      <BalanceItem
+                                        key={index}
+                                        number={number}
+                                        decimal={decimal}
+                                        item={item}
+                                      />
+                                    );
+                                  }
+                                }
+                              )}
                           </tbody>
                         </table>
                       </div>
@@ -812,9 +812,9 @@ const PublicNet: FC<Props> = ({ id }) => {
                                     </dd>
                                   </>
                                 )}
-                            </dl >
+                            </dl>
                           )}
-                        </div >
+                        </div>
                       ) : (
                         <div>
                           <pre
@@ -881,9 +881,9 @@ const PublicNet: FC<Props> = ({ id }) => {
                           </pre>
                         </div>
                       )}
-                    </div >
-                  </div >
-                </div >
+                    </div>
+                  </div>
+                </div>
               ) : null}
             </>
           ) : (
@@ -904,9 +904,9 @@ const PublicNet: FC<Props> = ({ id }) => {
               </div>
             </div>
           )}
-        </div >
-      </div >
-    </MainLayout >
+        </div>
+      </div>
+    </MainLayout>
   );
 };
 

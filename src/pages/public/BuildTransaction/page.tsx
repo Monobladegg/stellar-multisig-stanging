@@ -1,6 +1,6 @@
 "use client";
 
-import React, { memo, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MainLayout, SetOptions, ManageData } from "@/widgets";
 import StellarSdk from "stellar-sdk";
 import axios from "axios";
@@ -8,10 +8,11 @@ import { Information } from "@/shared/types";
 import { useStore } from "@/features/store";
 import { useShallow } from "zustand/react/shallow";
 import __wbg_init, { encode } from "@stellar/stellar-xdr-json-web"
+import { IOperation } from "@/shared/types/store/slices/buildTxJSONSlice";
 
 type MemoType = "None" | "Text" | "ID" | "Hash" | "Return";
 type TransactionType = "Transaction" | "Fee Bump";
-type OperationType = "Set Options" | "Manage Data"
+type OperationType = "set_options" | "manage_data"
 
 const memoTypes: MemoType[] = ["None", "Text", "ID", "Hash", "Return"]
 
@@ -41,18 +42,15 @@ const Page: React.FC = () => {
     setMemo,
     addOperation,
     removeOperation: storeRemoveOperation,
-    addSignature,
-    removeSignature,
-    resetTx,
     setOperations,
+    fullTransaction
   } = useStore(useShallow((state) => state));
 
-  const [selectedTransactionType, setSelectedTransactionType] =
-    useState<TransactionType>("Transaction");
   const [memoInput, setMemoInput] = useState<string>("");
   const [sourceAccountInputIsValid, setSourceAccountInputIsValid] =
     useState<boolean>(false);
   const [txBuildErrors, setTxBuildErrors] = useState<string[]>([]);
+  const [currentXDR, setCurrentXDR] = useState<string>("");
 
   useEffect(() => {
     setSourceAccountInputIsValid(
@@ -64,7 +62,6 @@ const Page: React.FC = () => {
     addOperation("manage_data");
   };
 
-  // Helper function to manage errors
   const updateErrors = (condition: boolean, errorMessage: string) => {
     setTxBuildErrors(prevErrors =>
       condition
@@ -146,7 +143,6 @@ const Page: React.FC = () => {
 
   const setTimeBoundsToFiveMinutes = () => {
     const now = Math.floor(Date.now() / 1000);
-    // setTimeBound2((now + 300).toString());
     setTimeCondition(Number(""), now + 300);
   };
 
@@ -162,67 +158,57 @@ const Page: React.FC = () => {
   };
 
   const setOperationType = (index: number, type: OperationType) => {
-    const mappedType = type === "Set Options" ? "set_options" : "manage_data";
-
     if (index >= 0 && index < tx.tx.operations.length) {
       const updatedOperations = [...tx.tx.operations];
-      updatedOperations[index] = { ...updatedOperations[index], body: { ...updatedOperations[index].body, type: mappedType } };
+      updatedOperations[index] = {
+        ...updatedOperations[index],
+        body: type === "set_options" ? { set_options: {} } : { manage_data: { data_name: "", data_value: null } }
+      };
       setOperations(updatedOperations);
     }
+  };
+
+  const getOperationType = (operation: IOperation): OperationType => {
+    return operation.body.set_options ? "set_options" : "manage_data";
   };
 
   useEffect(() => {
     const initializeWasm = async () => {
       try {
-        // Initialize WebAssembly module
+        console.log('Initializing WebAssembly module...');
         await __wbg_init(/* path to your module */);
+        console.log('WebAssembly module initialized.');
 
-        // Check that tx object is defined and has the correct structure
-        if (!tx || typeof tx !== 'object') {
-          throw new Error('Invalid tx object');
+        if (!fullTransaction || typeof fullTransaction !== 'object' || !fullTransaction.tx) {
+          throw new Error('Invalid fullTransaction object structure');
         }
 
-        // Convert tx object to JSON string
-        const jsonTx = JSON.stringify(tx);
+        // Create the correct TransactionEnvelope structure
+        const transactionEnvelope = {
+          tx: fullTransaction.tx
+        };
 
-        // Encode JSON to XDR
-        const xdrType = 'Transaction'; // Replace with the appropriate XDR type
+        const jsonTx = JSON.stringify(transactionEnvelope, null, 2);
+        console.log('JSON TransactionEnvelope:', jsonTx);
+
+        const xdrType = 'TransactionEnvelope';
+        console.log('Input to encode:', jsonTx);
         const xdrEncoded = encode(xdrType, jsonTx);
-
         console.log('Encoded XDR:', xdrEncoded);
+        setCurrentXDR(xdrEncoded);
       } catch (error) {
-        console.error('Error initializing WebAssembly or encoding:', error);
+        console.error('Error:', error instanceof Error ? error.message : error);
       }
     };
 
-    console.log(tx)
-
+    console.log('Calling initializeWasm with fullTransaction:', fullTransaction);
     initializeWasm();
-  }, [tx]); // Rerun useEffect when tx changes
-
+  }, [fullTransaction]);
 
   return (
     <MainLayout>
       <div className="container">
         <div className="segment blank">
-          {/* Transaction Type */}
-          <div>
-            <h4>Transaction Type</h4>
-            {["Transaction", "Fee Bump"].map((type) => (
-              <button
-                key={type}
-                className={`button ${type === selectedTransactionType ? "disabled" : ""
-                  }`}
-                onClick={() =>
-                  setSelectedTransactionType(type as TransactionType)
-                }
-                disabled={type === selectedTransactionType}
-              >
-                {type}
-              </button>
-            ))}
-          </div>
-
           {/* Source Account */}
           <div>
             <h4>Source Account</h4>
@@ -242,7 +228,7 @@ const Page: React.FC = () => {
             <input
               placeholder="Example: 55834579143"
               value={tx.tx.seq_num}
-              onChange={(e) => setSeqNum(Number(e.target.value))}
+              onChange={(e) => setSeqNum(e.target.value)}
             />
             {sourceAccountInputIsValid && (
               <>
@@ -319,8 +305,6 @@ const Page: React.FC = () => {
               )
             })}
 
-
-
             {tx.tx.memo !== "none" && (
               <input
                 placeholder={
@@ -351,7 +335,6 @@ const Page: React.FC = () => {
             )}
             {tx.tx.memo !== "none" && (
               <p className="error">
-                {/* Error messages for different memo types */}
                 {memoInput !== "" && (<>
                   {tx.tx.memo.text !== undefined && memoInput.length > 28 && (
                     <span>Text memo cannot be longer than 28 bytes</span>
@@ -364,8 +347,8 @@ const Page: React.FC = () => {
                   )}
                   {tx.tx.memo.return !== undefined && !/^[0-9a-f]{64}$/.test(memoInput) && (
                     <span>Return memo must be a 32-byte hash in hexadecimal format (64 [0-9a-f] characters)</span>
-                  )}</>)}
-
+                  )}
+                </>)}
               </p>
             )}
           </div>
@@ -435,7 +418,7 @@ const Page: React.FC = () => {
                   <h4>Operation Type</h4>
                   <select
                     className="input"
-                    value={operation.body.type === "set_options" ? "Set Options" : "Manage Data"}
+                    value={getOperationType(operation)}
                     onChange={(e) =>
                       setOperationType(
                         index,
@@ -443,15 +426,15 @@ const Page: React.FC = () => {
                       )
                     }
                   >
-                    <option value="Manage Data">Manage Data</option>
-                    <option value="Set Options">Set Options</option>
+                    <option value="manage_data">Manage Data</option>
+                    <option value="set_options">Set Options</option>
                   </select>
 
                   <div className="mt-3">
-                    {operation.body.type === "set_options" && (
+                    {getOperationType(operation) === "set_options" && (
                       <SetOptions id={index} />
                     )}
-                    {operation.body.type === "manage_data" && (
+                    {getOperationType(operation) === "manage_data" && (
                       <ManageData id={index} />
                     )}
                   </div>
@@ -463,19 +446,23 @@ const Page: React.FC = () => {
             </button>
           </div>
         </div>
-        {txBuildErrors.length < 0 ? (
-          <div style={{ marginTop: "20px" }} className="segment blank">
-            <h2>Transaction building errors:</h2>
-            <ul>
-              {txBuildErrors.map((error, index) => (
-                <li key={index}>{`- ${error}`}</li>
-              ))}
-            </ul>
-          </div>
-        ) : (
-          <>
-          </>
-        )}
+        <div style={{ marginTop: "20px" }} className="segment blank">
+          {txBuildErrors.length > 0 ? (
+            <>
+              <h2>Transaction building errors:</h2>
+              <ul>
+                {txBuildErrors.map((error, index) => (
+                  <li key={index}>{`- ${error}`}</li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <>
+              <h1>Here your XDR transaction:</h1>
+              <h3>{currentXDR}{" "}<span style={{ cursor: "pointer" }} onClick={() => navigator.clipboard.writeText(currentXDR)}><i className="fa-regular fa-copy"></i></span></h3>
+            </>
+          )}
+        </div>
       </div>
     </MainLayout>
   );

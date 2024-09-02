@@ -25,6 +25,11 @@
     "tag": "stablecoin"
   },
   {
+    "code": "BTCMTL",
+    "issuer": "GACKTN5DAZGWXRWB2WLM6OPBDHAMT6SJNGLJZPQMEZBUR4JUGBX2UK7V",
+    "tag": "stablecoin"
+  },
+  {
     "code": "BTCDEBT",
     "issuer": "GACKTN5DAZGWXRWB2WLM6OPBDHAMT6SJNGLJZPQMEZBUR4JUGBX2UK7V",
     "tag": "debt"

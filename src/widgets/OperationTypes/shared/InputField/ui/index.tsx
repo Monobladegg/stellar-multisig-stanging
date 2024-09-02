@@ -24,12 +24,12 @@ const InputField: FC<InputFieldProps> = ({
 }) => (
   <div className={s.section}>
     <h4 className={s.sectionTitle}>
-      {title} {isOptional && <span className={s.optional}>optional</span>}
+      {title} {isOptional && <span className={s.optional}>(optional)</span>}
     </h4>
     <div>
-      <input 
-        style={{ width: "812px" }} 
-        placeholder={placeholder} 
+      <input
+        style={{ width: "812px" }}
+        placeholder={placeholder}
         value={value}
         onChange={onChange}
       />

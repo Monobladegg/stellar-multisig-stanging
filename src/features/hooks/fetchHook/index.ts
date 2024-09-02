@@ -13,7 +13,7 @@ export const getMainInformation = async (accountId: string) => {
     console.log(`Fetching main information for account: ${accountId}`);
     const mainInformation = localStorage.getItem("main-" + accountId);
     const dateInformationMain = localStorage.getItem("date-" + accountId);
-    
+
     if (mainInformation && !dateInformationMain) {
       console.log("Main information cached but date information missing");
       const result = await server.loadAccount(accountId);
@@ -54,7 +54,7 @@ export const getAccountIssuerInformation = async (accountId: string) => {
     console.log(`Fetching issuer information for account: ${accountId}`);
     const issuerInformation = localStorage.getItem("issuer-" + accountId);
     const dateInformationIssuer = localStorage.getItem("date-" + accountId);
-    
+
     if (issuerInformation && !dateInformationIssuer) {
       console.log("Issuer information cached but date information missing");
       const result = await server.assets().forIssuer(accountId).call();
@@ -94,7 +94,7 @@ export const getDomainInformation = async (domain: string) => {
     console.log(`Fetching domain information for domain: ${domain}`);
     const domainInformation: string | null = localStorage.getItem("domain-" + domain);
     const dateInformationDomain = localStorage.getItem("date-" + domain);
-    
+
     if (domainInformation && dateInformationDomain) {
       const cacheDuration = cacheConfig.stellarTomlCacheDurationMs;
       const isCacheValid =

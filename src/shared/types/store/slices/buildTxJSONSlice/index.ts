@@ -1,5 +1,8 @@
 export interface IBuildTxJSONState {
-  tx: TX
+  fullTransaction: {
+    tx: TX;
+  };
+  tx: TX;
 }
 
 export interface TX {
@@ -22,15 +25,15 @@ export interface TX {
           return?: string;
         };
     operations: IOperation[];
-    ext: "v0"
+    ext: "v0";
   };
   signatures: ISignature[];
-};
+}
 
 export interface IBuildTxJSONActions {
   setSourceAccount: (source_account: string) => void;
   setFee: (fee: number) => void;
-  setSeqNum: (seq_num: number) => void;
+  setSeqNum: (seq_num: number | string) => void;
   setTimeCondition: (min_time: number, max_time: number) => void;
   setMemo: (
     memo:
@@ -51,28 +54,28 @@ export interface ISignature {
 }
 
 export interface IOperation {
-  source_account: string;
+  source_account: string | null;
   body: {
-    type: "set_options" | "manage_data";
     set_options?: {
-      inflation_dest?: string;
-      clear_flags?: number;
-      set_flags?: number;
-      master_weight?: number;
-      low_threshold?: number;
-      med_threshold?: number;
-      high_threshold?: number;
-      home_domain?: string;
+      inflation_dest?: string | null;
+      clear_flags?: number | null;
+      set_flags?: number | null;
+      master_weight?: number | null;
+      low_threshold?: number | null;
+      med_threshold?: number | null;
+      high_threshold?: number | null;
+      home_domain?: string | null;
       signer?:
         | {
-            key?: string;
-            weight?: number;
+            key?: string | null;
+            weight?: number | null;
           }
-        | undefined;
+        | undefined
+        | null;
     };
     manage_data?: {
       data_name: string;
-      data_value: string;
+      data_value: string | null | undefined;
     };
   };
 }

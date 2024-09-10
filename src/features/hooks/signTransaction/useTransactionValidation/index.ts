@@ -1,0 +1,21 @@
+import { useState, useCallback } from "react";
+import stellarSdk from "stellar-sdk";
+
+const useTransactionValidation = () => {
+  const [validationError, setValidationError] = useState<string | null>(null);
+
+  const validateTransactionEnvelope = useCallback((envelope: string): boolean => {
+    try {
+      stellarSdk.TransactionBuilder.fromXDR(envelope, stellarSdk.Networks.TESTNET);
+      setValidationError(null);
+      return true;
+    } catch (error: any) {
+      setValidationError(error.message || "Invalid transaction envelope");
+      return false;
+    }
+  }, []);
+
+  return { validationError, validateTransactionEnvelope };
+};
+
+export default useTransactionValidation;

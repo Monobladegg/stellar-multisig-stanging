@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { FC } from 'react'
 import BuildTransaction from "@/pages/public/BuildTransaction/page"
 
-const Page = () => {
+const Page: FC = () => {
   return <BuildTransaction />
 }
 

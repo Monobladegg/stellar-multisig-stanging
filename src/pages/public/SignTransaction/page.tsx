@@ -7,7 +7,6 @@ import {
   TransactionForm,
   TransactionOverview,
   TransactionSignatures,
-  ShowXdrButtons,
 } from "@/widgets/SignTransaction";
 import useTransactionValidation from "@/features/hooks/signTransaction/useTransactionValidation";
 import useXDRDecoding from "@/features/hooks/signTransaction/useXDRDecoding";
@@ -36,7 +35,7 @@ const SignTransaction: FC = () => {
   >(null);
   const [localSignatures, setLocalSignatures] = useState<localSignature>([""]);
 
-  const { validationError, validateTransactionEnvelope } =
+  const { validateTransactionEnvelope } =
     useTransactionValidation();
 
   useEffect(() => {
@@ -107,7 +106,6 @@ const SignTransaction: FC = () => {
               } signature(s) total`}
               xdr={resultXdr}
               lowerDescription="Now that this transaction is signed, you can submit it to the network. Horizon provides an endpoint called Post Transaction that will relay your transaction to the network and inform you of the result."
-              buttons={<ShowXdrButtons />}
             />
           )}
         </>

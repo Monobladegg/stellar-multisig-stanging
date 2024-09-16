@@ -9,8 +9,8 @@ const useTransactionValidation = (): { validationError: string | null, validateT
       stellarSdk.TransactionBuilder.fromXDR(envelope, stellarSdk.Networks.TESTNET);
       setValidationError(null);
       return true;
-    } catch (error: any) {
-      setValidationError(error.message || "Invalid transaction envelope");
+    } catch (error) {
+      setValidationError((error as Error).message || "Invalid transaction envelope");
       return false;
     }
   }, []);

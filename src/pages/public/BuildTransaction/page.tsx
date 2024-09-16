@@ -109,7 +109,7 @@ const Page: React.FC = () => {
       ),
       "Select operation type"
     );
-  }, [fullTransaction.tx.tx.operations]);
+  }, [fullTransaction.tx.tx.operations, tx.tx.operations.length]);
 
   useEffect(() => {
     if (memoInput !== "" && tx.tx.memo !== "none") {

@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect } from "react";
+import React, { FC, useEffect } from "react";
 import Link from "next/link";
 import { InputField } from "../../ui/widgets";
 import useTransactionValidation from "@/features/hooks/signTransaction/useTransactionValidation";

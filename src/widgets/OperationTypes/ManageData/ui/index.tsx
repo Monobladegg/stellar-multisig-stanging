@@ -80,11 +80,10 @@ const ManageData: FC<Props> = ({ id }) => {
 
 
   useEffect(() => {
-    // Set the default operation if it's not set already
     if (!tx.tx.operations[id]) {
       setOperations([...tx.tx.operations, defaultOperation]);
     }
-  }, []);
+  }, [defaultOperation, id, setOperations, tx.tx.operations]);
 
   return (
     <>

@@ -5,7 +5,6 @@ import { useStore } from "@/features/store";
 import { Footer, Header } from "@/widgets";
 import { useShallow } from "zustand/react/shallow";
 import AddAccountModal from "@/widgets/shared/layouts/Header/ui/AddAccountModal";
-import Head from "next/head";
 import { usePathname } from 'next/navigation';
 
 
@@ -50,7 +49,7 @@ const PageLayout: FC<Props> = ({ children }) => {
         setNet(pathname.includes("testnet") ? "testnet" : "public");
       }
     }
-  }, [isWindowDefined, setTheme, setNet, setAccounts]);
+  }, [isWindowDefined, setTheme, setNet, setAccounts, pathname]);
 
   useEffect(() => {
     setIsAuth(
@@ -59,10 +58,6 @@ const PageLayout: FC<Props> = ({ children }) => {
         .filter((account) => account.isCurrent).length > 0
     );
   }, [accounts, net, setIsAuth]);
-
-  useEffect(() => {
-    console.log(net);
-  }, [net]);
 
   const themeLS: string | undefined | null = isWindowDefined
     ? window.localStorage.getItem("theme")
@@ -73,13 +68,13 @@ const PageLayout: FC<Props> = ({ children }) => {
   if (!isWindowDefined) {
     return (
       <html>
-        <Head>
+        <head>
           <meta
             name="viewport"
             content="width=device-width, initial-scale=1.0"
           />
           <title>Stellar Multisig</title>
-        </Head>
+        </head>
         <body></body>
       </html>
     );

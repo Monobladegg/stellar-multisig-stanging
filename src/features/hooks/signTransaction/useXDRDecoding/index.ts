@@ -51,7 +51,7 @@ const useXDRDecoding = (paramsXDRHook: string | null, envelope: string) => {
     };
 
     decodeXDR(envelope);
-  }, [paramsXDRHook, envelope]);
+  }, [paramsXDRHook, envelope, net]);
 
   return { 
     XDRToTransaction, 

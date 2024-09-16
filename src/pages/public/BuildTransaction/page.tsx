@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, FC } from "react";
 import { MainLayout, SetOptions, ManageData } from "@/widgets";
 import StellarSdk from "stellar-sdk";
 import axios from "axios";
@@ -9,6 +9,7 @@ import { useStore } from "@/features/store";
 import { useShallow } from "zustand/react/shallow";
 import __wbg_init, { encode } from "@stellar/stellar-xdr-json-web";
 import { IOperation } from "@/shared/types/store/slices/buildTxJSONSlice";
+import { useSearchParams } from "next/navigation";
 
 type MemoType = "None" | "Text" | "ID" | "Hash" | "Return";
 type OperationType = "set_options" | "manage_data" | "select_operation_type";
@@ -31,7 +32,7 @@ export function hexToString(hex: string) {
   return str;
 }
 
-const Page: React.FC = () => {
+const Page: FC = () => {
   const {
     tx,
     setSourceAccount,
@@ -50,6 +51,18 @@ const Page: React.FC = () => {
   const [txBuildErrors, setTxBuildErrors] = useState<string[]>([]);
   const [currentXDR, setCurrentXDR] = useState<string>("");
   const [seqNumError, setSeqNumError] = useState<string>("");
+
+  const params = useSearchParams();
+  // console.log(params?.get("sourceAccount"));
+
+  useEffect(() => {
+
+    if (params?.get("sourceAccount")) {
+      setSourceAccount(params?.get("sourceAccount") ?? "");
+    }
+  
+  }, [])
+  
 
   useEffect(() => {
     setSourceAccountInputIsValid(

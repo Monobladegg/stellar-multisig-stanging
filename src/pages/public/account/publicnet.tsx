@@ -571,6 +571,7 @@ const PublicNet: FC<Props> = ({ id }) => {
                               }
                             )}
                         </ul>
+                        <Link href={`/public/build-transaction?sourceAccount=${id}`}>Build transaction {" "}<i className="fa-solid fa-up-right-from-square" style={{ fontSize: "0.9em" }}></i></Link>
                       </>
                     ) : (
                       <></>

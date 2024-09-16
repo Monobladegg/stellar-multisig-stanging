@@ -51,9 +51,7 @@ const Page: FC = () => {
   const [txBuildErrors, setTxBuildErrors] = useState<string[]>([]);
   const [currentXDR, setCurrentXDR] = useState<string>("");
   const [seqNumError, setSeqNumError] = useState<string>("");
-
   const params = useSearchParams();
-  // console.log(params?.get("sourceAccount"));
 
   useEffect(() => {
 
@@ -152,10 +150,6 @@ const Page: FC = () => {
     }
   }, [memoInput, tx.tx.memo]);
 
-  useEffect(() => {
-    console.log(txBuildErrors);
-  }, [txBuildErrors]);
-
   const duplicateOperation = (index: number) => {
     if (index >= 0 && index < tx.tx.operations.length) {
       const operationToDuplicate = tx.tx.operations[index];
@@ -234,7 +228,6 @@ const Page: FC = () => {
           throw new Error("Invalid fullTransaction object structure");
         }
 
-        // Create the correct TransactionEnvelope structure
         const transactionEnvelope = {
           tx: fullTransaction.tx,
         };
@@ -252,10 +245,6 @@ const Page: FC = () => {
       }
     };
 
-    console.log(
-      "Calling initializeWasm with fullTransaction:",
-      fullTransaction
-    );
     initializeWasm();
   }, [fullTransaction]);
 
@@ -282,7 +271,7 @@ const Page: FC = () => {
             <input
               placeholder="Example: 55834579143"
               value={tx.tx.seq_num}
-              onChange={(e) => setSeqNum(e.target.value)}
+              onChange={(e) => setSeqNum(Number(e.target.value))}
             />
             {sourceAccountInputIsValid && (
               <>
@@ -379,7 +368,7 @@ const Page: FC = () => {
                     ? "Unsigned 64-bit integer"
                     : tx.tx.memo.hash !== undefined
                     ? "32-byte hash in hexadecimal format (64 [0-9a-f] characters)"
-                    : "Return value"
+                    : "32-byte hash in hexadecimal format (64 [0-9a-f] characters)"
                 }
                 value={memoInput}
                 onChange={(e) => {
@@ -438,7 +427,7 @@ const Page: FC = () => {
               onChange={(e) => {
                 setTimeCondition(
                   Number(e.target.value),
-                  tx.tx.cond.time.max_time
+                  Number(tx.tx.cond.time.max_time)
                 );
               }}
             />
@@ -447,7 +436,7 @@ const Page: FC = () => {
               value={tx.tx.cond.time.max_time}
               onChange={(e) => {
                 setTimeCondition(
-                  tx.tx.cond.time.min_time,
+                  Number(tx.tx.cond.time.min_time),
                   Number(e.target.value)
                 );
               }}

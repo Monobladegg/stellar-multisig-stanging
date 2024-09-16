@@ -49,6 +49,7 @@ const Page: React.FC = () => {
     useState<boolean>(false);
   const [txBuildErrors, setTxBuildErrors] = useState<string[]>([]);
   const [currentXDR, setCurrentXDR] = useState<string>("");
+  const [seqNumError, setSeqNumError] = useState<string>("");
 
   useEffect(() => {
     setSourceAccountInputIsValid(
@@ -172,8 +173,12 @@ const Page: React.FC = () => {
         `https://horizon.stellar.org/accounts/${tx.tx.source_account}`
       );
       setSeqNum(data.sequence !== undefined ? data.sequence + 1 : 0);
+      if (seqNumError) setSeqNumError("");
     } catch (error) {
       console.error("Error fetching transaction sequence number", error);
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        setSeqNumError("Account not found. Make sure the correct network is selected and the account is funded/created.");
+      }
     }
   };
 
@@ -275,6 +280,7 @@ const Page: React.FC = () => {
                 <p>Fetching from: https://horizon.stellar.org</p>
               </>
             )}
+            {seqNumError && <p className="error">{seqNumError}</p>}
           </div>
 
           {/* Base Fee */}

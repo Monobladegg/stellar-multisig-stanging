@@ -1,50 +1,57 @@
-import React, { FC } from "react";
+import React, { FC, useState, useEffect } from "react";
 import Link from "next/link";
+import { InputField } from "../../ui/widgets";
+import useTransactionValidation from "@/features/hooks/signTransaction/useTransactionValidation";
 
-interface TransactionFormProps {
+interface Props {
   transactionEnvelope: string;
-  validationError: string | null;
-  isTransactionEnvelopeValid: boolean;
-  handleInputChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  setTransactionEnvelope: (transactionEnvelope: string) => void;
 }
 
-const TransactionForm: FC<TransactionFormProps> = ({
+const TransactionForm: FC<Props> = ({
   transactionEnvelope,
-  validationError,
-  isTransactionEnvelopeValid,
-  handleInputChange,
+  setTransactionEnvelope,
 }) => {
+  const { validationError, validateTransactionEnvelope } =
+    useTransactionValidation();
+
+  useEffect(() => {
+    if (transactionEnvelope) {
+      validateTransactionEnvelope(transactionEnvelope);
+    }
+  }, [transactionEnvelope, validateTransactionEnvelope]);
+
   return (
     <div className="container">
+      <h2>Sign Transaction</h2>
       <div className="segment blank">
-        <h4>Import a transaction envelope in XDR format</h4>
-        <textarea
-          placeholder="Ex: AAAABbxCy3mLg3hiTqX4VUEEp60pFOrJNxYM1JbxTwXhY2AAAAZAAAABAAAAAGAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAJAAAAAAAAAAHwXhY2AAAAQCPAo8QwsZe9FA0sz/deMdhlutG7f7SgkBG222ApvfpETBhnGKX4trSFDz8sVlKqvweqGUVgvjUyM0AcHxyXZQw="
-          style={{
-            width: "100%",
-            height: "100px",
-            border: "1px solid #535759",
-            padding: "10px",
-            fontSize: "16px",
-          }}
+        <p>Import a transaction envelope in XDR format</p>
+        <InputField
           value={transactionEnvelope}
-          onChange={handleInputChange}
+          setValue={setTransactionEnvelope}
+          textarea
+          readOnly={false}
+          placeholder="Ex:
+          AAAAAAbxCy3mlLg3hTiQX4VUEEp6pFOrJNxYM1HJbXtTwxYh2AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhWxYh2AAAAAQAQCPA8OwsZse9FAOsz/deMdhlu6/izk7SgkBG22AvpIpETBhnGkx4tF5rDZ8sVIKqwweqGUVgyUJyM0AcHbyXZQw="
         />
-        <p className={validationError === null ? "success" : "error"}>
-          {validationError === null && "Valid Transaction Envelope XDR"}
+        <p className={!validationError ? "success" : "error"}>
+          {transactionEnvelope !== "" &&
+            (validationError || "Valid Transaction Envelope XDR")}
         </p>
-        <Link
-          href={`/public/sign-transaction${
-            validationError === null ? `?importXDR=${transactionEnvelope}` : ""
-          }`}
-        >
-          <button
-            className={!isTransactionEnvelopeValid ? "disabled" : ""}
-            disabled={!isTransactionEnvelopeValid}
+        {!validationError ? (
+          <Link
+            href={`/public/sign-transaction?importXDR=${encodeURIComponent(
+              transactionEnvelope
+            )}`}
+            passHref
           >
+            <button>Import transaction</button>
+          </Link>
+        ) : (
+          <button disabled className="disabled">
             Import transaction
           </button>
-        </Link>
+        )}
       </div>
     </div>
   );

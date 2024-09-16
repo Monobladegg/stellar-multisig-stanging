@@ -6,14 +6,18 @@ import { Footer, Header } from "@/widgets";
 import { useShallow } from "zustand/react/shallow";
 import AddAccountModal from "@/widgets/shared/layouts/Header/ui/AddAccountModal";
 import Head from "next/head";
+import { usePathname } from 'next/navigation';
+
 
 type Props = {
   children: React.ReactNode;
 };
 
 const PageLayout: FC<Props> = ({ children }) => {
-  const [isWindowDefined, setIsWindowDefined] = useState(false);
+  const [isWindowDefined, setIsWindowDefined] = useState<boolean>(false);
+  const pathname = usePathname();
 
+  
   const {
     theme,
     setTheme,
@@ -39,6 +43,12 @@ const PageLayout: FC<Props> = ({ children }) => {
       if (localStorage.getItem("accounts")) {
         setAccounts(JSON.parse(localStorage.getItem("accounts")!));
       }
+
+      console.log(pathname);
+
+      if (pathname) {
+        setNet(pathname.includes("testnet") ? "testnet" : "public");
+      }
     }
   }, [isWindowDefined, setTheme, setNet, setAccounts]);
 
@@ -49,6 +59,10 @@ const PageLayout: FC<Props> = ({ children }) => {
         .filter((account) => account.isCurrent).length > 0
     );
   }, [accounts, net, setIsAuth]);
+
+  useEffect(() => {
+    console.log(net);
+  }, [net]);
 
   const themeLS: string | undefined | null = isWindowDefined
     ? window.localStorage.getItem("theme")
@@ -79,7 +93,7 @@ const PageLayout: FC<Props> = ({ children }) => {
           name="commit-hash"
           content={process.env.NEXT_PUBLIC_COMMIT_HASH || ""}
         />
-        <title>Stellar Multisig</title>
+        <title>MTL Stellar Multisig</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
       </head>
       <body>

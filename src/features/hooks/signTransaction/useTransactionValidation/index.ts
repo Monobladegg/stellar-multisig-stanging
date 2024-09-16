@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import stellarSdk from "stellar-sdk";
 
-const useTransactionValidation = () => {
+const useTransactionValidation = (): { validationError: string | null, validateTransactionEnvelope: (envelope: string) => boolean } => {
   const [validationError, setValidationError] = useState<string | null>(null);
 
   const validateTransactionEnvelope = useCallback((envelope: string): boolean => {

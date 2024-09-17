@@ -18,7 +18,6 @@ const useXDRDecoding = (paramsXDRHook: string | null, envelope: string) => {
 
   useEffect(() => {
     const decodeXDR = async (envelope: string) => {
-      try {
         await __wbg_init();
 
         if (paramsXDRHook) {
@@ -45,22 +44,20 @@ const useXDRDecoding = (paramsXDRHook: string | null, envelope: string) => {
             setNumberOfSignatures(tx.signatures.length.toString());
           }
         }
-      } catch (error) {
-      }
     };
 
     decodeXDR(envelope);
   }, [paramsXDRHook, envelope, net]);
 
-  return { 
-    XDRToTransaction, 
-    transactionHash, 
-    sourceAccount, 
-    sequenceNumber, 
-    transactionFee, 
-    numberOfOperations, 
-    numberOfSignatures, 
-    transaction 
+  return {
+    XDRToTransaction,
+    transactionHash,
+    sourceAccount,
+    sequenceNumber,
+    transactionFee,
+    numberOfOperations,
+    numberOfSignatures,
+    transaction
   };
 };
 

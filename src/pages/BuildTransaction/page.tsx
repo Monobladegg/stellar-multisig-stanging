@@ -55,13 +55,10 @@ const Page: FC = () => {
   const params = useSearchParams();
 
   useEffect(() => {
-
     if (params?.get("sourceAccount")) {
       setSourceAccount(params?.get("sourceAccount") ?? "");
     }
-
-  }, [])
-
+  }, [params])
 
   useEffect(() => {
     setSourceAccountInputIsValid(
@@ -215,8 +212,7 @@ const Page: FC = () => {
 
   useEffect(() => {
     const initializeWasm = async () => {
-      try {
-        await __wbg_init;
+        __wbg_init;
         if (
           !fullTransaction ||
           typeof fullTransaction !== "object" ||
@@ -233,8 +229,6 @@ const Page: FC = () => {
         const xdrType = "TransactionEnvelope";
         const xdrEncoded = encode(xdrType, jsonTx);
         setCurrentXDR(xdrEncoded);
-      } catch (error) {
-      }
     };
 
     initializeWasm();

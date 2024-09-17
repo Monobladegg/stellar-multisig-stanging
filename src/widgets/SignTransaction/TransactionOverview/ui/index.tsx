@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import { Header, InputField, InputGroup } from "../../ui/widgets"
-import stellarSdk, { Networks } from "stellar-sdk";
+import { Networks } from "stellar-sdk";
 import { useStore } from "@/features/store";
 import { useShallow } from "zustand/react/shallow";
 

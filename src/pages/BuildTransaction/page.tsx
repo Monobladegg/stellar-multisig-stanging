@@ -213,7 +213,7 @@ const Page: FC = () => {
 
   useEffect(() => {
     const initializeWasm = async () => {
-        __wbg_init;
+        __wbg_init();
         if (
           !fullTransaction ||
           typeof fullTransaction !== "object" ||

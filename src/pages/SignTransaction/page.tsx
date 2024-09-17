@@ -24,6 +24,7 @@ export type localSignature = string[];
 const SignTransaction: FC = () => {
   const params = useSearchParams();
   const importXDR = params?.get("importXDR") ?? "";
+  const [signaturesAdded, setSignaturesAdded] = useState<number>(0);
 
   const net = useStore(useShallow((state) => state.net));
 
@@ -63,7 +64,6 @@ const SignTransaction: FC = () => {
         );
         setCurrentTransaction(tx);
       } catch (e) {
-        console.error("Invalid XDR", e);
         setCurrentTransaction(null);
       }
     }
@@ -97,11 +97,13 @@ const SignTransaction: FC = () => {
             resultXdr={resultXdr}
             setResultXdr={setResultXdr}
             currentTransaction={transaction}
+            setSignaturesAdded={setSignaturesAdded}
+            signaturesAdded={signaturesAdded}
           />
           {resultXdr && (
             <ShowXdr
               title="Transaction signed!"
-              upperDescription={`${localSignatures.length} signature(s) added; ${
+              upperDescription={`${signaturesAdded} signature(s) added; ${
                 currentTransaction?.signatures.length || 0
               } signature(s) total`}
               xdr={resultXdr}

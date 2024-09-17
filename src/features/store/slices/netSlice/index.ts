@@ -8,7 +8,7 @@ export const netSlice: StateCreator<
   INetSlice
 > = (set/*, get*/) => {
   const net = "public";
-  const setNet = (net: string) => {
+  const setNet = (net: "public" | "testnet") => {
     set({ net: net }); 
     localStorage.setItem("net", net);    
   }

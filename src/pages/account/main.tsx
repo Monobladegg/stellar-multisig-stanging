@@ -1,12 +1,12 @@
 "use client";
 
-import PublicNet from "./publicnet";
+import AccountInfo from "./AccountInfo";
 import StellarSdk from "stellar-sdk";
 import { MainLayout } from "@/widgets";
 import React, { FC, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
-const Page: FC = () => {
+const Account: FC = () => {
   const [isValidId, setIsValidId] = useState<boolean | null>(null);
   const params = useSearchParams();
   const id: string | undefined | null = params?.get("id");
@@ -41,7 +41,7 @@ const Page: FC = () => {
     );
   }
 
-  return typeof id === "string" && <PublicNet id={id} />;
+  return typeof id === "string" && <AccountInfo id={id} />;
 };
 
-export default Page;
+export default Account;

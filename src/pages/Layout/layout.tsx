@@ -15,8 +15,6 @@ type Props = {
 const PageLayout: FC<Props> = ({ children }) => {
   const [isWindowDefined, setIsWindowDefined] = useState<boolean>(false);
   const pathname = usePathname();
-
-  
   const {
     theme,
     setTheme,
@@ -35,15 +33,14 @@ const PageLayout: FC<Props> = ({ children }) => {
         setTheme(localStorage.getItem("theme")!);
       }
 
-      if (localStorage.getItem("net")) {
-        setNet(localStorage.getItem("net")!);
+      const netValue = localStorage.getItem("net");
+      if (netValue === "testnet" || netValue === "public") {
+        setNet(netValue);
       }
 
       if (localStorage.getItem("accounts")) {
         setAccounts(JSON.parse(localStorage.getItem("accounts")!));
       }
-
-      console.log(pathname);
 
       if (pathname) {
         setNet(pathname.includes("testnet") ? "testnet" : "public");

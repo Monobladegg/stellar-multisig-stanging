@@ -15,7 +15,7 @@ import { useShallow } from "zustand/react/shallow";
 import { Balance, Information, Signer } from "@/shared/types";
 import { DocumentInfo, Issuer } from "@/shared/types";
 import { processKeys } from "@/shared/lib";
-import BalanceItem from "@/pages/public/account/(BalanceItem)";
+import BalanceItem from "@/pages/account/(BalanceItem)";
 import ignoredHomeDomains from "@/shared/configs/ignored-home-domains.json";
 
 interface Props {
@@ -31,10 +31,10 @@ export const collapseAccount = (accountId: string) => {
   return first4Str + "..." + last4Str;
 };
 
-const PublicNet: FC<Props> = ({ id }) => {
+const AccountInfo: FC<Props> = ({ id }) => {
   const account: string = id;
-  const { net }: { net: string } = useStore(
-    useShallow((state) => ({ net: state.net }))
+  const { net } = useStore(
+    useShallow((state) => state)
   );
   const [information, setInformation] = useState<Information>(
     {} as Information
@@ -571,11 +571,11 @@ const PublicNet: FC<Props> = ({ id }) => {
                               }
                             )}
                         </ul>
-                        <Link href={`/public/build-transaction?sourceAccount=${id}`}>Build transaction {" "}<i className="fa-solid fa-up-right-from-square" style={{ fontSize: "0.9em" }}></i></Link>
                       </>
                     ) : (
                       <></>
                     )}
+                    <Link href={`/${net}/build-transaction?sourceAccount=${id}`}>Build transaction</Link>
                   </div>
                 </div>
                 <div className="column column-50">
@@ -911,4 +911,4 @@ const PublicNet: FC<Props> = ({ id }) => {
   );
 };
 
-export default PublicNet;
+export default AccountInfo;

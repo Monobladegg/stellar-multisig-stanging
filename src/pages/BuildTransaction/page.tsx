@@ -43,6 +43,7 @@ const Page: FC = () => {
     addOperation,
     setOperations,
     fullTransaction,
+    net
   } = useStore(useShallow((state) => state));
 
   const [memoInput, setMemoInput] = useState<string>("");
@@ -58,9 +59,9 @@ const Page: FC = () => {
     if (params?.get("sourceAccount")) {
       setSourceAccount(params?.get("sourceAccount") ?? "");
     }
-  
+
   }, [])
-  
+
 
   useEffect(() => {
     setSourceAccountInputIsValid(
@@ -182,7 +183,6 @@ const Page: FC = () => {
       setSeqNum(data.sequence !== undefined ? data.sequence + 1 : 0);
       if (seqNumError) setSeqNumError("");
     } catch (error) {
-      console.error("Error fetching transaction sequence number", error);
       if (axios.isAxiosError(error) && error.response?.status === 404) {
         setSeqNumError("Account not found. Make sure the correct network is selected and the account is funded/created.");
       }
@@ -216,10 +216,7 @@ const Page: FC = () => {
   useEffect(() => {
     const initializeWasm = async () => {
       try {
-        console.log("Initializing WebAssembly module...");
-        await __wbg_init(/* path to your module */);
-        console.log("WebAssembly module initialized.");
-
+        await __wbg_init;
         if (
           !fullTransaction ||
           typeof fullTransaction !== "object" ||
@@ -233,15 +230,10 @@ const Page: FC = () => {
         };
 
         const jsonTx = JSON.stringify(transactionEnvelope, null, 2);
-        console.log("JSON TransactionEnvelope:", jsonTx);
-
         const xdrType = "TransactionEnvelope";
-        console.log("Input to encode:", jsonTx);
         const xdrEncoded = encode(xdrType, jsonTx);
-        console.log("Encoded XDR:", xdrEncoded);
         setCurrentXDR(xdrEncoded);
       } catch (error) {
-        console.error("Error:", error instanceof Error ? error.message : error);
       }
     };
 
@@ -279,7 +271,7 @@ const Page: FC = () => {
                   Fetch next sequence number for account starting with{" "}
                   {tx.tx.source_account.slice(0, 5)}...
                 </button>
-                <p>Fetching from: https://horizon.stellar.org</p>
+                <p>Fetching from: {net === "testnet" ? "https://horizon-testnet.stellar.org" : "https://horizon.stellar.org"}</p>
               </>
             )}
             {seqNumError && <p className="error">{seqNumError}</p>}

@@ -1,6 +1,6 @@
 import { FC } from "react";
 import Link from "next/link";
-import { collapseAccount } from "@/pages/public/account/publicnet";
+import { collapseAccount } from "@/pages/account/AccountInfo";
 import { Balance } from "@/shared/types";
 
 interface Props {

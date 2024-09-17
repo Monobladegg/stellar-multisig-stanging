@@ -7,7 +7,7 @@ import { useStore } from "@/features/store";
 import { useShallow } from "zustand/react/shallow";
 import StellarSdk from "stellar-sdk";
 import { IOperation } from "@/shared/types/store/slices";
-import { hexToString, stringToHex } from "@/pages/public/BuildTransaction/page";
+import { hexToString, stringToHex } from "@/pages/BuildTransaction/page";
 import {useHandleSourceAccountChange} from "@/features/hooks";
 
 interface Props {

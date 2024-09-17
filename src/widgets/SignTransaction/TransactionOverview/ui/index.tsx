@@ -1,5 +1,8 @@
 import React, { FC } from "react";
 import { Header, InputField, InputGroup } from "../../ui/widgets"
+import stellarSdk, { Networks } from "stellar-sdk";
+import { useStore } from "@/features/store";
+import { useShallow } from "zustand/react/shallow";
 
 interface TransactionOverviewProps {
   transactionEnvelope: string;
@@ -20,6 +23,9 @@ const TransactionOverview: FC<TransactionOverviewProps> = ({
   numberOfOperations,
   numberOfSignatures,
 }) => {
+
+  const {net} = useStore(useShallow(state => state));
+
   return (
     <div className="container" style={{ color: "#fff" }}>
       {/* Header */}
@@ -29,7 +35,7 @@ const TransactionOverview: FC<TransactionOverviewProps> = ({
         {/* Signing for input */}
         <InputField
           label="Signing for"
-          value="Public Global Stellar Network ; September 2015"
+          value={ net === "testnet" ? Networks.TESTNET : Networks.PUBLIC}
         />
 
         {/* Transaction Envelope XDR */}

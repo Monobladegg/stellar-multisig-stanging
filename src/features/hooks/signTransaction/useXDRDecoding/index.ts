@@ -46,7 +46,6 @@ const useXDRDecoding = (paramsXDRHook: string | null, envelope: string) => {
           }
         }
       } catch (error) {
-        console.error("Error decoding XDR:", error);
       }
     };
 

@@ -1,11 +1,12 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, FC } from "react";
 import {MainLayout, SearchBar} from "@/widgets";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/features/store";
 import { useShallow } from "zustand/react/shallow";
-export default function Home() {
-    const {setNet} = useStore(useShallow((state) => ({setNet: state.setNet})));
+
+const Home: FC = () => {
+    const {setNet} = useStore(useShallow((state) => state));
     const route = useRouter();
     useEffect(() => {
         const currentPath = window.location.pathname;
@@ -25,3 +26,5 @@ export default function Home() {
         </MainLayout>
     );
 }
+
+export default Home

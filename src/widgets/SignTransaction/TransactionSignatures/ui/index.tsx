@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import { Header, InputField } from "../../ui/widgets";
-import { localSignature } from "@/pages/public/SignTransaction/page";
+import { localSignature } from "@/pages/SignTransaction/page";
 import { getSecretKeyError, signTransaction } from "@/features/helpers";
 import { Networks } from "@stellar/stellar-sdk";
 import { useStore } from "@/features/store";
@@ -14,13 +14,18 @@ interface Props {
   resultXdr: string;
   setResultXdr: (resultXdr: string) => void;
   currentTransaction: Transaction | null;
+  signaturesAdded: number;
+  setSignaturesAdded: (signaturesAdded: number) => void;
 }
 
 const TransactionSignatures: FC<Props> = ({
   localSignatures,
   setLocalSignatures,
   transactionEnvelope,
+  resultXdr,
   setResultXdr,
+  signaturesAdded,
+  setSignaturesAdded,
 }) => {
   const { net } = useStore(useShallow((store) => store));
 
@@ -40,9 +45,13 @@ const TransactionSignatures: FC<Props> = ({
         validSignatures,
         net === "testnet" ? Networks.TESTNET : Networks.PUBLIC,
         transactionEnvelope
-      );
-      console.log("Transaction signed successfully:", signedXDR);
-      setResultXdr(signedXDR);
+     );
+
+     if (signedXDR !== resultXdr) {
+       setSignaturesAdded(signaturesAdded + 1);
+       setResultXdr(signedXDR);
+     }
+
     } catch (error) {
       console.error("Error signing transaction:", error);
       alert(`Error signing transaction: ${error}`);

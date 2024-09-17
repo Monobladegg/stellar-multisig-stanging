@@ -70,7 +70,7 @@ export const Header: FC = () => {
   const toggleDropdownNet = () => setIsOpenNet(!isOpenNet);
   const toggleDropdownAccount = () => setIsOpenAccount(!isOpenAccount);
 
-  const handleSelectNet = (network: string) => {
+  const handleSelectNet = (network: "public" | "testnet") => {
     setNet(network);
     localStorage.setItem("net", network);
     setIsOpenNet(false);

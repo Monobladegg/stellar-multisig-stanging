@@ -213,8 +213,6 @@ const Page: FC = () => {
 
   useEffect(() => {
     const initializeWasm = async () => {
-      try {
-
         await __wbg_init();
         if (
           !fullTransaction ||
@@ -232,9 +230,6 @@ const Page: FC = () => {
         const xdrType = "TransactionEnvelope";
         const xdrEncoded = encode(xdrType, jsonTx);
         setCurrentXDR(xdrEncoded);
-      } catch (error) {
-        console.error(error);
-      }
     };
 
     initializeWasm();

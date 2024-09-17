@@ -1,7 +1,7 @@
 "use client";
 
 import { FC, useEffect, useState } from "react";
-import { localSignature } from "@/pages/SignTransaction/page";
+import { localSignature } from "@/views/SignTransaction/page";
 
 interface InputFieldProps {
   label?: string;

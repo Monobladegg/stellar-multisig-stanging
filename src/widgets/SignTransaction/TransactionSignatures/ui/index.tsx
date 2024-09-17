@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import { Header, InputField } from "../../ui/widgets";
-import { localSignature } from "@/pages/SignTransaction/page";
+import { localSignature } from "@/views/SignTransaction/page";
 import { getSecretKeyError, signTransaction } from "@/features/helpers";
 import { Networks } from "@stellar/stellar-sdk";
 import { useStore } from "@/features/store";

@@ -6,6 +6,7 @@ import { Footer, Header } from "@/widgets";
 import { useShallow } from "zustand/react/shallow";
 import AddAccountModal from "@/widgets/shared/layouts/Header/ui/AddAccountModal";
 import { usePathname } from 'next/navigation';
+import { firebaseApp } from "@/shared/api";
 
 
 type Props = {
@@ -61,6 +62,11 @@ const PageLayout: FC<Props> = ({ children }) => {
       ? window.localStorage.getItem("theme")
       : "night"
     : "";
+
+  useEffect(() => {
+    console.log(firebaseApp)
+  }, [firebaseApp])
+
 
   if (!isWindowDefined) {
     return (

@@ -1,5 +1,5 @@
 import React, { FC, Suspense } from "react";
-import Account from "@/pages/account/main";
+import Account from "@/views/account/main";
 
 const Page: FC = () => (
     <Suspense>

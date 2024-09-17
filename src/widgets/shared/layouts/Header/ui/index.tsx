@@ -8,7 +8,7 @@ import { useStore } from "@/features/store";
 import { useShallow } from "zustand/react/shallow";
 import { IAccount } from "@/shared/types";
 import AccountItem from "./AccountItem";
-import { collapseAccount } from "@/pages/account/AccountInfo";
+import { collapseAccount } from "@/views/account/AccountInfo";
 
 export const Header: FC = () => {
   const {

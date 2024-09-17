@@ -15,7 +15,7 @@ import { useShallow } from "zustand/react/shallow";
 import { Balance, Information, Signer } from "@/shared/types";
 import { DocumentInfo, Issuer } from "@/shared/types";
 import { processKeys } from "@/shared/lib";
-import BalanceItem from "@/pages/account/(BalanceItem)";
+import BalanceItem from "@/views/account/(BalanceItem)";
 import ignoredHomeDomains from "@/shared/configs/ignored-home-domains.json";
 
 interface Props {

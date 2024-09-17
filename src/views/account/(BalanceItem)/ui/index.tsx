@@ -1,12 +1,12 @@
 import { FC } from "react";
 import Link from "next/link";
-import { collapseAccount } from "@/pages/account/AccountInfo";
+import { collapseAccount } from "@/views/account/AccountInfo";
 import { Balance } from "@/shared/types";
 
 interface Props {
   number: string;
   decimal: string;
-  item?: Balance; 
+  item?: Balance;
 }
 
 const BalanceItem: FC<Props> = ({ number, decimal, item }) => {

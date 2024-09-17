@@ -64,7 +64,7 @@ const SignTransaction: FC = () => {
         );
         setCurrentTransaction(tx);
       } catch (e) {
-        e
+        console.error(e);
         setCurrentTransaction(null);
       }
     }

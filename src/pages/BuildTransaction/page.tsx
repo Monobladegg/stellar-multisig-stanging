@@ -180,6 +180,7 @@ const Page: FC = () => {
       setSeqNum(data.sequence !== undefined ? data.sequence + 1 : 0);
       if (seqNumError) setSeqNumError("");
     } catch (error) {
+      console.error(error);
       if (axios.isAxiosError(error) && error.response?.status === 404) {
         setSeqNumError("Account not found. Make sure the correct network is selected and the account is funded/created.");
       }

@@ -1,21 +1,21 @@
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, getDoc, DocumentData } from "firebase/firestore";
 import firestore from "../..";
-import { Transaction } from "stellar-sdk";
 
 async function sendSignatureToTransaction(
   transactionId: string,
-  signedTransaction: Transaction | null,
+  signedXDR: string,
   net: "public" | "testnet"
-): Promise<void> {
+): Promise<DocumentData | undefined> {
   if (!firestore) {
     throw new Error("Firestore не инициализирован");
   }
 
-  if (!signedTransaction) {
+  if (!signedXDR) {
     throw new Error("Отсутствует подписанная транзакция");
   }
 
-  // Определяем название коллекции на основе сети
+  console.log(transactionId, net);
+
   let collectionName: string;
   if (net === "public") {
     collectionName = "TransactionsForSignPublic";
@@ -27,14 +27,21 @@ async function sendSignatureToTransaction(
 
   const transactionRef = doc(firestore, collectionName, transactionId);
 
-  const newXdr = signedTransaction.toXDR();
-
   try {
+    let up: void;
     await updateDoc(transactionRef, {
-      xdr: newXdr,
+      xdr: signedXDR,
       updatedAt: Date.now(),
-    });
-    console.log("Транзакция успешно обновлена с новой подписью");
+    })
+
+    const updatedDoc = await getDoc(transactionRef);
+    if (updatedDoc.exists()) {
+      console.log("Обновленный документ:", updatedDoc.data());
+    } else {
+      console.log("Документ не найден после обновления");
+    }
+
+    return updatedDoc.data()
   } catch (error) {
     console.error("Ошибка при обновлении транзакции: ", error);
     throw error;

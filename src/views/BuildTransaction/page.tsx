@@ -250,13 +250,13 @@ const Page: FC = () => {
   }, [fullTransaction]);
 
   useEffect(() => {
-    const isError = !checkSigner(accounts, undefined, tx.tx.source_account);
-    if (isError) {
+    const checkSignerError = !checkSigner(accounts, undefined, tx.tx.source_account);
+    if (checkSignerError) {
       setErrorSourceAccountSigner("Not enough rights");
-      updateErrors(isError, "Not enough rights");
+      updateErrors(checkSignerError, "Not enough rights");
     } else {
       setErrorSourceAccountSigner(false);
-      updateErrors(isError, "");
+      updateErrors(checkSignerError, "Not enough rights");
     }
 
   }, [accounts, tx.tx.source_account]);

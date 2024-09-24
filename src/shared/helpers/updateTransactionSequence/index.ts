@@ -1,6 +1,6 @@
 // @/shared/helpers/updateTransactionSequence/index.ts
 
-import { NetState } from '@/shared/types/store/slices/netSlice';
+import { Net } from '@/shared/types/store/slices/netSlice';
 import { Server, AccountResponse } from 'stellar-sdk';
 
 /**
@@ -13,7 +13,7 @@ import { Server, AccountResponse } from 'stellar-sdk';
  */
 async function updateTransactionSequence(
   publicKey: string,
-  net: NetState["net"]
+  net: Net
 ): Promise<number> {
   const serverUrl = net === 'public' ? 'https://horizon.stellar.org' : 'https://horizon-testnet.stellar.org';
   const server = new Server(serverUrl);

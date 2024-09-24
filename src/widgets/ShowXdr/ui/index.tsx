@@ -13,6 +13,8 @@ interface Props {
   showHash?: boolean;
   showNetPassphrase?: boolean;
   buttons?: React.ReactNode;
+  errorMessage?: string;
+  successMessage?: string;
 }
 
 const ShowXdr: FC<Props> = ({
@@ -23,6 +25,8 @@ const ShowXdr: FC<Props> = ({
   showHash,
   lowerDescription,
   buttons,
+  errorMessage,
+  successMessage,
 }) => {
   const [isCopy, setIsCopy] = useState(false);
 
@@ -74,6 +78,8 @@ const ShowXdr: FC<Props> = ({
             <p>{lowerDescription}</p>
             <div style={{ marginTop: "-10px" }}>
             {buttons}
+            {errorMessage && <p className="error">{errorMessage}</p>}
+            {successMessage && <p className="success">{successMessage}</p>}
             </div>
           </>
         )}

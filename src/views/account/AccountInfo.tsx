@@ -1,15 +1,12 @@
 "use client";
 
-import { MainLayout } from "@/widgets";
+import { MainLayout, ShowTransactions } from "@/widgets";
 import {
   getAccountIssuerInformation,
   getDomainInformation,
   getMainInformation,
 } from "@/features/hooks";
-import StellarSdk, {
-  Transaction,
-  TransactionBuilder,
-} from "stellar-sdk";
+import StellarSdk, { Transaction, TransactionBuilder } from "stellar-sdk";
 import React, { FC, useEffect, useState } from "react";
 import Link from "next/link";
 import "./public.css";
@@ -23,7 +20,7 @@ import ignoredHomeDomains from "@/shared/configs/ignored-home-domains.json";
 import { getAllTransactions } from "@/shared/api/firebase/firestore/Transactions";
 import { checkSigner, updatedTransactionSequence } from "@/shared/helpers";
 
-enum TransactionStatuses {
+export enum TransactionStatuses {
   signing = "Signing",
   submitted = "Submitted",
   completed = "Completed",
@@ -116,13 +113,17 @@ const AccountInfo: FC<Props> = ({ id }) => {
     }
   }, [net, account]);
 
-    useEffect(() => {
-      setIsVisibleBuildTx(checkSigner(accounts, information.signers));
-    }, [accounts, information.signers]);
+  useEffect(() => {
+    setIsVisibleBuildTx(checkSigner(accounts, information.signers));
+  }, [accounts, information.signers]);
 
   useEffect(() => {
     setIsVisibleBuildTx(false);
   }, [id]);
+
+  useEffect(() => {
+    console.log(decodedTransactions)
+  }, [decodedTransactions])
 
   useEffect(() => {
     const handler = async () => {
@@ -219,7 +220,10 @@ const AccountInfo: FC<Props> = ({ id }) => {
           .filter(({ xdr }) => xdr)
           .map(({ xdr }) => {
             try {
-              const tx = TransactionBuilder.fromXDR(xdr, network) as Transaction
+              const tx = TransactionBuilder.fromXDR(
+                xdr,
+                network
+              ) as Transaction;
               return tx.source === id ? tx : null;
             } catch (error) {
               console.error("Ошибка при декодировании транзакции:", error);
@@ -973,83 +977,13 @@ const AccountInfo: FC<Props> = ({ id }) => {
                     </div>
                   </div>
                 )}
-              { decodedTransactions.length > 0 && (
-                <div className="tabs space inline-right">
-                  <div className="tabs-header">
-                    <div>
-                      <a href="#" className="tabs-item condensed selected">
-                        <span className="tabs-item-text selected">
-                          Transactions for sign
-                        </span>
-                      </a>
-                    </div>
-                  </div>
-                  <hr className="flare" />
-                  <div className="tabs-body">
-                    <div className="relative segment blank">
-                      <table
-                        className="table exportable"
-                        style={{ width: "100%" }}
-                      >
-                        <thead style={{ width: "100%" }}>
-                          <tr>
-                            <th style={{ display: "none" }}>ID</th>
-                            <th>Transaction</th>
-                          </tr>
-                        </thead>
-                        <tbody style={{ width: "100%" }}>
-                          {decodedTransactions.map(
-                            (transaction: Transaction, index: number) => (
-                                <tr key={index}>
-                                  <td>
-                                    <span style={{ display: "none" }}>
-                                      {Buffer.from(
-                                        transaction?.hash()
-                                      ).toString("hex")}
-                                    </span>
-                                    {seqNumsIsStale[index] && (
-                                      <span
-                                        onClick={() =>
-                                          updatedTransactionSequence(
-                                            transaction.source,
-                                            net
-                                          )
-                                        }
-                                        style={{
-                                          color: "#0691b7",
-                                          cursor: "pointer",
-                                        }}
-                                      >
-                                        <i className="fa-solid fa-arrow-rotate-right"></i>{" "}
-                                      </span>
-                                    )}
-                                    <Link
-                                      href={`/${net}/sign-transaction?importXDR=${encodeURIComponent(
-                                        transaction.toXDR()
-                                      )}`}
-                                      target="_blank"
-                                      rel="noreferrer noopener"
-                                    >
-                                      Operation type:{" "}
-                                      {transaction.operations[0].type};{" "}
-                                      <span>
-                                        Signatures:{" "}
-                                        {transaction.signatures.length};{" "}
-                                      </span>
-                                      <span>
-                                        Status: {TransactionStatuses.signing}
-                                      </span>
-                                    </Link>
-                                  </td>
-                                </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              )
-              }
+              {decodedTransactions.length > 0 && (
+                <ShowTransactions
+                  decodedTransactions={decodedTransactions}
+                  seqNumsIsStale={seqNumsIsStale}
+                  updatedTransactionSequence={updatedTransactionSequence}
+                />
+              )}
             </>
           ) : (
             <div className="container">

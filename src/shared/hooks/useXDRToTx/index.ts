@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import __wbg_init, { decode } from "@stellar/stellar-xdr-json-web";
+import { Transaction } from "stellar-sdk";
 
 const useXDRToTransaction = (xdr: string) => {
-  const [transaction, setTransaction] = useState<any | null>(null);
+  const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -15,14 +16,21 @@ const useXDRToTransaction = (xdr: string) => {
 
       try {
         await __wbg_init();
-        const decodedTransaction = decode(xdr, 'base64');
+        const decodedTransaction = decode(xdr, "base64");
 
-        setTransaction(decodedTransaction);
-        setError(null);
+        if (
+          typeof decodedTransaction === "object" &&
+          "source" in decodedTransaction
+        ) {
+          setTransaction(decodedTransaction as Transaction);
+          setError(null);
+        } else {
+          setError("Invalid transaction format.");
+        }
       } catch (err) {
         setTransaction(null);
-        setError('Invalid XDR format or decoding error.');
-        console.log(err);
+        setError("Invalid XDR format or decoding error.");
+        console.log(err as Error);
       }
     };
 

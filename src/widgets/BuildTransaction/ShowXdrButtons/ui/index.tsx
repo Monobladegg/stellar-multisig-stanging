@@ -13,6 +13,7 @@ const ShowXdrButtons: FC<Props> = ({transaction}) => {
   const sendTransactionForSign = async () => {
     if (transaction) {
       const txHash = await sendTransaction(transaction, net);
+      console.log(txHash)
     }
   }
   return (

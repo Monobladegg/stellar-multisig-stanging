@@ -14,14 +14,15 @@ const useXDRToTransaction = (xdr: string) => {
       }
 
       try {
-        await __wbg_init();  // Инициализируем WebAssembly
-        const decodedTransaction = decode(xdr, 'base64');  // Декодируем XDR строку
+        await __wbg_init();
+        const decodedTransaction = decode(xdr, 'base64');
 
         setTransaction(decodedTransaction);
         setError(null);
       } catch (err) {
         setTransaction(null);
         setError('Invalid XDR format or decoding error.');
+        console.log(err);
       }
     };
 

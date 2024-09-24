@@ -2,7 +2,6 @@
 
 import { useStore } from "@/shared/store";
 import React, { FC, useEffect, useState } from "react";
-import { Networks } from "stellar-sdk";
 import { useShallow } from "zustand/react/shallow";
 import { useXDRDecoding } from "@/features/hooks";
 

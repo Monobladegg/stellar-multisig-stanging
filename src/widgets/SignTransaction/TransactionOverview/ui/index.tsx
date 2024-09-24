@@ -1,8 +1,6 @@
 import React, { FC } from "react";
 import { Header, InputField, InputGroup } from "../../ui/widgets"
-import { Networks, Transaction } from "stellar-sdk";
-import { useStore } from "@/shared/store";
-import { useShallow } from "zustand/react/shallow";
+import { Transaction } from "stellar-sdk";
 
 interface TransactionOverviewProps {
   transactionEnvelope: string;

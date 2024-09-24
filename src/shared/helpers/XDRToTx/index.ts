@@ -10,7 +10,7 @@ async function decodeXDRToTransaction(xdr: string) {
     const decodedTransaction = decode(xdr, 'base64');  // Декодирование XDR строки
     return decodedTransaction;
   } catch (err) {
-    throw new Error('Invalid XDR format or decoding error.');
+    throw new Error('Invalid XDR format or decoding error.', err as Error);
   }
 }
 

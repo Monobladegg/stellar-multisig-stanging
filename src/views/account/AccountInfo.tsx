@@ -7,7 +7,6 @@ import {
   getMainInformation,
 } from "@/features/hooks";
 import StellarSdk, {
-  Networks,
   Transaction,
   TransactionBuilder,
 } from "stellar-sdk";

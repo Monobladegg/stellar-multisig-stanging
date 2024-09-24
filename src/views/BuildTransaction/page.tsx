@@ -59,8 +59,9 @@ const Page: FC = () => {
   const [isOperationsOpen, setIsOperationsOpen] = useState<boolean>(false);
   const params = useSearchParams();
   const { transaction } = useXDRDecoding(net, currentXDR);
-  const [errorSourceAccountSigner, setErrorSourceAccountSigner] =
-    useState<string | false>(false);
+  const [errorSourceAccountSigner, setErrorSourceAccountSigner] = useState<
+    string | false
+  >(false);
 
   useEffect(() => {
     if (params?.get("sourceAccount")) {
@@ -249,44 +250,38 @@ const Page: FC = () => {
   }, [fullTransaction]);
 
   useEffect(() => {
-    const isError = !checkSigner(
-      accounts,
-      undefined,
-      tx.tx.source_account
-    );
+    const isError = !checkSigner(accounts, undefined, tx.tx.source_account);
     if (isError) {
       setErrorSourceAccountSigner("Not enough rights");
+      updateErrors(isError, "Not enough rights");
     } else {
       setErrorSourceAccountSigner(false);
+      updateErrors(isError, "");
     }
-  }, [
-    accounts,
-    tx.tx.source_account,
-  ]);
 
-  useEffect(() => {
-    console.log(errorSourceAccountSigner)
-    console.log(accounts)
-  }, [errorSourceAccountSigner, accounts])
+  }, [accounts, tx.tx.source_account]);
 
   return (
     <MainLayout>
-    <div className="container">
-      <div className="segment blank">
-        {/* Source Account */}
-        <div>
-          <h4>Source Account</h4>
-          <input
-            placeholder="Example: GCEXAMPLE5HWNK4AYSTEO4UWDKHTCKADVS2AHF3UI2ZMO3DPUSM6Q4UG"
-            value={tx.tx.source_account}
-            onChange={(e) => setSourceAccount(e.target.value)}
-          />
-          {(!sourceAccountInputIsValid || errorSourceAccountSigner) && tx.tx.source_account && (
-            <p className="error">
-              {!sourceAccountInputIsValid ? "Invalid source account" : errorSourceAccountSigner}
-            </p>
-          )}
-        </div>
+      <div className="container">
+        <div className="segment blank">
+          {/* Source Account */}
+          <div>
+            <h4>Source Account</h4>
+            <input
+              placeholder="Example: GCEXAMPLE5HWNK4AYSTEO4UWDKHTCKADVS2AHF3UI2ZMO3DPUSM6Q4UG"
+              value={tx.tx.source_account}
+              onChange={(e) => setSourceAccount(e.target.value)}
+            />
+            {(!sourceAccountInputIsValid || errorSourceAccountSigner) &&
+              tx.tx.source_account && (
+                <p className="error">
+                  {!sourceAccountInputIsValid
+                    ? "Invalid source account"
+                    : errorSourceAccountSigner}
+                </p>
+              )}
+          </div>
 
           {/* Transaction Sequence Number */}
           <div>

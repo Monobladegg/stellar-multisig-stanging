@@ -26,11 +26,17 @@ const ShowXDRButtons: FC<Props> = ({ transaction, currentFirebaseId }) => {
     const txHash = await sendTransactionFirebase(transaction, net);
     console.log(txHash);
   };
+
+  const onClick = () => {
+    if (currentFirebaseId) {
+      sendSignatureToTransaction();
+    } else {
+      sendTransaction();
+    }
+  };
   return (
     <button
-      onClick={() => {
-        currentFirebaseId ? sendSignatureToTransaction() : sendTransaction();
-      }}
+      onClick={onClick}
     >
       {currentFirebaseId ? "Update transaction with new signature(s)" : "Send Sign to Transaction"}
     </button>

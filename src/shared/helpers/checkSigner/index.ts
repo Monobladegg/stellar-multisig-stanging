@@ -21,14 +21,13 @@ export type CheckSigner = (
 
 const checkSigner: CheckSigner = (accounts, signers, signer) => {
   if (!accounts) return false;
-
   if (signers) {
     return accounts.some((account: IAccount) =>
       signers.some((signer) => account.accountID === signer?.key)
     );
   }
   if (signer) {
-    return accounts.some((account: IAccount) => account.accountID === signer);
+    return accounts.some((account: IAccount) => account.accountID=== signer);
   }
 
   return false;

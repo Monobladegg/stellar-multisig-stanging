@@ -2,7 +2,7 @@
 import React, { useEffect, FC } from "react";
 import {MainLayout, SearchBar} from "@/widgets";
 import { useRouter } from "next/navigation";
-import { useStore } from "@/features/store";
+import { useStore } from "@/shared/store";
 import { useShallow } from "zustand/react/shallow";
 
 const Home: FC = () => {
@@ -18,7 +18,6 @@ const Home: FC = () => {
             setNet("public");
             route.replace("/public");
         }
-        
     });
     return (
         <MainLayout>

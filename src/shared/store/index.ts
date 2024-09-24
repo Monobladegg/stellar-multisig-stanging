@@ -2,8 +2,8 @@ import { create } from "zustand";
 import { devtools, subscribeWithSelector } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
-import { netSlice, themeSlice, accountSlice, buildTxJSONSlice } from "./slices";
-import { Store } from "@/shared/types"
+import { netSlice, themeSlice, accountSlice, buildTxJSONSlice, serverSlice } from "./slices";
+import { Store } from "@/shared/types";
 
 export const useStore = create<Store>()(
   devtools(
@@ -12,7 +12,8 @@ export const useStore = create<Store>()(
         ...netSlice(...a),
         ...themeSlice(...a),
         ...accountSlice(...a),
-        ...buildTxJSONSlice(...a)
+        ...buildTxJSONSlice(...a),
+        ...serverSlice(...a),
       }))
     )
   )

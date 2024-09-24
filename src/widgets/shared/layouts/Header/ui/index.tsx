@@ -4,7 +4,7 @@ import "./header.scss";
 import React, { FC, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useStore } from "@/features/store";
+import { useStore } from "@/shared/store";
 import { useShallow } from "zustand/react/shallow";
 import { IAccount } from "@/shared/types";
 import AccountItem from "./AccountItem";

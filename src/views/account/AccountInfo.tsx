@@ -6,17 +6,30 @@ import {
   getDomainInformation,
   getMainInformation,
 } from "@/features/hooks";
-import StellarSdk from "stellar-sdk";
+import StellarSdk, {
+  Networks,
+  Transaction,
+  TransactionBuilder,
+} from "stellar-sdk";
 import React, { FC, useEffect, useState } from "react";
 import Link from "next/link";
 import "./public.css";
-import { useStore } from "@/features/store";
+import { useStore } from "@/shared/store";
 import { useShallow } from "zustand/react/shallow";
 import { Balance, Information, Signer } from "@/shared/types";
 import { DocumentInfo, Issuer } from "@/shared/types";
 import { processKeys } from "@/shared/lib";
 import BalanceItem from "@/views/account/(BalanceItem)";
 import ignoredHomeDomains from "@/shared/configs/ignored-home-domains.json";
+import { getAllTransactions } from "@/shared/api/firebase/firestore/Transactions";
+import { checkSigner, updatedTransactionSequence } from "@/shared/helpers";
+
+enum TransactionStatuses {
+  signing = "Signing",
+  submitted = "Submitted",
+  completed = "Completed",
+  canceled = "Canceled",
+}
 
 interface Props {
   id: string;
@@ -32,12 +45,14 @@ export const collapseAccount = (accountId: string) => {
 };
 
 const AccountInfo: FC<Props> = ({ id }) => {
-  const account: string = id;
-  const { net } = useStore(
-    useShallow((state) => state)
-  );
+  const account = id;
+  const { net, accounts, network } = useStore(useShallow((state) => state));
   const [information, setInformation] = useState<Information>(
     {} as Information
+  );
+  const [seqNumsIsStale, setSeqNumsIsStale] = useState<boolean[]>([]);
+  const [decodedTransactions, setDecodedTransactions] = useState<Transaction[]>(
+    []
   );
   const [exists, setExists] = useState<boolean>(true);
   const [tabIndex, setTabIndex] = useState<number>(1);
@@ -45,6 +60,26 @@ const AccountInfo: FC<Props> = ({ id }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [isVisibleHomeDomainInfo, setIsVisibleHomeDomainInfo] =
     useState<boolean>(true);
+  const [isVisibleBuildTx, setIsVisibleBuildTx] = useState<boolean>(false);
+
+  async function isSequenceNumberOutdated(
+    publicKey: string,
+    providedSeqNum: number
+  ): Promise<boolean> {
+    const serverUrl =
+      net === "testnet"
+        ? "https://horizon-testnet.stellar.org"
+        : "https://horizon.stellar.org";
+    const server = new StellarSdk.Server(serverUrl);
+    try {
+      const account = await server.loadAccount(publicKey);
+      const currentSeqNum = parseInt(account.sequence, 10);
+      return providedSeqNum < currentSeqNum;
+    } catch (error) {
+      console.error("Ошибка при загрузке аккаунта:", error);
+      throw error;
+    }
+  }
 
   useEffect(() => {
     const checkAccount = async () => {
@@ -81,6 +116,14 @@ const AccountInfo: FC<Props> = ({ id }) => {
       );
     }
   }, [net, account]);
+
+    useEffect(() => {
+      setIsVisibleBuildTx(checkSigner(accounts, information.signers));
+    }, [accounts, information.signers]);
+
+  useEffect(() => {
+    setIsVisibleBuildTx(false);
+  }, [id]);
 
   useEffect(() => {
     const handler = async () => {
@@ -170,8 +213,38 @@ const AccountInfo: FC<Props> = ({ id }) => {
   }, [information.tomlInfo, id]);
 
   useEffect(() => {
-    console.log(information);
-  }, [information])
+    const fetchTransactions = async () => {
+      try {
+        const transactions = await getAllTransactions(net);
+        const decodedArray = transactions
+          .filter(({ xdr }) => xdr)
+          .map(({ xdr }) => {
+            try {
+              const tx = TransactionBuilder.fromXDR(xdr, network) as Transaction
+              return tx.source === id ? tx : null;
+            } catch (error) {
+              console.error("Ошибка при декодировании транзакции:", error);
+              return null;
+            }
+          })
+          .filter(Boolean);
+        setDecodedTransactions(decodedArray as Transaction[]);
+        const results = await Promise.all(
+          decodedTransactions.map((transaction: Transaction) =>
+            isSequenceNumberOutdated(
+              transaction?.source,
+              Number(transaction?.sequence)
+            )
+          )
+        );
+        setSeqNumsIsStale(results);
+      } catch (error) {
+        console.error("Ошибка при получении транзакций:", error);
+      }
+    };
+
+    fetchTransactions();
+  }, [net, id]);
 
   return (
     <MainLayout>
@@ -218,17 +291,18 @@ const AccountInfo: FC<Props> = ({ id }) => {
                     <hr className="flare"></hr>
                     <dl>
                       {information?.home_domain !== undefined &&
-                        isVisibleHomeDomainInfo &&
-                        information.home_domain &&
-                        !ignoredHomeDomains.includes(information.home_domain) ? (
+                      isVisibleHomeDomainInfo &&
+                      information.home_domain &&
+                      !ignoredHomeDomains.includes(information.home_domain) ? (
                         <>
                           <dt>Home domain:</dt>
                           <dd>
                             <a
-                              href={`${information?.home_domain === undefined
-                                ? "#"
-                                : information?.home_domain
-                                }`}
+                              href={`${
+                                information?.home_domain === undefined
+                                  ? "#"
+                                  : information?.home_domain
+                              }`}
                               rel="noreferrer noopener"
                               target="_blank"
                             >
@@ -351,9 +425,9 @@ const AccountInfo: FC<Props> = ({ id }) => {
                           ? "immutable, "
                           : ""}
                         {information?.flags?.auth_required == false &&
-                          information?.flags?.auth_revocable == false &&
-                          information?.flags?.auth_clawback_enabled == false &&
-                          information?.flags?.auth_immutable == false
+                        information?.flags?.auth_revocable == false &&
+                        information?.flags?.auth_clawback_enabled == false &&
+                        information?.flags?.auth_immutable == false
                           ? "none"
                           : ""}
 
@@ -407,7 +481,7 @@ const AccountInfo: FC<Props> = ({ id }) => {
                     </dl>
 
                     {information?.issuers?.length &&
-                      information?.issuers?.length > 0 ? (
+                    information?.issuers?.length > 0 ? (
                       <div className="account-issued-assets">
                         <h4
                           style={{
@@ -443,23 +517,24 @@ const AccountInfo: FC<Props> = ({ id }) => {
                         </h4>
                         <div className="text-small">
                           <ul>
-                            {Array.isArray(information?.issuers) && (information?.issuers as Issuer[]).map(
-                              (issuer: Issuer, key: number) => {
-                                return (
-                                  <li key={key}>
-                                    <a
-                                      aria-label={issuer.paging_token}
-                                      className="asset-link"
-                                      href={`https://stellar.expert/explorer/${net}/asset/${issuer.asset_code}-${issuer.asset_issuer}`}
-                                      target="_blank"
-                                    >
-                                      {issuer?.asset_code}
-                                    </a>
-                                    &nbsp;
-                                  </li>
-                                );
-                              }
-                            )}
+                            {Array.isArray(information?.issuers) &&
+                              (information?.issuers as Issuer[]).map(
+                                (issuer: Issuer, key: number) => {
+                                  return (
+                                    <li key={key}>
+                                      <a
+                                        aria-label={issuer.paging_token}
+                                        className="asset-link"
+                                        href={`https://stellar.expert/explorer/${net}/asset/${issuer.asset_code}-${issuer.asset_issuer}`}
+                                        target="_blank"
+                                      >
+                                        {issuer?.asset_code}
+                                      </a>
+                                      &nbsp;
+                                    </li>
+                                  );
+                                }
+                              )}
                           </ul>
                         </div>
                       </div>
@@ -520,7 +595,7 @@ const AccountInfo: FC<Props> = ({ id }) => {
                       )}
                     </ul>
                     {information?.entries &&
-                      Object.keys(information?.entries).length ? (
+                    Object.keys(information?.entries).length ? (
                       <>
                         <h4
                           style={{
@@ -575,7 +650,13 @@ const AccountInfo: FC<Props> = ({ id }) => {
                     ) : (
                       <></>
                     )}
-                    <Link href={`/${net}/build-transaction?sourceAccount=${id}`}>Build transaction</Link>
+                    {isVisibleBuildTx && (
+                      <Link
+                        href={`/${net}/build-transaction?sourceAccount=${id}`}
+                      >
+                        Build transaction
+                      </Link>
+                    )}
                   </div>
                 </div>
                 <div className="column column-50">
@@ -669,108 +750,114 @@ const AccountInfo: FC<Props> = ({ id }) => {
                 ignoredHomeDomains &&
                 information?.home_domain &&
                 !ignoredHomeDomains.includes(information.home_domain) &&
-                isVisibleHomeDomainInfo ? (
-                <div className="toml-props">
-                  <div className="tabs space inline-right">
-                    <div className="tabs-header">
-                      <div>
-                        <a
-                          href="#"
-                          className={`tabs-item condensed ${tabIndex === 1 ? "selected" : ""
+                isVisibleHomeDomainInfo && (
+                  <div className="toml-props">
+                    <div className="tabs space inline-right">
+                      <div className="tabs-header">
+                        <div>
+                          <a
+                            href="#"
+                            className={`tabs-item condensed ${
+                              tabIndex === 1 ? "selected" : ""
                             }`}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setTabIndex(1);
-                          }}
-                        >
-                          <span className="tabs-item-text">Organization</span>
-                        </a>
-                        <a
-                          href="#"
-                          className={`tabs-item condensed ${tabIndex === 2 ? "selected" : ""
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setTabIndex(1);
+                            }}
+                          >
+                            <span className="tabs-item-text">Organization</span>
+                          </a>
+                          <a
+                            href="#"
+                            className={`tabs-item condensed ${
+                              tabIndex === 2 ? "selected" : ""
                             }`}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setTabIndex(2);
-                          }}
-                        >
-                          <span className="tabs-item-text">TOML code</span>
-                        </a>
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setTabIndex(2);
+                            }}
+                          >
+                            <span className="tabs-item-text">TOML code</span>
+                          </a>
+                        </div>
                       </div>
-                    </div>
-                    <hr className="flare"></hr>
-                    <div className="tabs-body">
-                      {tabIndex == 1 ? (
-                        <div className="segment blank">
-                          {information?.meta_data &&
+                      <hr className="flare"></hr>
+                      <div className="tabs-body">
+                        {tabIndex == 1 ? (
+                          <div className="segment blank">
+                            {information?.meta_data &&
                             information.meta_data?.["ORG_NAME"] == undefined ? (
-                            <div
-                              style={{ fontSize: "13px", textAlign: "center" }}
-                            >
-                              Empty Data
-                            </div>
-                          ) : (
-                            <dl className="micro-space">
-                              <dt>Org name:</dt>
-                              <dd>
-                                <span
-                                  className="block-select"
-                                  tabIndex={-1}
-                                  style={{
-                                    whiteSpace: "normal",
-                                    overflow: "visible",
-                                    display: "inline",
-                                  }}
-                                >
-                                  {information?.meta_data &&
-                                    information?.meta_data["ORG_NAME"]}
-                                </span>
-                              </dd>
-                              <dt>Org url:</dt>
-                              <dd>
-                                <a
-                                  href={
-                                    information?.meta_data &&
-                                    information?.meta_data["ORG_URL"]
-                                  }
-                                  target="_blank"
-                                  rel="noreferrer noopener"
-                                >
-                                  {information?.meta_data &&
-                                    information?.meta_data["ORG_URL"]}
-                                </a>
-                              </dd>
-                              <dt>Org logo:</dt>
-                              <dd>
-                                <a
-                                  href={
-                                    information?.meta_data &&
-                                    information?.meta_data["ORG_LOGO"]
-                                  }
-                                  target="_blank"
-                                  rel="noreferrer noopener"
-                                >
-                                  {information?.meta_data &&
-                                    information?.meta_data["ORG_LOGO"]}
-                                </a>
-                              </dd>
-                              <dt>Org description:</dt>
-                              <dd>
-                                <span
-                                  className="block-select"
-                                  tabIndex={-1}
-                                  style={{
-                                    whiteSpace: "normal",
-                                    overflow: "visible",
-                                    display: "inline",
-                                  }}
-                                >
-                                  {information?.meta_data &&
-                                    information?.meta_data["ORG_DESCRIPTION"]}
-                                </span>
-                              </dd>
-                              {information.meta_data["ORG_PHYSICAL_ADDRESS"] !==
-                                undefined && (
+                              <div
+                                style={{
+                                  fontSize: "13px",
+                                  textAlign: "center",
+                                }}
+                              >
+                                Empty Data
+                              </div>
+                            ) : (
+                              <dl className="micro-space">
+                                <dt>Org name:</dt>
+                                <dd>
+                                  <span
+                                    className="block-select"
+                                    tabIndex={-1}
+                                    style={{
+                                      whiteSpace: "normal",
+                                      overflow: "visible",
+                                      display: "inline",
+                                    }}
+                                  >
+                                    {information?.meta_data &&
+                                      information?.meta_data["ORG_NAME"]}
+                                  </span>
+                                </dd>
+                                <dt>Org url:</dt>
+                                <dd>
+                                  <a
+                                    href={
+                                      information?.meta_data &&
+                                      information?.meta_data["ORG_URL"]
+                                    }
+                                    target="_blank"
+                                    rel="noreferrer noopener"
+                                  >
+                                    {information?.meta_data &&
+                                      information?.meta_data["ORG_URL"]}
+                                  </a>
+                                </dd>
+                                <dt>Org logo:</dt>
+                                <dd>
+                                  <a
+                                    href={
+                                      information?.meta_data &&
+                                      information?.meta_data["ORG_LOGO"]
+                                    }
+                                    target="_blank"
+                                    rel="noreferrer noopener"
+                                  >
+                                    {information?.meta_data &&
+                                      information?.meta_data["ORG_LOGO"]}
+                                  </a>
+                                </dd>
+                                <dt>Org description:</dt>
+                                <dd>
+                                  <span
+                                    className="block-select"
+                                    tabIndex={-1}
+                                    style={{
+                                      whiteSpace: "normal",
+                                      overflow: "visible",
+                                      display: "inline",
+                                    }}
+                                  >
+                                    {information?.meta_data &&
+                                      information?.meta_data["ORG_DESCRIPTION"]}
+                                  </span>
+                                </dd>
+                                {information.meta_data[
+                                  "ORG_PHYSICAL_ADDRESS"
+                                ] !== undefined && (
                                   <>
                                     <dt>Org physical address:</dt>
                                     <dd>
@@ -785,113 +872,192 @@ const AccountInfo: FC<Props> = ({ id }) => {
                                       >
                                         {information.meta_data &&
                                           information?.meta_data[
-                                          "ORG_PHYSICAL_ADDRESS"
+                                            "ORG_PHYSICAL_ADDRESS"
                                           ]}
                                       </span>
                                     </dd>
                                   </>
                                 )}
-                              {information.meta_data["ORG_OFFICIAL_EMAIL"] !==
-                                undefined && (
+                                {information.meta_data["ORG_OFFICIAL_EMAIL"] !==
+                                  undefined && (
                                   <>
                                     <dt>Org official email:</dt>
                                     <dd>
                                       <a
-                                        href={`mailto:${information?.meta_data &&
+                                        href={`mailto:${
+                                          information?.meta_data &&
                                           information?.meta_data[
-                                          "ORG_OFFICIAL_EMAIL"
+                                            "ORG_OFFICIAL_EMAIL"
                                           ]
-                                          }`}
+                                        }`}
                                         target="_blank"
                                         rel="noreferrer noopener"
                                       >
                                         {information?.meta_data &&
                                           information?.meta_data[
-                                          "ORG_OFFICIAL_EMAIL"
+                                            "ORG_OFFICIAL_EMAIL"
                                           ]}
                                       </a>
                                     </dd>
                                   </>
                                 )}
-                            </dl>
-                          )}
-                        </div>
-                      ) : (
-                        <div>
-                          <pre
-                            className="hljs"
-                            style={{
-                              maxHeight: "80vh",
-                            }}
-                          >
-                            {information?.tomlInfo == "" ? (
-                              <div
-                                style={{
-                                  width: "100%",
-                                  textAlign: "center",
-                                }}
-                              >
-                                Empty Data
-                              </div>
-                            ) : (
-                              information?.tomlInfo
-                                ?.split("\n")
-                                ?.map((toml: string, keyinfo: number) => {
-                                  if (toml == null || toml.startsWith("#")) {
-                                    return;
-                                  }
-                                  if (toml.indexOf("=") > 0) {
-                                    const patterns = toml.split("=");
-                                    const key_pattern = patterns[0];
-                                    const value_pattern = patterns[1];
-                                    return (
-                                      <React.Fragment key={keyinfo}>
-                                        <span className="hljs-attr">
-                                          {key_pattern}
-                                        </span>{" "}
-                                        ={" "}
-                                        <span className="hljs-string">
-                                          {value_pattern}
-                                        </span>
-                                        <br />
-                                      </React.Fragment>
-                                    );
-                                  } else {
-                                    if (toml.startsWith("["))
-                                      return (
-                                        <React.Fragment key={keyinfo}>
-                                          <span className="hljs-section">
-                                            {toml}
-                                          </span>
-                                          <br />
-                                        </React.Fragment>
-                                      );
-                                    else {
-                                      return (
-                                        <React.Fragment key={keyinfo}>
-                                          <span className="hljs-string">
-                                            {toml}
-                                          </span>
-                                          <br />
-                                        </React.Fragment>
-                                      );
-                                    }
-                                  }
-                                })
+                              </dl>
                             )}
-                          </pre>
-                        </div>
-                      )}
+                          </div>
+                        ) : (
+                          <div>
+                            <pre
+                              className="hljs"
+                              style={{
+                                maxHeight: "80vh",
+                              }}
+                            >
+                              {information?.tomlInfo == "" ? (
+                                <div
+                                  style={{
+                                    width: "100%",
+                                    textAlign: "center",
+                                  }}
+                                >
+                                  Empty Data
+                                </div>
+                              ) : (
+                                information?.tomlInfo
+                                  ?.split("\n")
+                                  ?.map((toml: string, keyinfo: number) => {
+                                    if (toml == null || toml.startsWith("#")) {
+                                      return;
+                                    }
+                                    if (toml.indexOf("=") > 0) {
+                                      const patterns = toml.split("=");
+                                      const key_pattern = patterns[0];
+                                      const value_pattern = patterns[1];
+                                      return (
+                                        <React.Fragment key={keyinfo}>
+                                          <span className="hljs-attr">
+                                            {key_pattern}
+                                          </span>{" "}
+                                          ={" "}
+                                          <span className="hljs-string">
+                                            {value_pattern}
+                                          </span>
+                                          <br />
+                                        </React.Fragment>
+                                      );
+                                    } else {
+                                      if (toml.startsWith("["))
+                                        return (
+                                          <React.Fragment key={keyinfo}>
+                                            <span className="hljs-section">
+                                              {toml}
+                                            </span>
+                                            <br />
+                                          </React.Fragment>
+                                        );
+                                      else {
+                                        return (
+                                          <React.Fragment key={keyinfo}>
+                                            <span className="hljs-string">
+                                              {toml}
+                                            </span>
+                                            <br />
+                                          </React.Fragment>
+                                        );
+                                      }
+                                    }
+                                  })
+                              )}
+                            </pre>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              { decodedTransactions.length > 0 && (
+                <div className="tabs space inline-right">
+                  <div className="tabs-header">
+                    <div>
+                      <a href="#" className="tabs-item condensed selected">
+                        <span className="tabs-item-text selected">
+                          Transactions for sign
+                        </span>
+                      </a>
+                    </div>
+                  </div>
+                  <hr className="flare" />
+                  <div className="tabs-body">
+                    <div className="relative segment blank">
+                      <table
+                        className="table exportable"
+                        style={{ width: "100%" }}
+                      >
+                        <thead style={{ width: "100%" }}>
+                          <tr>
+                            <th style={{ display: "none" }}>ID</th>
+                            <th>Transaction</th>
+                          </tr>
+                        </thead>
+                        <tbody style={{ width: "100%" }}>
+                          {decodedTransactions.map(
+                            (transaction: Transaction, index: number) => (
+                                <tr key={index}>
+                                  <td>
+                                    <span style={{ display: "none" }}>
+                                      {Buffer.from(
+                                        transaction?.hash()
+                                      ).toString("hex")}
+                                    </span>
+                                    {seqNumsIsStale[index] && (
+                                      <span
+                                        onClick={() =>
+                                          updatedTransactionSequence(
+                                            transaction.source,
+                                            net
+                                          )
+                                        }
+                                        style={{
+                                          color: "#0691b7",
+                                          cursor: "pointer",
+                                        }}
+                                      >
+                                        <i className="fa-solid fa-arrow-rotate-right"></i>{" "}
+                                      </span>
+                                    )}
+                                    <Link
+                                      href={`/${net}/sign-transaction?importXDR=${encodeURIComponent(
+                                        transaction.toXDR()
+                                      )}`}
+                                      target="_blank"
+                                      rel="noreferrer noopener"
+                                    >
+                                      Operation type:{" "}
+                                      {transaction.operations[0].type};{" "}
+                                      <span>
+                                        Signatures:{" "}
+                                        {transaction.signatures.length};{" "}
+                                      </span>
+                                      <span>
+                                        Status: {TransactionStatuses.signing}
+                                      </span>
+                                    </Link>
+                                  </td>
+                                </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 </div>
-              ) : null}
+              )
+              }
             </>
           ) : (
-            <div className="cotainer">
+            <div className="container">
               <div
-                className={`search ${exists === false ? "error" : ""
-                  } container narrow`}
+                className={`search ${
+                  exists === false ? "error" : ""
+                } container narrow`}
                 style={{ padding: "20px" }}
               >
                 <h2 className="text-overflow">Search results for {account}</h2>

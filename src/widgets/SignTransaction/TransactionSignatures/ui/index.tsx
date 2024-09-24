@@ -3,7 +3,7 @@ import { Header, InputField } from "../../ui/widgets";
 import { localSignature } from "@/views/SignTransaction/page";
 import { getSecretKeyError, signTransaction } from "@/features/helpers";
 import { Networks } from "@stellar/stellar-sdk";
-import { useStore } from "@/features/store";
+import { useStore } from "@/shared/store";
 import { useShallow } from "zustand/react/shallow";
 import { Transaction } from "stellar-sdk";
 
@@ -51,6 +51,8 @@ const TransactionSignatures: FC<Props> = ({
        setSignaturesAdded(signaturesAdded + 1);
        setResultXdr(signedXDR);
      }
+
+     console.log(resultXdr)
 
     } catch (error) {
       console.error("Error signing transaction:", error);

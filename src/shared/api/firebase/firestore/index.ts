@@ -1,5 +1,12 @@
-// import { getFirestore } from "firebase/firestore";
+// shared/api/firebase/firestore/index.ts
+import { getFirestore, Firestore } from "firebase/firestore";
+import firebaseApp from "../app";
 
-// const firestore = getFirestore()
+let firestore: Firestore | undefined;
 
-// const
+if (firebaseApp) {
+  firestore = getFirestore(firebaseApp);
+}
+
+export default firestore;
+

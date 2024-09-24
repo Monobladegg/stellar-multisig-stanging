@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { useStore } from "@/features/store";
+import { useStore } from "@/shared/store";
 import { useShallow } from "zustand/react/shallow";
 import Link from "next/link";
 

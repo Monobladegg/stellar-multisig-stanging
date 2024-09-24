@@ -1,7 +1,7 @@
 "use client";
 
 import { FC, useEffect, useState } from "react";
-import { useStore } from "@/features/store";
+import { useStore } from "@/shared/store";
 import { Footer, Header } from "@/widgets";
 import { useShallow } from "zustand/react/shallow";
 import AddAccountModal from "@/widgets/shared/layouts/Header/ui/AddAccountModal";
@@ -24,6 +24,8 @@ const PageLayout: FC<Props> = ({ children }) => {
     isOpenAddAccountModal,
     setIsAuth,
     net,
+    setServer,
+    setNetwork,
   } = useStore(useShallow((state) => state));
 
   useEffect(() => {
@@ -65,6 +67,11 @@ const PageLayout: FC<Props> = ({ children }) => {
   useEffect(() => {
     console.log(firebaseApp)
   }, [firebaseApp])
+
+  useEffect(() => {
+    setServer(net)
+    setNetwork(net)
+  }, [net])
 
 
   if (!isWindowDefined) {

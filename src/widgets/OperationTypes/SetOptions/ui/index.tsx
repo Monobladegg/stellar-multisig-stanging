@@ -6,7 +6,7 @@ import { setFlagsData, clearFlagsData } from "./flagsData";
 import s from "@/widgets/OperationTypes/index.module.scss";
 import StellarSdk from "stellar-sdk";
 import InputField from "../../shared/InputField";
-import { useStore } from "@/features/store";
+import { useStore } from "@/shared/store";
 import { useShallow } from "zustand/react/shallow";
 import { IFlag } from "../../shared/FlagSelector";
 import { useHandleSourceAccountChange } from "@/features/hooks";

@@ -1,7 +1,7 @@
 import React, { FC } from "react";
 import { Header, InputField, InputGroup } from "../../ui/widgets"
-import { Networks } from "stellar-sdk";
-import { useStore } from "@/features/store";
+import { Networks, Transaction } from "stellar-sdk";
+import { useStore } from "@/shared/store";
 import { useShallow } from "zustand/react/shallow";
 
 interface TransactionOverviewProps {
@@ -10,8 +10,9 @@ interface TransactionOverviewProps {
   sourceAccount: string;
   sequenceNumber: string;
   transactionFee: string;
-  numberOfOperations: string;
-  numberOfSignatures: string;
+  operationCount: string;
+  signatureCount: string;
+  transaction: Transaction | null
 }
 
 const TransactionOverview: FC<TransactionOverviewProps> = ({
@@ -20,11 +21,11 @@ const TransactionOverview: FC<TransactionOverviewProps> = ({
   sourceAccount,
   sequenceNumber,
   transactionFee,
-  numberOfOperations,
-  numberOfSignatures,
+  operationCount,
+  signatureCount,
+  transaction
 }) => {
 
-  const {net} = useStore(useShallow(state => state));
 
   return (
     <div className="container" style={{ color: "#fff" }}>
@@ -35,7 +36,7 @@ const TransactionOverview: FC<TransactionOverviewProps> = ({
         {/* Signing for input */}
         <InputField
           label="Signing for"
-          value={ net === "testnet" ? Networks.TESTNET : Networks.PUBLIC}
+          value={transaction?.networkPassphrase || ""}
         />
 
         {/* Transaction Envelope XDR */}
@@ -51,8 +52,8 @@ const TransactionOverview: FC<TransactionOverviewProps> = ({
         <InputGroup
           sequenceNumber={sequenceNumber}
           transactionFee={transactionFee}
-          numberOfOperations={numberOfOperations}
-          numberOfSignatures={numberOfSignatures}
+          numberOfOperations={operationCount}
+          numberOfSignatures={signatureCount}
         />
       </div>
     </div>

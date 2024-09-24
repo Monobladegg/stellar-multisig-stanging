@@ -16,8 +16,10 @@ import {
   Transaction,
   FeeBumpTransaction,
 } from "stellar-sdk";
-import { useStore } from "@/features/store";
+import { useStore } from "@/shared/store";
 import { useShallow } from "zustand/react/shallow";
+import ShowXDRButtons from "@/widgets/SignTransaction/ShowXDRButtons";
+import { getAllTransactions } from "@/shared/api/firebase/firestore/Transactions";
 
 export type localSignature = string[];
 
@@ -25,8 +27,9 @@ const SignTransaction: FC = () => {
   const params = useSearchParams();
   const importXDR = params?.get("importXDR") ?? "";
   const [signaturesAdded, setSignaturesAdded] = useState<number>(0);
+  const [currentFirebaseId, setCurrentFirebaseId] = useState<string>("");
 
-  const net = useStore(useShallow((state) => state.net));
+  const { net } = useStore(useShallow((state) => state));
 
   const [transactionEnvelope, setTransactionEnvelope] =
     useState<string>(importXDR);
@@ -36,13 +39,10 @@ const SignTransaction: FC = () => {
   >(null);
   const [localSignatures, setLocalSignatures] = useState<localSignature>([""]);
 
-  const { validateTransactionEnvelope } =
-    useTransactionValidation();
+  const { validateTransactionEnvelope } = useTransactionValidation();
 
   useEffect(() => {
-    if (transactionEnvelope) {
-      validateTransactionEnvelope(transactionEnvelope);
-    }
+    if (transactionEnvelope) validateTransactionEnvelope(transactionEnvelope);
   }, [transactionEnvelope, validateTransactionEnvelope]);
 
   const {
@@ -50,8 +50,8 @@ const SignTransaction: FC = () => {
     sourceAccount,
     sequenceNumber,
     transactionFee,
-    numberOfOperations,
-    numberOfSignatures,
+    operationCount,
+    signatureCount,
     transaction,
   } = useXDRDecoding(net, transactionEnvelope);
 
@@ -71,10 +71,24 @@ const SignTransaction: FC = () => {
   }, [resultXdr, net]);
 
   useEffect(() => {
+    const fetchAllTransactions = async () => {
+      getAllTransactions(net).then((data) => {
+        data.map((doc) => {
+          console.log(doc);
+          if (doc.xdr === transactionEnvelope) {
+            setCurrentFirebaseId(doc.id);
+            console.log(doc.id);
+          }
+        });
+      });
+    };
+    console.log(transactionEnvelope);
     if (!transactionEnvelope) {
       setLocalSignatures([""]);
       setResultXdr("");
       setCurrentTransaction(null);
+    } else {
+      fetchAllTransactions();
     }
   }, [transactionEnvelope]);
 
@@ -88,8 +102,9 @@ const SignTransaction: FC = () => {
             sourceAccount={sourceAccount}
             sequenceNumber={sequenceNumber}
             transactionFee={transactionFee}
-            numberOfOperations={numberOfOperations}
-            numberOfSignatures={numberOfSignatures}
+            operationCount={operationCount}
+            signatureCount={signatureCount}
+            transaction={transaction}
           />
           <TransactionSignatures
             localSignatures={localSignatures}
@@ -109,11 +124,20 @@ const SignTransaction: FC = () => {
               } signature(s) total`}
               xdr={resultXdr}
               lowerDescription="Now that this transaction is signed, you can submit it to the network. Horizon provides an endpoint called Post Transaction that will relay your transaction to the network and inform you of the result."
+              buttons={
+                <ShowXDRButtons
+                  transaction={transaction}
+                  currentFirebaseId={currentFirebaseId}
+                />
+              }
             />
           )}
         </>
       ) : (
-        <TransactionForm transactionEnvelope={transactionEnvelope} setTransactionEnvelope={setTransactionEnvelope} />
+        <TransactionForm
+          transactionEnvelope={transactionEnvelope}
+          setTransactionEnvelope={setTransactionEnvelope}
+        />
       )}
     </MainLayout>
   );

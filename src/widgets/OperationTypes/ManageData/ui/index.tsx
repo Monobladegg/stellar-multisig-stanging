@@ -3,7 +3,7 @@
 import React, { FC, ChangeEvent, useEffect } from "react";
 import s from "@/widgets/OperationTypes/index.module.scss";
 import InputField from "@/widgets/OperationTypes/shared/InputField";
-import { useStore } from "@/features/store";
+import { useStore } from "@/shared/store";
 import { useShallow } from "zustand/react/shallow";
 import StellarSdk from "stellar-sdk";
 import { IOperation } from "@/shared/types/store/slices";

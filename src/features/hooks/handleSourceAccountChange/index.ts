@@ -1,4 +1,4 @@
-import { useStore } from "@/features/store";
+import { useStore } from "@/shared/store";
 import { ChangeEvent } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { IOperation } from "@/shared/types/store/slices";

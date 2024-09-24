@@ -1,15 +1,18 @@
 "use client";
 
 import { useEffect, useState, FC } from "react";
-import { MainLayout, SetOptions, ManageData } from "@/widgets";
+import { MainLayout, SetOptions, ManageData, ShowXdr } from "@/widgets";
+import { ShowXdrButtons } from "@/widgets/BuildTransaction";
 import StellarSdk from "stellar-sdk";
 import axios from "axios";
 import { Information } from "@/shared/types";
-import { useStore } from "@/features/store";
+import { useStore } from "@/shared/store";
 import { useShallow } from "zustand/react/shallow";
 import __wbg_init, { encode } from "@stellar/stellar-xdr-json-web";
 import { IOperation } from "@/shared/types/store/slices/buildTxJSONSlice";
 import { useSearchParams } from "next/navigation";
+import { useXDRDecoding } from "@/features/hooks";
+import { checkSigner } from "@/shared/helpers";
 
 type MemoType = "None" | "Text" | "ID" | "Hash" | "Return";
 type OperationType = "set_options" | "manage_data" | "select_operation_type";
@@ -43,7 +46,8 @@ const Page: FC = () => {
     addOperation,
     setOperations,
     fullTransaction,
-    net
+    net,
+    accounts
   } = useStore(useShallow((state) => state));
 
   const [memoInput, setMemoInput] = useState<string>("");
@@ -52,13 +56,17 @@ const Page: FC = () => {
   const [txBuildErrors, setTxBuildErrors] = useState<string[]>([]);
   const [currentXDR, setCurrentXDR] = useState<string>("");
   const [seqNumError, setSeqNumError] = useState<string>("");
+  const [isOperationsOpen, setIsOperationsOpen] = useState<boolean>(false);
   const params = useSearchParams();
+  const { transaction } = useXDRDecoding(net, currentXDR);
+  const [errorSourceAccountSigner, setErrorSourceAccountSigner] =
+    useState<string>("");
 
   useEffect(() => {
     if (params?.get("sourceAccount")) {
       setSourceAccount(params?.get("sourceAccount") ?? "");
     }
-  }, [params])
+  }, [params]);
 
   useEffect(() => {
     setSourceAccountInputIsValid(
@@ -68,6 +76,7 @@ const Page: FC = () => {
 
   const handleAddOperation = () => {
     addOperation();
+    setIsOperationsOpen(true);
   };
 
   const updateErrors = (condition: boolean, errorMessage: string) => {
@@ -113,8 +122,10 @@ const Page: FC = () => {
       "At least one operation is required"
     );
     updateErrors(
-      fullTransaction.tx.tx.operations.some((operation) =>
-        operation.body.set_options === undefined && operation.body.manage_data === undefined
+      fullTransaction.tx.tx.operations.some(
+        (operation) =>
+          operation.body.set_options === undefined &&
+          operation.body.manage_data === undefined
       ),
       "Select operation type"
     );
@@ -182,7 +193,9 @@ const Page: FC = () => {
     } catch (error) {
       console.error(error);
       if (axios.isAxiosError(error) && error.response?.status === 404) {
-        setSeqNumError("Account not found. Make sure the correct network is selected and the account is funded/created.");
+        setSeqNumError(
+          "Account not found. Make sure the correct network is selected and the account is funded/created."
+        );
       }
     }
   };
@@ -213,27 +226,34 @@ const Page: FC = () => {
 
   useEffect(() => {
     const initializeWasm = async () => {
-        await __wbg_init();
-        if (
-          !fullTransaction ||
-          typeof fullTransaction !== "object" ||
-          !fullTransaction.tx
-        ) {
-          throw new Error("Invalid fullTransaction object structure");
-        }
+      await __wbg_init();
+      if (
+        !fullTransaction ||
+        typeof fullTransaction !== "object" ||
+        !fullTransaction.tx
+      ) {
+        throw new Error("Invalid fullTransaction object structure");
+      }
 
-        const transactionEnvelope = {
-          tx: fullTransaction.tx,
-        };
+      const transactionEnvelope = {
+        tx: fullTransaction.tx,
+      };
 
-        const jsonTx = JSON.stringify(transactionEnvelope, null, 2);
-        const xdrType = "TransactionEnvelope";
-        const xdrEncoded = encode(xdrType, jsonTx);
-        setCurrentXDR(xdrEncoded);
+      const jsonTx = JSON.stringify(transactionEnvelope, null, 2);
+      const xdrType = "TransactionEnvelope";
+      const xdrEncoded = encode(xdrType, jsonTx);
+      setCurrentXDR(xdrEncoded);
     };
 
     initializeWasm();
   }, [fullTransaction]);
+
+  useEffect(() => {
+    const isError = checkSigner(accounts, undefined, tx.tx.source_account)
+    if (isError) {
+      setErrorSourceAccountSigner("Not enough rights")
+    }
+  }, [tx.tx.source_account])
 
   return (
     <MainLayout>
@@ -248,7 +268,7 @@ const Page: FC = () => {
               onChange={(e) => setSourceAccount(e.target.value)}
             />
             {!sourceAccountInputIsValid && tx.tx.source_account && (
-              <p className="error">Invalid source account</p>
+              <p className="error">{errorSourceAccountSigner ? "Not enough rights" : "Invalid source account"}</p>
             )}
           </div>
 
@@ -266,7 +286,12 @@ const Page: FC = () => {
                   Fetch next sequence number for account starting with{" "}
                   {tx.tx.source_account.slice(0, 5)}...
                 </button>
-                <p>Fetching from: {net === "testnet" ? "https://horizon-testnet.stellar.org" : "https://horizon.stellar.org"}</p>
+                <p>
+                  Fetching from:{" "}
+                  {net === "testnet"
+                    ? "https://horizon-testnet.stellar.org"
+                    : "https://horizon.stellar.org"}
+                </p>
               </>
             )}
             {seqNumError && <p className="error">{seqNumError}</p>}
@@ -434,104 +459,112 @@ const Page: FC = () => {
           </div>
 
           {/* Operations */}
-          {tx.tx.operations.map((operation, index) => (
-            <div key={index} className="blank flex">
-              <div
-                style={{
-                  borderRight: "1px solid #535759",
-                  borderBottom: "1px solid #535759",
-                  paddingRight: "10px",
-                }}
-                className="flex flex-col"
-              >
+          {fullTransaction.tx.tx.operations.length > 0 && (
+            <button onClick={() => setIsOperationsOpen(!isOperationsOpen)}>
+              {isOperationsOpen ? (
+                <>
+                  <i className="fa-solid fa-chevron-up"></i> Hide
+                </>
+              ) : (
+                <>
+                  <i className="fa-solid fa-chevron-down"></i> Show
+                </>
+              )}
+            </button>
+          )}
+          {isOperationsOpen &&
+            tx.tx.operations.map((operation, index) => (
+              <div key={index} className="blank flex">
                 <div
                   style={{
-                    width: "140px",
-                    height: "140px",
-                    textAlign: "center",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
+                    borderRight: "1px solid #535759",
+                    borderBottom: "1px solid #535759",
+                    paddingRight: "10px",
                   }}
-                  className="text-center blank"
+                  className="flex flex-col"
                 >
-                  {index + 1}
+                  <div
+                    style={{
+                      width: "140px",
+                      height: "140px",
+                      textAlign: "center",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                    className="text-center blank"
+                  >
+                    {index + 1}
+                  </div>
+                  <button onClick={() => duplicateOperation(index)}>
+                    Duplicate
+                  </button>
+                  {tx.tx.operations.length > 1 && (
+                    <button onClick={() => removeOperation(index)}>
+                      Remove
+                    </button>
+                  )}
                 </div>
-                <button onClick={() => duplicateOperation(index)}>
-                  Duplicate
-                </button>
-                {tx.tx.operations.length > 1 && (
-                  <button onClick={() => removeOperation(index)}>Remove</button>
-                )}
-              </div>
-              <div
-                style={{
-                  borderBottom: "1px solid #535759",
-                  paddingLeft: "10px",
-                }}
-              >
-                <h4>Operation Type</h4>
-                <select
-                  className="input"
-                  value={getOperationType(operation)}
-                  onChange={(e) =>
-                    setOperationType(index, e.target.value as OperationType)
-                  }
+                <div
+                  style={{
+                    borderBottom: "1px solid #535759",
+                    paddingLeft: "10px",
+                  }}
                 >
-                  <option value="select_operation_type">
-                    Select Operation Type
-                  </option>
-                  <option value="manage_data">Manage Data</option>
-                  <option value="set_options">Set Options</option>
-                </select>
+                  <h4>Operation Type</h4>
+                  <select
+                    className="input"
+                    value={getOperationType(operation)}
+                    onChange={(e) =>
+                      setOperationType(index, e.target.value as OperationType)
+                    }
+                  >
+                    <option value="select_operation_type">
+                      Select Operation Type
+                    </option>
+                    <option value="manage_data">Manage Data</option>
+                    <option value="set_options">Set Options</option>
+                  </select>
 
-                <div className="mt-3">
-                  {getOperationType(operation) === "set_options" && (
-                    <SetOptions id={index} />
-                  )}
-                  {getOperationType(operation) === "manage_data" && (
-                    <ManageData id={index} />
-                  )}
+                  <div className="mt-3">
+                    {getOperationType(operation) === "set_options" && (
+                      <SetOptions id={index} />
+                    )}
+                    {getOperationType(operation) === "manage_data" && (
+                      <ManageData id={index} />
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-          <button
-            style={{ marginTop: "10px" }}
-            onClick={handleAddOperation}
-            className="mt-3"
-          >
-            Add New Operation
-          </button>
-        </div>
-        <div style={{ marginTop: "20px" }} className="segment blank">
-          {txBuildErrors.length > 0 ? (
-            <>
-              <h2>Transaction building errors:</h2>
-              <ul>
-                {txBuildErrors.map((error, index) => (
-                  <li key={index}>{`- ${error}`}</li>
-                ))}
-              </ul>
-            </>
-          ) : (
-            <>
-              <h1>Here your XDR transaction:</h1>
-              <h3 style={{ wordWrap: "break-word" }}>
-                {currentXDR}{" "}
-                <span
-                  style={{ cursor: "pointer" }}
-                  onClick={() => {
-                    navigator.clipboard.writeText(currentXDR);
-                    alert("XDR copied to clipboard");
-                  }}
-                >
-                  <i className="fa-regular fa-copy"></i>
-                </span>
-              </h3>
-            </>
+            ))}
+          {fullTransaction.tx.tx.operations.length === 0 && !isOperationsOpen && (
+            <button
+              style={{ marginTop: "10px" }}
+              onClick={handleAddOperation}
+              className="mt-3"
+            >
+              Add New Operation
+            </button>
           )}
         </div>
+        {txBuildErrors.length > 0 ? (
+          <div style={{ marginTop: "20px" }} className="segment blank">
+            <h2>Transaction building errors:</h2>
+            <ul>
+              {txBuildErrors.map((error, index) => (
+                <li key={index}>{`- ${error}`}</li>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <ShowXdr
+            title="Here your XDR transaction:"
+            xdr={currentXDR}
+            showHash
+            showNetPassphrase
+            buttons={<ShowXdrButtons transaction={transaction} />}
+          />
+        )}
       </div>
     </MainLayout>
   );

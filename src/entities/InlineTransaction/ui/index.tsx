@@ -21,7 +21,7 @@ const InlineTransaction: FC<Props> = ({transaction, seqNumsIsStale, index, updat
         <span style={{ display: "none" }}>
           {Buffer.from(transaction?.hash()).toString("hex")}
         </span>
-        {seqNumsIsStale[index] && (
+        {!seqNumsIsStale[index] && (
           <span
             onClick={() => updatedTransactionSequence(transaction.source, net)}
             style={{

@@ -41,7 +41,7 @@ const Account: FC = () => {
     );
   }
 
-  return typeof id === "string" && <AccountInfo id={id} />;
+  return typeof id === "string" && <AccountInfo ID={id} />;
 };
 
 export default Account;

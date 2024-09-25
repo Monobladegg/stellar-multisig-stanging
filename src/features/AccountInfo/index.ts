@@ -1,1 +1,2 @@
-export {default as InlineTransaction} from "./InlineTransaction";
+export {default as InlineTransaction} from "../../entities/AccountInfo/InlineTransaction";
+export {default as TransactionsSorter} from "./TransactionsSort";

@@ -12,13 +12,12 @@ import Link from "next/link";
 import "./public.css";
 import { useStore } from "@/shared/store";
 import { useShallow } from "zustand/react/shallow";
-import { Balance, Information, Signer } from "@/shared/types";
-import { DocumentInfo, Issuer } from "@/shared/types";
+import { Balance, Information, Signer, DocumentInfo, Issuer, TransactionData } from "@/shared/types";
 import { processKeys } from "@/shared/lib";
 import BalanceItem from "@/views/account/(BalanceItem)";
 import ignoredHomeDomains from "@/shared/configs/ignored-home-domains.json";
 import { getAllTransactions } from "@/shared/api/firebase/firestore/Transactions";
-import { checkSigner, updatedTransactionSequence } from "@/shared/helpers";
+import { checkSigner, updatedTransactionSequence, collapseAccount } from "@/shared/helpers";
 
 export enum TransactionStatuses {
   signing = "Signing",
@@ -28,20 +27,10 @@ export enum TransactionStatuses {
 }
 
 interface Props {
-  id: string;
+  ID: string;
 }
 
-export const collapseAccount = (accountId: string) => {
-  if (accountId == "" || accountId == null || accountId == undefined) {
-    return <br />;
-  }
-  const first4Str = accountId.substring(0, 4);
-  const last4Str = accountId.substr(-4);
-  return first4Str + "..." + last4Str;
-};
-
-const AccountInfo: FC<Props> = ({ id }) => {
-  const account = id;
+const AccountInfo: FC<Props> = ({ ID }) => {
   const { net, accounts, network } = useStore(useShallow((state) => state));
   const [information, setInformation] = useState<Information>(
     {} as Information
@@ -57,6 +46,8 @@ const AccountInfo: FC<Props> = ({ id }) => {
   const [isVisibleHomeDomainInfo, setIsVisibleHomeDomainInfo] =
     useState<boolean>(true);
   const [isVisibleBuildTx, setIsVisibleBuildTx] = useState<boolean>(false);
+  const [transactionsFromFirebase, setTransactionsFromFirebase] =
+    useState<TransactionData[]>([]);
 
   async function isSequenceNumberOutdated(
     publicKey: string,
@@ -86,7 +77,7 @@ const AccountInfo: FC<Props> = ({ id }) => {
       const server = new StellarSdk.Server(serverUrl);
 
       try {
-        await server.loadAccount(account);
+        await server.loadAccount(ID);
         setExists(true);
         // Navigate to the account page if the account exists
       } catch (e) {
@@ -101,17 +92,17 @@ const AccountInfo: FC<Props> = ({ id }) => {
       }
     };
 
-    if (StellarSdk.StrKey.isValidEd25519PublicKey(account)) {
+    if (StellarSdk.StrKey.isValidEd25519PublicKey(ID)) {
       checkAccount();
     } else {
       setTimeout(() => {
         setExists(false);
       }, 2000);
       setErrorvalid(
-        `"Cannot read properties of null (reading 'invalidAsset')" at ${account}`
+        `"Cannot read properties of null (reading 'invalidAsset')" at ${ID}`
       );
     }
-  }, [net, account]);
+  }, [net, ID]);
 
   useEffect(() => {
     setIsVisibleBuildTx(checkSigner(accounts, information.signers));
@@ -119,7 +110,7 @@ const AccountInfo: FC<Props> = ({ id }) => {
 
   useEffect(() => {
     setIsVisibleBuildTx(false);
-  }, [id]);
+  }, [ID]);
 
   useEffect(() => {
     console.log(decodedTransactions)
@@ -128,10 +119,10 @@ const AccountInfo: FC<Props> = ({ id }) => {
   useEffect(() => {
     const handler = async () => {
       setLoading(true);
-      if (account != "") {
-        const horizonInfo = await getMainInformation(account as string);
+      if (ID != "") {
+        const horizonInfo = await getMainInformation(ID as string);
         const accountIssuer = await getAccountIssuerInformation(
-          account as string
+          ID as string
         );
 
         let tomlInformation = "";
@@ -180,7 +171,7 @@ const AccountInfo: FC<Props> = ({ id }) => {
       setLoading(false);
     };
     handler();
-  }, [account]);
+  }, [ID]);
 
   useEffect(() => {
     if (information.tomlInfo) {
@@ -200,7 +191,7 @@ const AccountInfo: FC<Props> = ({ id }) => {
         );
 
         const foundAccount = cleanedAccounts.some(
-          (accountId) => accountId === id
+          (accountId) => accountId === ID
         );
 
         setIsVisibleHomeDomainInfo(foundAccount);
@@ -210,12 +201,14 @@ const AccountInfo: FC<Props> = ({ id }) => {
     } else {
       setIsVisibleHomeDomainInfo(false);
     }
-  }, [information.tomlInfo, id]);
+  }, [information.tomlInfo, ID]);
 
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
         const transactions = await getAllTransactions(net);
+        console.log(transactions)
+        setTransactionsFromFirebase(transactions)
         const decodedArray = transactions
           .filter(({ xdr }) => xdr)
           .map(({ xdr }) => {
@@ -224,7 +217,7 @@ const AccountInfo: FC<Props> = ({ id }) => {
                 xdr,
                 network
               ) as Transaction;
-              return tx.source === id ? tx : null;
+              return tx.source === ID ? tx : null;
             } catch (error) {
               console.error("Ошибка при декодировании транзакции:", error);
               return null;
@@ -247,7 +240,7 @@ const AccountInfo: FC<Props> = ({ id }) => {
     };
 
     fetchTransactions();
-  }, [net, id]);
+  }, [net, ID]);
 
   return (
     <MainLayout>
@@ -267,7 +260,7 @@ const AccountInfo: FC<Props> = ({ id }) => {
                   Account&nbsp;&nbsp;&nbsp;
                 </span>
                 <span className="account-address plain">
-                  <span className="account-key">{account}</span>
+                  <span className="account-key">{ID}</span>
                   &nbsp;&nbsp;&nbsp;
                   <span
                     className="account-key"
@@ -277,7 +270,7 @@ const AccountInfo: FC<Props> = ({ id }) => {
                     }}
                   >
                     <a
-                      href={`https://stellar.expert/explorer/${net}/account/${account}`}
+                      href={`https://stellar.expert/explorer/${net}/account/${ID}`}
                       title="View on Stellar.Expert"
                       target="_blank"
                     >
@@ -655,7 +648,7 @@ const AccountInfo: FC<Props> = ({ id }) => {
                     )}
                     {isVisibleBuildTx && (
                       <Link
-                        href={`/${net}/build-transaction?sourceAccount=${id}`}
+                        href={`/${net}/build-transaction?sourceAccount=${ID}`}
                       >
                         Build transaction
                       </Link>
@@ -979,6 +972,7 @@ const AccountInfo: FC<Props> = ({ id }) => {
                 )}
               {decodedTransactions.length > 0 && (
                 <ShowTransactions
+                  ID={ID}
                   decodedTransactions={decodedTransactions}
                   seqNumsIsStale={seqNumsIsStale}
                   updatedTransactionSequence={updatedTransactionSequence}
@@ -993,10 +987,10 @@ const AccountInfo: FC<Props> = ({ id }) => {
                 } container narrow`}
                 style={{ padding: "20px" }}
               >
-                <h2 className="text-overflow">Search results for {account}</h2>
+                <h2 className="text-overflow">Search results for {ID}</h2>
                 {exists ? (
                   <p>
-                    Account {account} exists on {net}!
+                    Account {ID} exists on {net}!
                   </p>
                 ) : (
                   <span>{errorvalid}</span>

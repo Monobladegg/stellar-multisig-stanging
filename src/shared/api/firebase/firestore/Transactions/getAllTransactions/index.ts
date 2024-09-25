@@ -9,24 +9,30 @@ import {
 import firestore from "../..";
 
 interface TransactionData {
+  id: string;
   xdr: string;
+  createdAt: number;
+  updatedAt: number | undefined;
 }
 
 const transactionConverter: FirestoreDataConverter<TransactionData> = {
   toFirestore(transaction: TransactionData): DocumentData {
-    return { xdr: transaction.xdr };
+    return { xdr: transaction.xdr, createdAt: transaction.createdAt, updatedAt: transaction.updatedAt };
   },
   fromFirestore(snapshot: QueryDocumentSnapshot): TransactionData {
     const data = snapshot.data();
     return {
+      id: snapshot.id,
       xdr: data.xdr,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
     };
   },
 };
 
 async function getAllTransactions(
   net: "public" | "testnet"
-): Promise<Array<{ id: string; xdr: string }>> {
+): Promise<TransactionData[]> {
   if (!firestore) {
     throw new Error("Firestore не инициализирован");
   }
@@ -49,6 +55,8 @@ async function getAllTransactions(
     const querySnapshot = await getDocs(transactionsCollection);
     const transactions = querySnapshot.docs.map((doc) => ({
       id: doc.id,
+      createdAt: doc.data().createdAt,
+      updatedAt: doc.data().updatedAt,
       xdr: doc.data().xdr,
     }));
     return transactions;

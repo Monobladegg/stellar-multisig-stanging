@@ -1,4 +1,3 @@
-// shared/api/firebase/firestore/transactions.ts
 import {
   collection,
   getDocs,
@@ -7,17 +6,15 @@ import {
   QueryDocumentSnapshot,
 } from "firebase/firestore";
 import firestore from "../..";
-
-interface TransactionData {
-  id: string;
-  xdr: string;
-  createdAt: number;
-  updatedAt: number | undefined;
-}
+import { TransactionData } from "@/shared/types";
 
 const transactionConverter: FirestoreDataConverter<TransactionData> = {
   toFirestore(transaction: TransactionData): DocumentData {
-    return { xdr: transaction.xdr, createdAt: transaction.createdAt, updatedAt: transaction.updatedAt };
+    return {
+      xdr: transaction.xdr,
+      createdAt: transaction.createdAt,
+      updatedAt: transaction.updatedAt,
+    };
   },
   fromFirestore(snapshot: QueryDocumentSnapshot): TransactionData {
     const data = snapshot.data();
@@ -47,9 +44,10 @@ async function getAllTransactions(
     throw new Error(`Неизвестная сеть: ${net}`);
   }
 
-  const transactionsCollection = collection(firestore, collectionName).withConverter(
-    transactionConverter
-  );
+  const transactionsCollection = collection(
+    firestore,
+    collectionName
+  ).withConverter(transactionConverter);
 
   try {
     const querySnapshot = await getDocs(transactionsCollection);

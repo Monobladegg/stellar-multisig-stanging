@@ -2,14 +2,7 @@
 // @ts-ignore
 
 export { type default as Store } from "./store";
-export type {
-  INetSlice,
-  IThemeSlice,
-  IAccountsSlice,
-  IAccount,
-  IServerSlice,
-  Server
-} from "@/shared/types/store/slices";
+export * from "@/shared/types/store/slices";
 export type {
   Information,
   Issuer,
@@ -23,3 +16,5 @@ export type DocumentInfo = {
   [key: string]: string;
 };
 export type {TransactionData, TransactionForSign} from "@/shared/types/firebase";
+export type {SortBy, ISeqNumIsStale} from "@/shared/types/shared";
+export type * from "@/shared/types/BuildTransaction";

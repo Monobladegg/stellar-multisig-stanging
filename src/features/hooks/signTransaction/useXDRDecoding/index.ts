@@ -3,7 +3,7 @@ import __wbg_init, { decode } from "@stellar/stellar-xdr-json-web";
 import { Transaction, FeeBumpTransaction, Networks, TransactionBuilder } from "stellar-sdk";
 import { useStore } from "@/shared/store";
 import { useShallow } from "zustand/react/shallow";
-
+import JSONbig from "json-bigint";
 /**
  * Custom hook for decoding XDR and extracting transaction details.
  *
@@ -11,7 +11,7 @@ import { useShallow } from "zustand/react/shallow";
  * @param envelope - XDR envelope string to decode
  * @returns An object containing decoded transaction details and metadata
  */
-const useXDRDecoding = (trigger: string | null, envelope: string) => {
+const useXDRDecoding = (trigger: string | null | undefined, envelope: string) => {
   const [decodedTransactionJSON, setDecodedTransactionJSON] = useState<string>("");
   const [transactionHash, setTransactionHash] = useState<string>("");
   const [sourceAccount, setSourceAccount] = useState<string>("");
@@ -29,7 +29,7 @@ const useXDRDecoding = (trigger: string | null, envelope: string) => {
       if (trigger) {
         const decodedXDR = decodeURIComponent(envelope);
         const decodedTransaction = decode("TransactionEnvelope", decodedXDR);
-        setDecodedTransactionJSON(JSON.stringify(decodedTransaction, null, 2));
+        setDecodedTransactionJSON(JSONbig.stringify(decodedTransaction, null, 2));
         const tx = TransactionBuilder.fromXDR(envelope, net === "testnet" ? Networks.TESTNET : Networks.PUBLIC);
         setTransactionHash(tx.hash().toString("hex"));
         if (tx instanceof Transaction) {

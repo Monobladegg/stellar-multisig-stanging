@@ -1,7 +1,9 @@
 enum Filters {
   typeOperation = "Operation type",
-  createdAt = "Date of creation",
-  byNumberSignatures = "by number of signatures",
+  createdAtDESC = "Date of creation (DESC)",
+  createdAtASC = "Date of creation (ASC)",
+  byNumberSignaturesDESC = "By number of signatures (DESC)",
+  byNumberSignaturesASC = "By number of signatures (ASC)",
 }
 
 export const filterOptions = Object.values(Filters);

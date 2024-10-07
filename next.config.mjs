@@ -23,6 +23,7 @@ const nextConfig = {
         NEXT_PUBLIC_STORAGE_BUCKET: process.env.NEXT_PUBLIC_STORAGE_BUCKET,
         NEXT_PUBLIC_MESSAGING_SENDER_ID: process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID,
     },
+    reactStrictMode: false,
 };
 
 export default nextConfig;

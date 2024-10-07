@@ -12,12 +12,25 @@ import Link from "next/link";
 import "./public.css";
 import { useStore } from "@/shared/store";
 import { useShallow } from "zustand/react/shallow";
-import { Balance, Information, Signer, DocumentInfo, Issuer, TransactionData } from "@/shared/types";
+import {
+  Balance,
+  Information,
+  Signer,
+  DocumentInfo,
+  Issuer,
+  TransactionData,
+  ISeqNumIsStale,
+  DecodedTransactions,
+} from "@/shared/types";
 import { processKeys } from "@/shared/lib";
 import BalanceItem from "@/views/account/(BalanceItem)";
 import ignoredHomeDomains from "@/shared/configs/ignored-home-domains.json";
 import { getAllTransactions } from "@/shared/api/firebase/firestore/Transactions";
-import { checkSigner, updatedTransactionSequence, collapseAccount } from "@/shared/helpers";
+import {
+  checkSigner,
+  collapseAccount,
+  isSequenceNumberOutdated,
+} from "@/shared/helpers";
 
 export enum TransactionStatuses {
   signing = "Signing",
@@ -35,38 +48,30 @@ const AccountInfo: FC<Props> = ({ ID }) => {
   const [information, setInformation] = useState<Information>(
     {} as Information
   );
-  const [seqNumsIsStale, setSeqNumsIsStale] = useState<boolean[]>([]);
-  const [decodedTransactions, setDecodedTransactions] = useState<Transaction[]>(
-    []
-  );
+  const [secondInformation, setSecondInformation] = useState<Information>();
+  const [seqNumsIsStales, setSeqNumsIsStales] = useState<ISeqNumIsStale[]>([]);
+  const [decodedTransactions, setDecodedTransactions] =
+    useState<DecodedTransactions>([]);
   const [exists, setExists] = useState<boolean>(true);
   const [tabIndex, setTabIndex] = useState<number>(1);
   const [errorvalid, setErrorvalid] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isVisibleHomeDomainInfo, setIsVisibleHomeDomainInfo] =
     useState<boolean>(true);
   const [isVisibleBuildTx, setIsVisibleBuildTx] = useState<boolean>(false);
-  const [transactionsFromFirebase, setTransactionsFromFirebase] =
-    useState<TransactionData[]>([]);
+  const [transactionsFromFirebase, setTransactionsFromFirebase] = useState<
+    TransactionData[]
+  >([]);
 
-  async function isSequenceNumberOutdated(
-    publicKey: string,
-    providedSeqNum: number
-  ): Promise<boolean> {
-    const serverUrl =
-      net === "testnet"
-        ? "https://horizon-testnet.stellar.org"
-        : "https://horizon.stellar.org";
-    const server = new StellarSdk.Server(serverUrl);
-    try {
-      const account = await server.loadAccount(publicKey);
-      const currentSeqNum = parseInt(account.sequence, 10);
-      return providedSeqNum < currentSeqNum;
-    } catch (error) {
-      console.error("Ошибка при загрузке аккаунта:", error);
-      throw error;
+  useEffect(() => {
+    if (
+      information.signers &&
+      information.signers.length > 0 &&
+      (decodedTransactions === null || decodedTransactions.length > 0)
+    ) {
+      setIsLoading(false);
     }
-  }
+  }, [information, decodedTransactions]);
 
   useEffect(() => {
     const checkAccount = async () => {
@@ -77,9 +82,9 @@ const AccountInfo: FC<Props> = ({ ID }) => {
       const server = new StellarSdk.Server(serverUrl);
 
       try {
-        await server.loadAccount(ID);
+        const secondInformation = await server.loadAccount(ID);
+        setSecondInformation(secondInformation);
         setExists(true);
-        // Navigate to the account page if the account exists
       } catch (e) {
         if (e instanceof StellarSdk.NotFoundError) {
           setExists(false);
@@ -113,17 +118,14 @@ const AccountInfo: FC<Props> = ({ ID }) => {
   }, [ID]);
 
   useEffect(() => {
-    console.log(decodedTransactions)
-  }, [decodedTransactions])
+      console.log(decodedTransactions);
+  }, [decodedTransactions]);
 
   useEffect(() => {
     const handler = async () => {
-      setLoading(true);
       if (ID != "") {
         const horizonInfo = await getMainInformation(ID as string);
-        const accountIssuer = await getAccountIssuerInformation(
-          ID as string
-        );
+        const accountIssuer = await getAccountIssuerInformation(ID as string);
 
         let tomlInformation = "";
 
@@ -168,7 +170,6 @@ const AccountInfo: FC<Props> = ({ ID }) => {
           tomlInfo: tomlInformation,
         });
       }
-      setLoading(false);
     };
     handler();
   }, [ID]);
@@ -207,46 +208,51 @@ const AccountInfo: FC<Props> = ({ ID }) => {
     const fetchTransactions = async () => {
       try {
         const transactions = await getAllTransactions(net);
-        console.log(transactions)
-        setTransactionsFromFirebase(transactions)
-        const decodedArray = transactions
-          .filter(({ xdr }) => xdr)
-          .map(({ xdr }) => {
-            try {
-              const tx = TransactionBuilder.fromXDR(
-                xdr,
-                network
-              ) as Transaction;
-              return tx.source === ID ? tx : null;
-            } catch (error) {
-              console.error("Ошибка при декодировании транзакции:", error);
-              return null;
+        setTransactionsFromFirebase(transactions);
+
+        // Временный массив с типом 'DecodedTransaction[]'
+        const decodedList: DecodedTransactions = [];
+
+        transactions.forEach(({ xdr }, index) => {
+          try {
+            const transaction = TransactionBuilder.fromXDR(xdr, network) as Transaction;
+
+            if (transaction.source === ID) {
+              decodedList.push({ index, transaction });
             }
-          })
-          .filter(Boolean);
-        setDecodedTransactions(decodedArray as Transaction[]);
-        const results = await Promise.all(
-          decodedTransactions.map((transaction: Transaction) =>
-            isSequenceNumberOutdated(
-              transaction?.source,
-              Number(transaction?.sequence)
-            )
-          )
-        );
-        setSeqNumsIsStale(results);
+          } catch (error) {
+            console.error("Ошибка при декодировании транзакции:", error);
+          }
+        });
+
+        // Обновляем состояние, проверяем длину списка
+        setDecodedTransactions(decodedList.length > 0 ? decodedList : null);
       } catch (error) {
         console.error("Ошибка при получении транзакций:", error);
       }
     };
 
-    fetchTransactions();
+    if (net && ID) {
+      fetchTransactions();
+    }
   }, [net, ID]);
+
+
+  useEffect(() => {
+    decodedTransactions !== null && secondInformation && decodedTransactions.forEach((item, index) => {
+      const isStale = isSequenceNumberOutdated(
+        BigInt(secondInformation?.sequence || 0),
+        BigInt(item?.transaction?.sequence || 0)
+      );
+      setSeqNumsIsStales((prev) => [...prev, { index, isStale }]);
+    });
+  }, [decodedTransactions]);
 
   return (
     <MainLayout>
       <div className="container">
         <div className="account-view">
-          {loading ? (
+          {isLoading ? (
             "Loading..."
           ) : exists ? (
             <>
@@ -970,14 +976,14 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                     </div>
                   </div>
                 )}
-              {decodedTransactions.length > 0 && (
-                <ShowTransactions
-                  ID={ID}
-                  decodedTransactions={decodedTransactions}
-                  seqNumsIsStale={seqNumsIsStale}
-                  updatedTransactionSequence={updatedTransactionSequence}
-                />
-              )}
+              <ShowTransactions
+                ID={ID}
+                decodedTransactions={decodedTransactions}
+                setDecodedTransactions={setDecodedTransactions}
+                seqNumsIsStales={seqNumsIsStales}
+                transactionsFromFirebase={transactionsFromFirebase}
+                setTransactionsFromFirebase={setTransactionsFromFirebase}
+              />
             </>
           ) : (
             <div className="container">

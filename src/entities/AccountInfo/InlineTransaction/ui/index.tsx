@@ -3,44 +3,64 @@ import React, { FC } from "react";
 import { Transaction } from "stellar-sdk";
 import { useShallow } from "zustand/react/shallow";
 import Link from "next/link";
-import { Net } from "@/shared/types/store/slices";
 import { TransactionStatuses } from "@/views/account/AccountInfo";
+import {
+  DecodedTransaction,
+  ISeqNumIsStale,
+  TransactionData,
+} from "@/shared/types";
 
 interface Props {
-  transaction: Transaction;
-  seqNumsIsStale: boolean[];
+  decodedTransaction: DecodedTransaction;
+  seqNumsIsStales: ISeqNumIsStale[];
   index: number;
-  updatedTransactionSequence: (publicKey: string, net: Net) => void;
+  transactionsFromFirebase: TransactionData[];
 }
 
-const InlineTransaction: FC<Props> = ({transaction, seqNumsIsStale, index, updatedTransactionSequence,}) => {
-  const {net} = useStore(useShallow((state) => state));
+const InlineTransaction: FC<Props> = ({
+  decodedTransaction,
+  seqNumsIsStales,
+  index,
+  transactionsFromFirebase,
+}) => {
+  const { net } = useStore(useShallow((state) => state));
   return (
     <tr>
       <td>
         <span style={{ display: "none" }}>
-          {Buffer.from(transaction?.hash()).toString("hex")}
+          {decodedTransaction?.transaction &&
+            Buffer.from(decodedTransaction?.transaction?.hash()).toString(
+              "hex"
+            )}
         </span>
-        {!seqNumsIsStale[index] && (
-          <span
-            onClick={() => updatedTransactionSequence(transaction.source, net)}
-            style={{
-              color: "#0691b7",
-              cursor: "pointer",
-            }}
-          >
-            <i className="fa-solid fa-arrow-rotate-right"></i>{" "}
-          </span>
-        )}
         <Link
-          href={`/${net}/sign-transaction?importXDR=${encodeURIComponent(
-            transaction.toXDR()
-          )}`}
+          href={
+            decodedTransaction?.index &&
+            !seqNumsIsStales[decodedTransaction?.index]?.isStale
+              ? `/${net}/build-transaction?firebaseID=${transactionsFromFirebase[index]?.id}&isStale=true`
+              : `/${net}/build-transaction?firebaseID=${transactionsFromFirebase[index]?.id}`
+          }
           target="_blank"
           rel="noreferrer noopener"
         >
-          Operation type: {transaction.operations[0].type};{" "}
-          <span>Signatures: {transaction.signatures.length}; </span>
+          {decodedTransaction?.index &&
+          !seqNumsIsStales[decodedTransaction?.index]?.isStale ? (
+            <span
+              style={{
+                color: "#0691b7",
+                cursor: "pointer",
+              }}
+              title="Click to update sequence number"
+            >
+              <i className="fa-solid fa-arrow-rotate-right"></i>{" "}
+            </span>
+          ) : (
+            <></>
+          )}
+          Operation type: {decodedTransaction?.transaction.operations[0].type};{" "}
+          <span>
+            Signatures: {decodedTransaction?.transaction.signatures.length};{" "}
+          </span>
           <span>Status: {TransactionStatuses.signing}</span>
         </Link>
       </td>

@@ -1,9 +1,11 @@
 import {
   IAccountsSlice,
+  IBuildErrorsSlice,
   IBuildTxJSONSlice,
   INetSlice,
   IServerSlice,
   IThemeSlice,
+  ITransactionsFromFirebaseSlice,
 } from "@/shared/types/store/slices";
 
 interface Store
@@ -11,6 +13,8 @@ interface Store
     IThemeSlice,
     IAccountsSlice,
     IBuildTxJSONSlice,
-    IServerSlice {}
+    IServerSlice,
+    ITransactionsFromFirebaseSlice,
+    IBuildErrorsSlice {}
 
 export default Store;

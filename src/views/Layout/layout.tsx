@@ -5,8 +5,9 @@ import { useStore } from "@/shared/store";
 import { Footer, Header } from "@/widgets";
 import { useShallow } from "zustand/react/shallow";
 import AddAccountModal from "@/widgets/shared/layouts/Header/ui/AddAccountModal";
-import { usePathname } from 'next/navigation';
+import { usePathname } from "next/navigation";
 import firebaseApp from "@/shared/api/firebase";
+import __wbg_init, { decode } from "@stellar/stellar-xdr-json-web";
 
 type Props = {
   children: React.ReactNode;
@@ -65,14 +66,9 @@ const PageLayout: FC<Props> = ({ children }) => {
     : "";
 
   useEffect(() => {
-    console.log(firebaseApp)
-  }, [firebaseApp])
-
-  useEffect(() => {
-    setServer(net)
-    setNetwork(net)
-  }, [net])
-
+    setServer(net);
+    setNetwork(net);
+  }, [net]);
 
   if (!isWindowDefined) {
     return (
@@ -98,7 +94,10 @@ const PageLayout: FC<Props> = ({ children }) => {
           content={process.env.NEXT_PUBLIC_COMMIT_HASH || ""}
         />
         <title>MTL Stellar Multisig</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        />
       </head>
       <body>
         <main

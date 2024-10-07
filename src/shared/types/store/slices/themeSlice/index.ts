@@ -1,5 +1,5 @@
 export interface ThemeState {
-  theme: string | null
+  theme: "day" | "night" | null
 }
 
 export interface ThemeActions {

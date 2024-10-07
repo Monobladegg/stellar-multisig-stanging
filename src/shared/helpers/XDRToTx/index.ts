@@ -1,5 +1,9 @@
 import __wbg_init, { decode } from "@stellar/stellar-xdr-json-web";
 
+/**
+ * Probably doesn't work
+ * @param xdr
+ */
 async function decodeXDRToTransaction(xdr: string) {
   if (!xdr) {
     throw new Error('XDR string is required');

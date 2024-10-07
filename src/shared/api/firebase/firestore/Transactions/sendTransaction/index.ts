@@ -1,18 +1,24 @@
-// shared/api/firebase/firestore/transactions.ts
 import { collection, addDoc } from "firebase/firestore";
 import firestore from "../..";
 import { Transaction } from "stellar-sdk";
+import { TransactionData } from "@/shared/types";
+import { Net } from "@/shared/types/store/slices";
 
 async function sendTransaction(
-  transaction: Transaction | null,
-  net: "public" | "testnet"
+  net: Net,
+  transaction?: Transaction | null,
+  xdr?: string,
 ): Promise<string> {
   if (!firestore) {
     throw new Error("Firestore не инициализирован");
   }
 
-  if (!transaction) {
+  if (!transaction && !xdr) {
     throw new Error("Отсутствует транзакция");
+  }
+
+  if (transaction && xdr) {
+    throw new Error("Должно быть отправлено или транзакция, или XDR");
   }
 
   // Определяем название коллекции на основе сети
@@ -28,8 +34,8 @@ async function sendTransaction(
   const transactionsCollection = collection(firestore, collectionName);
 
   // Конвертируем транзакцию в XDR и оборачиваем в обычный объект
-  const transactionData = {
-    xdr: transaction.toXDR(),
+  const transactionData: Partial<TransactionData> = {
+    xdr: transaction?.toXDR(),
     createdAt: Date.now(),
   };
 

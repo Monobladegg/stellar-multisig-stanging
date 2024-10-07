@@ -1,1 +1,1 @@
-export {default as useXDRToTx} from './useXDRToTx'
+export { default as useXDRToTx } from "./useXDRToTx";

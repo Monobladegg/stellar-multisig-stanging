@@ -24,7 +24,6 @@ const TransactionOverview: FC<TransactionOverviewProps> = ({
   transaction
 }) => {
 
-
   return (
     <div className="container" style={{ color: "#fff" }}>
       {/* Header */}

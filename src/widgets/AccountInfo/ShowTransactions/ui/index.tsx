@@ -1,21 +1,25 @@
-import { Net } from "@/shared/types/store/slices";
 import React, { FC } from "react";
-import { InlineTransaction } from "@/features";
+import { InlineTransaction } from "@/entities";
 import { Transaction } from "stellar-sdk";
 import TransactionsSort from "@/features/AccountInfo/TransactionsSort";
+import { DecodedTransactions, ISeqNumIsStale, TransactionData } from "@/shared/types";
 
 interface Props {
   ID: string;
-  decodedTransactions: Transaction[];
-  seqNumsIsStale: boolean[];
-  updatedTransactionSequence: (publicKey: string, net: Net) => void;
+  decodedTransactions: DecodedTransactions;
+  setDecodedTransactions: (value: DecodedTransactions) => void;
+  seqNumsIsStales: ISeqNumIsStale[];
+  transactionsFromFirebase: TransactionData[];
+  setTransactionsFromFirebase: (value: TransactionData[]) => void;
 }
 
 const ShowTransactions: FC<Props> = ({
   ID,
   decodedTransactions,
-  seqNumsIsStale,
-  updatedTransactionSequence,
+  setDecodedTransactions,
+  seqNumsIsStales,
+  transactionsFromFirebase,
+  setTransactionsFromFirebase
 }) => {
   return (
     <div className="tabs space inline-right">
@@ -31,7 +35,13 @@ const ShowTransactions: FC<Props> = ({
       <hr className="flare" />
       <div className="tabs-body">
         <div className="relative segment blank">
-                <TransactionsSort ID={ID} />
+          <TransactionsSort
+            ID={ID}
+            showedTransactions={decodedTransactions}
+            setShowedTransactions={setDecodedTransactions}
+            transactionsFromFirebase={transactionsFromFirebase}
+            setTransactionFromFirebase={setTransactionsFromFirebase}
+          />
           <table className="table exportable" style={{ width: "100%" }}>
             <thead style={{ width: "100%" }}>
               <tr>
@@ -40,16 +50,24 @@ const ShowTransactions: FC<Props> = ({
               </tr>
             </thead>
             <tbody style={{ width: "100%" }}>
-              {decodedTransactions.map(
-                (transaction: Transaction, index: number) => (
-                  <InlineTransaction
-                    key={index}
-                    index={index}
-                    transaction={transaction}
-                    seqNumsIsStale={seqNumsIsStale}
-                    updatedTransactionSequence={updatedTransactionSequence}
-                  />
-                )
+              {decodedTransactions !== null && decodedTransactions.length > 0 ? (
+                decodedTransactions
+                  .filter(transaction => transaction !== null)
+                  .map((decodedTransaction, index) => (
+                    <InlineTransaction
+                      key={index}
+                      index={index}
+                      decodedTransaction={decodedTransaction}
+                      seqNumsIsStales={seqNumsIsStales}
+                      transactionsFromFirebase={transactionsFromFirebase}
+                    />
+                  ))
+              ) : (
+                <tr>
+                  <td colSpan={2} style={{ textAlign: "center", padding: "10px" }}>
+                    No transactions
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>

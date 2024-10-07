@@ -44,7 +44,7 @@ const ShowXDRButtons: FC<Props> = ({
       const transaction = stellarSdk.TransactionBuilder.fromXDR(XDR, net);
 
       if (transaction instanceof stellarSdk.Transaction) {
-        const txHash = await sendTransactionFirebase(transaction, net);
+        const txHash = await sendTransactionFirebase(net, transaction);
         return txHash;
       } else if (transaction instanceof stellarSdk.FeeBumpTransaction) {
         // Handle FeeBumpTransaction if necessary

@@ -7,7 +7,7 @@ import { useStore } from "@/shared/store";
 import { useShallow } from "zustand/react/shallow";
 import StellarSdk from "stellar-sdk";
 import { IOperation } from "@/shared/types/store/slices";
-import { hexToString, stringToHex } from "@/views/BuildTransaction/page";
+import { hexToString, stringToHex } from "@/shared/helpers";
 import {useHandleSourceAccountChange} from "@/features/hooks";
 
 interface Props {
@@ -65,14 +65,13 @@ const ManageData: FC<Props> = ({ id }) => {
     });
   };
 
-  const handleEntryValueChange = (event: ChangeEvent<HTMLInputElement> | null) => {
-    const hexValue = stringToHex(event?.target?.value ?? "");
+  const handleEntryValueChange = (event: ChangeEvent<HTMLInputElement> | null ) => {
     updateOperations({
       body: {
         ...operation.body,
         manage_data: {
           ...operation.body.manage_data!,
-          data_value: hexValue,
+          data_value: event?.target.value,
         },
       },
     });

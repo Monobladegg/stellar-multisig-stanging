@@ -28,7 +28,6 @@ async function sendSignatureToTransaction(
   const transactionRef = doc(firestore, collectionName, transactionId);
 
   try {
-    let up: void;
     await updateDoc(transactionRef, {
       xdr: signedXDR,
       updatedAt: Date.now(),

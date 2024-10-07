@@ -1,8 +1,6 @@
 "use client";
 
-import { useStore } from "@/shared/store";
 import React, { FC, useEffect, useState } from "react";
-import { useShallow } from "zustand/react/shallow";
 import { useXDRDecoding } from "@/features/hooks";
 
 interface Props {
@@ -30,21 +28,11 @@ const ShowXdr: FC<Props> = ({
 }) => {
   const [isCopy, setIsCopy] = useState(false);
 
-  const { net } = useStore(useShallow((state) => state));
-  const { transaction, transactionHash } = useXDRDecoding(net, xdr ?? "");
-
-  useEffect(() => {
-    console.log(xdr);
-    console.log(transaction);
-  }, [xdr, transaction]);
+  const { transaction, transactionHash } = useXDRDecoding(xdr, xdr || "");
 
   return (
     <div className="container">
       <div style={{ marginTop: "20px" }} className="segment blank">
-        {!xdr ? (
-          <h3>Error, xdr is undefined</h3>
-        ) : (
-          <>
             <h3 className="success">{title}</h3>
             <p>{upperDescription}</p>
             <textarea
@@ -64,7 +52,7 @@ const ShowXdr: FC<Props> = ({
             <p
               style={{ cursor: "pointer", position: "absolute", right: "30px" }}
               onClick={() => {
-                navigator.clipboard.writeText(xdr);
+                navigator.clipboard.writeText(xdr!);
                 setIsCopy(true);
                 setTimeout(() => setIsCopy(false), 2000);
               }}
@@ -81,8 +69,6 @@ const ShowXdr: FC<Props> = ({
             {errorMessage && <p className="error">{errorMessage}</p>}
             {successMessage && <p className="success">{successMessage}</p>}
             </div>
-          </>
-        )}
       </div>
     </div>
   );

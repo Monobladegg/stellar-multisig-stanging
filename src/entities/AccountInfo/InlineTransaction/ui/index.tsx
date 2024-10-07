@@ -1,6 +1,5 @@
 import { useStore } from "@/shared/store";
 import React, { FC } from "react";
-import { Transaction } from "stellar-sdk";
 import { useShallow } from "zustand/react/shallow";
 import Link from "next/link";
 import { TransactionStatuses } from "@/views/account/AccountInfo";

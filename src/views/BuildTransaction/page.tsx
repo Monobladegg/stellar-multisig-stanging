@@ -7,8 +7,7 @@ import { useShallow } from "zustand/react/shallow";
 import __wbg_init, { decode, encode } from "@stellar/stellar-xdr-json-web";
 import { useSearchParams } from "next/navigation";
 import { useXDRDecoding } from "@/features/hooks";
-import firebase, { getTransactionByID } from "@/shared/api/firebase";
-const { JSONParse, JSONStringify } = require("json-with-bigint");
+import { getTransactionByID } from "@/shared/api/firebase";
 import {
   SourceAccountInput,
   SequenceNumberInput,
@@ -33,6 +32,12 @@ export interface TXErrors {
   operations: string;
   typeOperation: string;
 }
+
+interface JSONWithBigInt {
+  JSONParse<T>(text: string): T;
+  JSONStringify<T>(value: T): string;
+}
+
 
 const BuildTransaction: FC = () => {
   const {
@@ -62,6 +67,8 @@ const BuildTransaction: FC = () => {
 
   const [firebaseIDParamError, setFirebaseIDParamError] = useState<string>("");
 
+  const [jsonWithBigInt, setJsonWithBigInt] = useState<JSONWithBigInt | null>(null);
+
   const decodedXDR = useXDRDecoding(currentXDR, currentXDR);
 
   const updateErrors = (condition: boolean, errorMessage: string) => {
@@ -75,8 +82,21 @@ const BuildTransaction: FC = () => {
     });
   };
 
+  // Load json-with-bigint dynamically
+  useEffect(() => {
+    const loadJSONWithBigInt = async () => {
+      const { JSONParse, JSONStringify } = await import('json-with-bigint');
+      setJsonWithBigInt({ JSONParse, JSONStringify });
+    };
+
+    loadJSONWithBigInt();
+  }, []);
+
+  // Fetch transaction data
   useEffect(() => {
     const fetchTransaction = async () => {
+      if (!jsonWithBigInt) return; // Ensure JSONParse and JSONStringify are loaded
+
       try {
         await __wbg_init();
         if (firebaseIDParam) {
@@ -86,7 +106,7 @@ const BuildTransaction: FC = () => {
             setFirebaseIDParamError("Transaction not found from firebase ID");
             return;
           }
-          const decodedTx = JSONParse(
+          const decodedTx = jsonWithBigInt.JSONParse(
             decode("TransactionEnvelope", transaction.xdr)
           ) as FullTransaction;
           setTransaction(decodedTx.tx);
@@ -110,41 +130,46 @@ const BuildTransaction: FC = () => {
     setTransaction,
     setSourceAccount,
     sourceAccountParam,
+    jsonWithBigInt,
   ]);
 
+  // Initialize WASM and encode transaction
   useEffect(() => {
     const initializeWasm = async () => {
-        await __wbg_init();
-        if (!fullTransaction || !fullTransaction.tx) {
-          console.error("Invalid transaction structure");
-          return;
-        }
+      if (!jsonWithBigInt) return; // Ensure JSONParse and JSONStringify are loaded
 
-        const seqNum = tx.tx.seq_num;
+      await __wbg_init();
+      if (!fullTransaction || !fullTransaction.tx) {
+        console.error("Invalid transaction structure");
+        return;
+      }
 
-        if (seqNum !== undefined) {
-          const transactionEnvelope = {
-            tx: {
-              ...fullTransaction.tx,
-              seq_num: BigInt(seqNum),
-            },
-          };
+      const seqNum = tx.tx.seq_num;
 
-          const xdrEncoded = encode(
-            "TransactionEnvelope",
-            JSONStringify(transactionEnvelope)
-          );
-          setCurrentXDR(xdrEncoded);
-        } else {
-          console.error("Invalid transaction structure: seq_num is undefined");
-        }
+      if (seqNum !== undefined) {
+        const transactionEnvelope = {
+          tx: {
+            ...fullTransaction.tx,
+            seq_num: BigInt(seqNum),
+          },
+        };
+
+        const xdrEncoded = encode(
+          "TransactionEnvelope",
+          jsonWithBigInt.JSONStringify(transactionEnvelope)
+        );
+        setCurrentXDR(xdrEncoded);
+      } else {
+        console.error("Invalid transaction structure: seq_num is undefined");
+      }
     };
 
     if (fullTransaction) {
       initializeWasm();
     }
-  }, [fullTransaction, tx]);
+  }, [fullTransaction, tx, jsonWithBigInt]);
 
+  // Validate transaction fields
   useEffect(() => {
     const updateErrorSourceAccount = () => {
       try {
@@ -222,18 +247,18 @@ const BuildTransaction: FC = () => {
 
     const updateErrorOperationManageDataName = () => {
       try {
-        let isValid = true
+        let isValid = true;
         isValid = fullTransaction.tx?.tx.operations.every((op) => {
           if ("manage_data" in op.body) {
             return op.body.manage_data?.data_name !== "";
           }
           return true;
-        })
+        });
         updateErrors(!isValid, "Entry Name in Manage Data operation is a required field");
       } catch (error) {
         console.error("Error in useSetTxBuildErrors:", error);
       }
-    }
+    };
 
     const updateAllErrors = () => {
       updateErrorSourceAccount();
@@ -252,7 +277,14 @@ const BuildTransaction: FC = () => {
     tx.tx.fee,
     tx.tx.memo,
     tx.tx.operations,
+    accounts,
+    fullTransaction,
   ]);
+
+  // Handle loading state for jsonWithBigInt
+  if (!jsonWithBigInt) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <MainLayout>

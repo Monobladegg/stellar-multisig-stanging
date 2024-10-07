@@ -23,7 +23,7 @@ interface MultiSelectProps<T> extends BaseDropdownProps<T> {
 
 type DropdownProps<T> = SingleSelectProps<T> | MultiSelectProps<T>;
 
-const Dropdown = <T extends unknown>(props: DropdownProps<T>) => {
+const Dropdown = <T extends string | number>(props: DropdownProps<T>) => {
   const { options, placeholder } = props;
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);

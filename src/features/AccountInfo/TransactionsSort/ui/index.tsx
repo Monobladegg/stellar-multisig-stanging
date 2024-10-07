@@ -38,8 +38,13 @@ const TransactionsSort: FC<Props> = ({
   const [selectedFilter, setSelectedFilter] = useState<Filters | null>(null);
   const [selectedOperationTypes, setSelectedOperationTypes] = useState<OperationTypes[]>([]);
   const [originalTransactions] = useState<Transaction[]>(
-    showedTransactions ? showedTransactions.map(item => item?.transaction!) : []
+    showedTransactions
+      ? showedTransactions
+          .map(item => item?.transaction)
+          .filter((transaction): transaction is Transaction => transaction != null)
+      : []
   );
+
   const [sortByNumberOfSignatures, setSortByNumberOfSignatures] = useState<SortBy | null>(null);
   const [sortByCreatedAt, setSortByCreatedAt] = useState<SortBy | null>(null);
 

@@ -45,6 +45,8 @@ const InlineTransaction: FC<Props> = ({
         >
           {decodedTransaction?.index &&
           !seqNumsIsStales[decodedTransaction?.index]?.isStale ? (
+            <></>
+          ) : (
             <span
               style={{
                 color: "#0691b7",
@@ -54,8 +56,6 @@ const InlineTransaction: FC<Props> = ({
             >
               <i className="fa-solid fa-arrow-rotate-right"></i>{" "}
             </span>
-          ) : (
-            <></>
           )}
           Operation type: {decodedTransaction?.transaction.operations[0].type};{" "}
           <span>

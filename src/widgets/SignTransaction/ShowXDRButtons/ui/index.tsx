@@ -90,8 +90,6 @@ const ShowXDRButtons: FC<Props> = ({
       setSuccessMessageFirebase("");
       console.error("Error processing transaction:", error);
     }
-
-    console.log(txHash);
   };
 
   return (

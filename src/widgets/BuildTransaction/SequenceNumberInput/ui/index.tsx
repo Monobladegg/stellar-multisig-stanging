@@ -73,6 +73,7 @@ const SequenceNumberInput: FC<Props> = ({ firebaseID }) => {
           onChange={(e) => setSeqNum(e.target.value)}
         />
       </div>
+      <p>The transaction sequence number is usually one higher than current account sequence number.</p>
       {tx.tx.source_account && (
         <button onClick={fetchSequenceNumber}>
           Fetch next sequence number for account{" "}

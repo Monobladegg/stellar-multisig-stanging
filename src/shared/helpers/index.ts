@@ -12,3 +12,5 @@ export { default as fetchAllTransactionsFromFirebase } from "./fetchAllTransacti
 export { default as hexToString } from "./hexToString";
 export { default as stringToHex } from "./stringToHex";
 export { setTxBuildErrorsHelper } from "./BuildTransaction";
+export *
+  from "./shared";

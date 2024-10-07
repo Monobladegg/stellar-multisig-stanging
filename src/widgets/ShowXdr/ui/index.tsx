@@ -61,7 +61,7 @@ const ShowXdr: FC<Props> = ({
               <i className="fa-solid fa-copy"></i>
             </p>
             {isCopy && (
-              <p style={{ textAlign: "right", opacity: "0.8" }}>Copied XDR</p>
+              <p style={{ textAlign: "right", opacity: "0.8", marginRight: "28px" }}>Copied XDR</p>
             )}
             <p>{lowerDescription}</p>
             <div style={{ marginTop: "-10px" }}>

@@ -118,10 +118,6 @@ const AccountInfo: FC<Props> = ({ ID }) => {
   }, [ID]);
 
   useEffect(() => {
-      console.log(decodedTransactions);
-  }, [decodedTransactions]);
-
-  useEffect(() => {
     const handler = async () => {
       if (ID != "") {
         const horizonInfo = await getMainInformation(ID as string);
@@ -244,7 +240,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
         BigInt(secondInformation?.sequence || 0),
         BigInt(item?.transaction?.sequence || 0)
       );
-      setSeqNumsIsStales((prev) => [...prev, { index, isStale }]);
+      setSeqNumsIsStales((prev) => [...prev, { index, isStale: isStale }]);
     });
   }, [decodedTransactions]);
 

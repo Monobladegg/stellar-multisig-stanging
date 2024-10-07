@@ -65,13 +65,13 @@ const ManageData: FC<Props> = ({ id }) => {
     });
   };
 
-  const handleEntryValueChange = (event: ChangeEvent<HTMLInputElement> | null ) => {
+  const handleEntryValueChange = (event: ChangeEvent<HTMLInputElement>) => {
     updateOperations({
       body: {
         ...operation.body,
         manage_data: {
           ...operation.body.manage_data!,
-          data_value: event?.target.value,
+          data_value: stringToHex(event.target.value),
         },
       },
     });
@@ -92,7 +92,7 @@ const ManageData: FC<Props> = ({ id }) => {
         <InputField
           title="Entry Name"
           placeholder="Enter entry name"
-          value={entryName}
+          value={tx.tx.operations[id].body?.manage_data?.data_name ?? ""}
           onChange={handleEntryNameChange}
           validate={validateSymbols}
           errorMessage={`Entry name can only contain a maximum of 64 characters. ${entryName.length} characters.`}
@@ -101,7 +101,7 @@ const ManageData: FC<Props> = ({ id }) => {
         <InputField
           title="Entry Value"
           placeholder="Enter optional entry value"
-          value={typeof entryValue === "string" ? hexToString(entryValue) : ""}
+          value={hexToString(tx.tx.operations[id].body.manage_data?.data_value || "") ?? ""}
           onChange={handleEntryValueChange}
           validate={validateSymbols}
           warningMessage="If empty, this will delete the data entry named in this operation. Note: The Lab only supports strings."

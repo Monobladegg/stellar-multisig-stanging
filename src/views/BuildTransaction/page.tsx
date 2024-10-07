@@ -146,11 +146,6 @@ const BuildTransaction: FC = () => {
   }, [fullTransaction, tx]);
 
   useEffect(() => {
-    console.log(tx)
-  }, [tx])
-
-
-  useEffect(() => {
     const updateErrorSourceAccount = () => {
       try {
         if (!tx.tx.source_account) {
@@ -225,6 +220,21 @@ const BuildTransaction: FC = () => {
       }
     };
 
+    const updateErrorOperationManageDataName = () => {
+      try {
+        let isValid = true
+        isValid = fullTransaction.tx?.tx.operations.every((op) => {
+          if ("manage_data" in op.body) {
+            return op.body.manage_data?.data_name !== "";
+          }
+          return true;
+        })
+        updateErrors(!isValid, "Entry Name in Manage Data operation is a required field");
+      } catch (error) {
+        console.error("Error in useSetTxBuildErrors:", error);
+      }
+    }
+
     const updateAllErrors = () => {
       updateErrorSourceAccount();
       updateErrorSequence();
@@ -232,6 +242,7 @@ const BuildTransaction: FC = () => {
       updateErrorOperations();
       updateErrorOperationSelectType();
       updateErrorCheckSigner();
+      updateErrorOperationManageDataName();
     };
 
     updateAllErrors();

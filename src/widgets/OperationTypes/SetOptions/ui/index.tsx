@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useState, FC, useCallback } from "react";
 import FlagSelector from "../../shared/FlagSelector";
@@ -10,6 +10,7 @@ import { useStore } from "@/shared/store";
 import { useShallow } from "zustand/react/shallow";
 import { IFlag } from "../../shared/FlagSelector";
 import { useHandleSourceAccountChange } from "@/features/hooks";
+import { IOperation } from "@/shared/types";
 
 export const signerOptions: string[] = [
   "Select signer type",
@@ -24,11 +25,31 @@ export interface Props {
 
 const SetOptions: FC<Props> = ({ id }) => {
   const handleSourceAccountChange = useHandleSourceAccountChange();
-  const { fullTransaction, setOperations } = useStore(
+  const { fullTransaction, tx, setOperations } = useStore(
     useShallow((state) => state)
   );
 
-  const operation = fullTransaction.tx.tx.operations[id];
+  const defaultOperation: IOperation = {
+    source_account: "",
+    body: {
+      set_options: {
+        inflation_dest: "",
+        clear_flags: 0,
+        set_flags: 0,
+        master_weight: 0,
+        low_threshold: 0,
+        med_threshold: 0,
+        high_threshold: 0,
+        home_domain: "",
+        signer: {
+          key: "",
+          weight: 0,
+        },
+      },
+    },
+  };
+
+  const operation = tx.tx.operations[id] || defaultOperation;
   const inflationDestination = operation.body.set_options?.inflation_dest || "";
   const masterWeight = operation.body.set_options?.master_weight || 0;
   const lowThreshold = operation.body.set_options?.low_threshold || 0;
@@ -121,44 +142,46 @@ const SetOptions: FC<Props> = ({ id }) => {
 
   const handleInputChange =
     (field: string, isNumber = true) =>
-      (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (isNaN(Number(e.target.value)) && isNumber) return;
-        const newOperations = [...fullTransaction.tx.tx.operations];
-        if (newOperations[id]) {
-          newOperations[id] = {
-            ...newOperations[id],
-            body: {
-              ...newOperations[id].body,
-              set_options: {
-                ...newOperations[id].body.set_options,
-                [field]: isNumber ? Number(e.target.value) : e.target.value,
-              },
-            },
-          };
-          setOperations(newOperations);
-        }
-      };
-
-  const handleSignerChange = (field: 'key' | 'weight') => (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (isNaN(Number(e.target.value)) && field === 'weight') return;
-    const newOperations = [...fullTransaction.tx.tx.operations];
-    if (newOperations[id]) {
-      newOperations[id] = {
-        ...newOperations[id],
-        body: {
-          ...newOperations[id].body,
-          set_options: {
-            ...newOperations[id].body.set_options,
-            signer: {
-              ...newOperations[id].body.set_options?.signer,
-              [field]: field === 'weight' ? Number(e.target.value) : e.target.value,
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (isNaN(Number(e.target.value)) && isNumber) return;
+      const newOperations = [...fullTransaction.tx.tx.operations];
+      if (newOperations[id]) {
+        newOperations[id] = {
+          ...newOperations[id],
+          body: {
+            ...newOperations[id].body,
+            set_options: {
+              ...newOperations[id].body.set_options,
+              [field]: isNumber ? Number(e.target.value) : e.target.value,
             },
           },
-        },
-      };
-      setOperations(newOperations);
-    }
-  };
+        };
+        setOperations(newOperations);
+      }
+    };
+
+  const handleSignerChange =
+    (field: "key" | "weight") => (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (isNaN(Number(e.target.value)) && field === "weight") return;
+      const newOperations = [...fullTransaction.tx.tx.operations];
+      if (newOperations[id]) {
+        newOperations[id] = {
+          ...newOperations[id],
+          body: {
+            ...newOperations[id].body,
+            set_options: {
+              ...newOperations[id].body.set_options,
+              signer: {
+                ...newOperations[id].body.set_options?.signer,
+                [field]:
+                  field === "weight" ? Number(e.target.value) : e.target.value,
+              },
+            },
+          },
+        };
+        setOperations(newOperations);
+      }
+    };
 
   return (
     <>
@@ -250,10 +273,10 @@ const SetOptions: FC<Props> = ({ id }) => {
                           ...newOperations[id].body.set_options,
                           signer: {
                             key: null,
-                            weight: null
-                          }
-                        }
-                      }
+                            weight: null,
+                          },
+                        },
+                      },
                     };
                     setOperations(newOperations);
                   }
@@ -279,18 +302,31 @@ const SetOptions: FC<Props> = ({ id }) => {
                       ? "Ex: GCEXAMPLE5HWNK4AYSTEQ4UWDKHTCKADVS2AHF3UI2ZMO3DPUSM6Q4UG"
                       : "Accepts a 32-byte hash in hexadecimal format (64 characters)"
                   }
-                  value={fullTransaction.tx.tx.operations[id].body.set_options?.signer?.key?.toString() ?? ''}
-                  onChange={handleSignerChange('key')}
-                  validate={(value) =>
-                    StellarSdk.StrKey.isValidEd25519PublicKey(value) || value === ""
+                  value={
+                    fullTransaction.tx.tx.operations[
+                      id
+                    ].body.set_options?.signer?.key?.toString() ?? ""
                   }
-                  errorMessage={currentSignerType === signerOptions[3] ? "Accepts a 32-byte hash in hexadecimal format (64 characters)." : "Public key is invalid."}
+                  onChange={handleSignerChange("key")}
+                  validate={(value) =>
+                    StellarSdk.StrKey.isValidEd25519PublicKey(value) ||
+                    value === ""
+                  }
+                  errorMessage={
+                    currentSignerType === signerOptions[3]
+                      ? "Accepts a 32-byte hash in hexadecimal format (64 characters)."
+                      : "Public key is invalid."
+                  }
                 />
                 <InputField
                   title="Weight"
                   placeholder="0-255"
-                  value={fullTransaction.tx.tx.operations[id].body.set_options?.signer?.weight?.toString() ?? ''}
-                  onChange={handleSignerChange('weight')}
+                  value={
+                    fullTransaction.tx.tx.operations[
+                      id
+                    ].body.set_options?.signer?.weight?.toString() ?? ""
+                  }
+                  onChange={handleSignerChange("weight")}
                   validate={validateRange}
                   errorMessage="Expected an integer between 0 and 255 (inclusive)."
                 />

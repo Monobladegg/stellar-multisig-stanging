@@ -129,9 +129,7 @@ const OperationsList: FC = () => {
             </div>
           </div>
         ))}
-      {(!tx.tx.operations || tx.tx.operations.length === 0) && !isOperationsOpen && (
         <button onClick={handleAddOperation}>Add New Operation</button>
-      )}
     </>
   );
 };

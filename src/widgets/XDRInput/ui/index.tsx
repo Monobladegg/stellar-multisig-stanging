@@ -52,7 +52,6 @@ const XDRInput: FC<Props> = ({
   }, [XDR, validateTransactionEnvelope]);
 
   const decodeEnvelope = async (XDR: string) => {
-    console.log(XDR);
     try {
       await __wbg_init();
       const decodedTx = JSONParse(

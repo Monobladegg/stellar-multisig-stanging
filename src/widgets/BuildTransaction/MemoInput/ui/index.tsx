@@ -34,16 +34,34 @@ const MemoInput: FC = () => {
       {memoTypes.map((type) => (
         <button
           key={type}
-          className={`button ${tx.tx.memo === type.toLowerCase() ? "disabled" : ""}`}
+          className={`button ${
+            tx.tx.memo === type.toLowerCase() ? "disabled" : ""
+          }`}
           onClick={() => handleMemoTypeChange(type)}
-          disabled={tx.tx.memo === type.toLowerCase()}
+          disabled={
+            (typeof tx.tx.memo === "string" &&
+              tx.tx.memo === type.toLowerCase()) ||
+            (typeof tx.tx.memo === "object" &&
+              type.toLowerCase() in tx.tx.memo) ||
+            (typeof tx.tx.memo === "object" &&
+              type.toLowerCase() in tx.tx.memo) ||
+            (typeof tx.tx.memo === "object" &&
+              type.toLowerCase() in tx.tx.memo) ||
+            (typeof tx.tx.memo === "object" && type.toLowerCase() in tx.tx.memo)
+          }
         >
           {type}
         </button>
       ))}
       {tx.tx.memo !== "none" && (
         <input
-          placeholder="Enter memo"
+          placeholder={
+            typeof tx.tx.memo === "object" && "text" in tx.tx.memo
+              ? "UTF-8 string of up to 28 bytes"
+              : typeof tx.tx.memo === "object" && "id" in tx.tx.memo
+              ? "Unsigned 64-bit integer"
+              : "32-byte hash in hexadecimal format (64 [0-9a-f] characters)"
+          }
           value={memoInput}
           onChange={(e) => {
             setMemoInput(e.target.value);

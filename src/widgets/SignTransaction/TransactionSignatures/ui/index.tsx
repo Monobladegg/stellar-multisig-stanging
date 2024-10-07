@@ -52,8 +52,6 @@ const TransactionSignatures: FC<Props> = ({
        setResultXdr(signedXDR);
      }
 
-     console.log(resultXdr)
-
     } catch (error) {
       console.error("Error signing transaction:", error);
       alert(`Error signing transaction: ${error}`);

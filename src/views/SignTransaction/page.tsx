@@ -14,10 +14,13 @@ import { TransactionBuilder, Networks } from "stellar-sdk";
 import { useStore } from "@/shared/store";
 import ShowXDRButtons from "@/widgets/SignTransaction/ShowXDRButtons";
 import { getAllTransactions } from "@/shared/api/firebase/firestore/Transactions";
+import { hrefToXDR } from "@/shared/helpers";
 
 export type localSignature = string[];
 
 const SignTransaction: FC = () => {
+  const href = window.location.href;
+
   const params = useSearchParams();
   const importXDRParam = params?.get("importXDR") ?? "";
 
@@ -29,7 +32,7 @@ const SignTransaction: FC = () => {
     net === "testnet" ? Networks.TESTNET : Networks.PUBLIC;
 
   const [transactionEnvelope, setTransactionEnvelope] =
-    useState<string>(importXDRParam);
+    useState<string>("");
   const [resultXdr, setResultXdr] = useState<string>("");
   const [localSignatures, setLocalSignatures] = useState<localSignature>([""]);
   const [errorMessageFirebase, setErrorMessageFirebase] = useState<string>("");
@@ -52,12 +55,11 @@ const SignTransaction: FC = () => {
     operationCount,
     signatureCount,
     transaction,
-  } = useXDRDecoding(net, transactionEnvelope);
+  } = useXDRDecoding(importXDRParam, transactionEnvelope);
 
   const currentTransaction = useMemo(() => {
     if (!resultXdr) return null;
     try {
-      // Reconstruct the transaction from the result XDR to obtain updated signatures
       return TransactionBuilder.fromXDR(resultXdr, networkPassphrase);
     } catch (error) {
       console.error(error);
@@ -79,13 +81,18 @@ const SignTransaction: FC = () => {
     };
 
     if (!transactionEnvelope) {
-      // Reset state when transaction envelope is empty
       setLocalSignatures([""]);
       setResultXdr("");
     } else {
       fetchAllTransactions();
     }
   }, [transactionEnvelope, net]);
+
+  useEffect(() => {
+    if (importXDRParam && window) {
+      setTransactionEnvelope(hrefToXDR(href))
+    }
+  }, [window, importXDRParam, href]);
 
   return (
     <MainLayout>
@@ -114,9 +121,8 @@ const SignTransaction: FC = () => {
           {resultXdr && (
             <ShowXdr
               title="Transaction signed!"
-              upperDescription={`${signaturesAdded} signature(s) added; ${
-                currentTransaction?.signatures.length || 0
-              } signature(s) total`}
+              upperDescription={`${signaturesAdded} signature(s) added; ${currentTransaction?.signatures.length || 0
+                } signature(s) total`}
               xdr={resultXdr}
               lowerDescription="Now that this transaction is signed, you can submit it to the network. Horizon provides an endpoint called Post Transaction that will relay your transaction to the network and inform you of the result."
               buttons={

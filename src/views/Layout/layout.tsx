@@ -6,8 +6,6 @@ import { Footer, Header } from "@/widgets";
 import { useShallow } from "zustand/react/shallow";
 import AddAccountModal from "@/widgets/shared/layouts/Header/ui/AddAccountModal";
 import { usePathname } from "next/navigation";
-import firebaseApp from "@/shared/api/firebase";
-import __wbg_init, { decode } from "@stellar/stellar-xdr-json-web";
 
 type Props = {
   children: React.ReactNode;

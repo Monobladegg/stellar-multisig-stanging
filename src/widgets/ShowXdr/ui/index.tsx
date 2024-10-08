@@ -1,6 +1,6 @@
 "use client";
 
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useState } from "react";
 import { useXDRDecoding } from "@/features/hooks";
 
 interface Props {

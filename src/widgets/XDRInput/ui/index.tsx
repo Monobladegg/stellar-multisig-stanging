@@ -13,7 +13,6 @@ import {
   FullTransaction,
   TX,
 } from "@/shared/types/store/slices/BuildTransaction/buildTxJSONSlice";
-const { JSONParse } = require("json-with-bigint");
 
 interface Props {
   XDR: string;
@@ -25,6 +24,10 @@ interface Props {
   setBaseResult?: (baseResult: TX) => void;
   txBuilderResult?: Transaction | null;
   setTxBuilderResult?: (txBuilderResult: Transaction | null) => void;
+}
+
+interface JSONWithBigInt {
+  JSONParse<T>(text: string): T;
 }
 
 const XDRInput: FC<Props> = ({
@@ -45,16 +48,30 @@ const XDRInput: FC<Props> = ({
   const { validationError, validateTransactionEnvelope } =
     useTransactionValidation();
 
+  const [jsonWithBigInt, setJsonWithBigInt] = useState<JSONWithBigInt | null>(
+    null
+  );
+
   useEffect(() => {
     if (XDR) {
       validateTransactionEnvelope(XDR);
     }
   }, [XDR, validateTransactionEnvelope]);
 
+  useEffect(() => {
+    const loadJSONWithBigInt = async () => {
+      const { JSONParse } = await import('json-with-bigint');
+      setJsonWithBigInt({ JSONParse });
+    };
+
+    loadJSONWithBigInt();
+  }, []);
+
+
   const decodeEnvelope = async (XDR: string) => {
     try {
       await __wbg_init();
-      const decodedTx = JSONParse(
+      const decodedTx = jsonWithBigInt?.JSONParse(
         decode("TransactionEnvelope", XDR)
       ) as FullTransaction;
       setTransaction(decodedTx.tx);
@@ -90,6 +107,10 @@ const XDRInput: FC<Props> = ({
   const isValidXDR = XDR !== "" && !validationError;
   const validationMessage =
     XDR !== "" ? validationError || "Valid Transaction Envelope XDR" : "";
+
+  if (!jsonWithBigInt) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Container title={isSignPage ? "Sign Transaction" : "Import Transaction"}>

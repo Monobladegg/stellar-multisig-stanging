@@ -14,6 +14,7 @@ interface Props {
   seqNumsIsStales: ISeqNumIsStale[];
   index: number;
   transactionsFromFirebase: TransactionData[];
+  isStale: boolean;
 }
 
 const InlineTransaction: FC<Props> = ({
@@ -21,6 +22,7 @@ const InlineTransaction: FC<Props> = ({
   seqNumsIsStales,
   index,
   transactionsFromFirebase,
+  isStale
 }) => {
   const { net } = useStore(useShallow((state) => state));
   return (
@@ -42,8 +44,7 @@ const InlineTransaction: FC<Props> = ({
           target="_blank"
           rel="noreferrer noopener"
         >
-          {decodedTransaction?.index &&
-          !seqNumsIsStales[decodedTransaction?.index]?.isStale ? (
+          {isStale ? (
             <></>
           ) : (
             <span

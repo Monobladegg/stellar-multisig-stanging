@@ -51,7 +51,7 @@ const SequenceNumberInput: FC<Props> = ({ firebaseID }) => {
     if (firebaseID !== "" && tx.tx.source_account) {
       comparisonSeqs();
     }
-  }, [firebaseID, tx.tx.source_account]);
+  }, [firebaseID, tx.tx.source_account, tx.tx.seq_num]);
 
   return (
     <div>

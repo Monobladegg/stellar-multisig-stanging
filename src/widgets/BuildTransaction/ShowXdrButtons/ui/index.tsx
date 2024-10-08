@@ -97,7 +97,7 @@ const ShowXdrButtons: FC<Props> = ({
         </button>
       </Link>
       <button onClick={handleSendTransactionForSign}>
-        Send new transaction for sign
+        Send a new transaction to the Firebase
       </button>
       <button disabled={!firebaseID} onClick={handleEditTransaction}>
         Edit transaction

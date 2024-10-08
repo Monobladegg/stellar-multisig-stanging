@@ -1,6 +1,5 @@
 import React, { FC } from "react";
 import { InlineTransaction } from "@/entities";
-import { Transaction } from "stellar-sdk";
 import TransactionsSort from "@/features/AccountInfo/TransactionsSort";
 import { DecodedTransactions, ISeqNumIsStale, TransactionData } from "@/shared/types";
 
@@ -60,6 +59,7 @@ const ShowTransactions: FC<Props> = ({
                       decodedTransaction={decodedTransaction}
                       seqNumsIsStales={seqNumsIsStales}
                       transactionsFromFirebase={transactionsFromFirebase}
+                      isStale={seqNumsIsStales[index]?.isStale}
                     />
                   ))
               ) : (

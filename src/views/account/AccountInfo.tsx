@@ -233,16 +233,22 @@ const AccountInfo: FC<Props> = ({ ID }) => {
     }
   }, [net, ID]);
 
-
   useEffect(() => {
-    decodedTransactions !== null && secondInformation && decodedTransactions.forEach((item, index) => {
-      const isStale = isSequenceNumberOutdated(
-        BigInt(secondInformation?.sequence || 0),
-        BigInt(item?.transaction?.sequence || 0)
-      );
-      setSeqNumsIsStales((prev) => [...prev, { index, isStale: isStale }]);
-    });
-  }, [decodedTransactions]);
+    if (decodedTransactions && secondInformation?.sequence) {
+      const stales: ISeqNumIsStale[] = decodedTransactions.map((item, index) => {
+        if (item?.transaction?.sequence && secondInformation?.sequence) {
+          const isStale = isSequenceNumberOutdated(
+            BigInt(secondInformation.sequence),
+            BigInt(item.transaction.sequence)
+          );
+          return { index, isStale: !isStale };
+        }
+        return { index, isStale: false };
+      });
+
+      setSeqNumsIsStales(stales);
+    }
+  }, [decodedTransactions, secondInformation]);
 
   return (
     <MainLayout>

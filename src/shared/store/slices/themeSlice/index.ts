@@ -8,7 +8,7 @@ export const themeSlice: StateCreator<
     IThemeSlice
 > = (set /*, get*/) => {
     const theme = "night";
-    const setTheme = (theme: string) => {
+    const setTheme = (theme: "day" | "night") => {
         set({ theme: theme });
         localStorage.setItem("theme", theme);
     };

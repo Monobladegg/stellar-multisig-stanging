@@ -31,7 +31,12 @@ const PageLayout: FC<Props> = ({ children }) => {
     setIsWindowDefined(typeof window !== "undefined");
     if (isWindowDefined) {
       if (localStorage.getItem("theme")) {
-        setTheme(localStorage.getItem("theme")!);
+        const theme = localStorage.getItem("theme")!;
+        if (theme === "day" || theme === "night") {
+          setTheme(theme);
+        } else {
+          console.error(`Invalid theme value: ${theme}`);
+        }
       }
 
       const netValue = localStorage.getItem("net");

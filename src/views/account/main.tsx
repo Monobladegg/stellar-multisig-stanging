@@ -16,7 +16,6 @@ const Account: FC = () => {
   }, [id]);
 
   if (!id || isValidId === null) {
-    console.error("Invalid ID");
     return (
       <MainLayout>
         <center>

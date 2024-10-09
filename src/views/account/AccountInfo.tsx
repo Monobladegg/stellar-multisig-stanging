@@ -62,6 +62,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
   const [transactionsFromFirebase, setTransactionsFromFirebase] = useState<
     TransactionData[]
   >([]);
+  const [isShowSummary, setIsShowSummary] = useState<boolean>(true);
 
   useEffect(() => {
     if (
@@ -74,8 +75,8 @@ const AccountInfo: FC<Props> = ({ ID }) => {
   }, [information, decodedTransactions]);
 
   useEffect(() => {
-    console.log(net)
-  }, [net])
+    console.log(net);
+  }, [net]);
 
   useEffect(() => {
     const checkAccount = async () => {
@@ -125,7 +126,10 @@ const AccountInfo: FC<Props> = ({ ID }) => {
     const handler = async () => {
       if (ID != "") {
         const horizonInfo = await getMainInformation(ID as string, net);
-        const accountIssuer = await getAccountIssuerInformation(ID as string, net);
+        const accountIssuer = await getAccountIssuerInformation(
+          ID as string,
+          net
+        );
 
         let tomlInformation = "";
 
@@ -215,7 +219,10 @@ const AccountInfo: FC<Props> = ({ ID }) => {
 
         transactions.forEach(({ xdr }, index) => {
           try {
-            const transaction = TransactionBuilder.fromXDR(xdr, network) as Transaction;
+            const transaction = TransactionBuilder.fromXDR(
+              xdr,
+              network
+            ) as Transaction;
 
             if (transaction.source === ID) {
               decodedList.push({ index, transaction });
@@ -239,16 +246,18 @@ const AccountInfo: FC<Props> = ({ ID }) => {
 
   useEffect(() => {
     if (decodedTransactions && secondInformation?.sequence) {
-      const stales: ISeqNumIsStale[] = decodedTransactions.map((item, index) => {
-        if (item?.transaction?.sequence && secondInformation?.sequence) {
-          const isStale = isSequenceNumberOutdated(
-            BigInt(secondInformation.sequence),
-            BigInt(item.transaction.sequence)
-          );
-          return { index, isStale: !isStale };
+      const stales: ISeqNumIsStale[] = decodedTransactions.map(
+        (item, index) => {
+          if (item?.transaction?.sequence && secondInformation?.sequence) {
+            const isStale = isSequenceNumberOutdated(
+              BigInt(secondInformation.sequence),
+              BigInt(item.transaction.sequence)
+            );
+            return { index, isStale: !isStale };
+          }
+          return { index, isStale: false };
         }
-        return { index, isStale: false };
-      });
+      );
 
       setSeqNumsIsStales(stales);
     }
@@ -259,9 +268,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
       <div className="container">
         <div className="account-view">
           {isLoading ? (
-            <center>
-              Loading...
-            </center>
+            <center>Loading...</center>
           ) : exists ? (
             <>
               <h2 className="word-break relative condensed">
@@ -297,8 +304,34 @@ const AccountInfo: FC<Props> = ({ ID }) => {
               <div className="row space">
                 <div className="column column-50">
                   <div className="segment blank">
-                    <h3>Summary</h3>
+                    <span className="flex" style={{ position: "relative" }}>
+                      <h3 style={{ margin: "0" }}>Summary</h3>
+                      {isShowSummary ? (
+                        <i
+                          className="fa-solid fa-angles-up"
+                          style={{
+                            position: "absolute",
+                            right: "0",
+                            top: "5px",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => setIsShowSummary(false)}
+                        ></i>
+                      ) : (
+                        <i
+                          className="fa-solid fa-angles-down"
+                          style={{
+                            position: "absolute",
+                            right: "0",
+                            top: "5px",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => setIsShowSummary(true)}
+                        ></i>
+                      )}
+                    </span>
                     <hr className="flare"></hr>
+                    {isShowSummary ? <div>
                     <dl>
                       {information?.home_domain !== undefined &&
                       isVisibleHomeDomainInfo &&
@@ -667,37 +700,12 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                         Build transaction
                       </Link>
                     )}
+                    </div> : <></>}
                   </div>
                 </div>
                 <div className="column column-50">
                   <div className="segment blank">
-                    <h3>
-                      Balances
-                      <i className="trigger icon info-tooltip small icon-help">
-                        <div
-                          className="tooltip-wrapper"
-                          style={{
-                            maxWidth: "20em",
-                            left: "0px",
-                            top: "0px",
-                          }}
-                        >
-                          <div className="tooltip top">
-                            <div className="tooltip-content">
-                              The number of lumens and other assets held by the
-                              account.
-                              <a
-                                href="https://developers.stellar.org/docs/learn/glossary#balance"
-                                className="info-tooltip-link"
-                                target="_blank"
-                              >
-                                Read more…
-                              </a>
-                            </div>
-                          </div>
-                        </div>
-                      </i>
-                    </h3>
+                    <h3>Balances</h3>
                     <hr className="flare"></hr>
                     <div>
                       <div className="asset-list-view">

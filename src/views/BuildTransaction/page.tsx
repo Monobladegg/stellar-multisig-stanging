@@ -82,7 +82,6 @@ const BuildTransaction: FC = () => {
     });
   };
 
-  // Load json-with-bigint dynamically
   useEffect(() => {
     const loadJSONWithBigInt = async () => {
       const { JSONParse, JSONStringify } = await import('json-with-bigint');
@@ -92,10 +91,9 @@ const BuildTransaction: FC = () => {
     loadJSONWithBigInt();
   }, []);
 
-  // Fetch transaction data
   useEffect(() => {
     const fetchTransaction = async () => {
-      if (!jsonWithBigInt) return; // Ensure JSONParse and JSONStringify are loaded
+      if (!jsonWithBigInt) return;
 
       try {
         await __wbg_init();
@@ -133,10 +131,9 @@ const BuildTransaction: FC = () => {
     jsonWithBigInt,
   ]);
 
-  // Initialize WASM and encode transaction
   useEffect(() => {
     const initializeWasm = async () => {
-      if (!jsonWithBigInt) return; // Ensure JSONParse and JSONStringify are loaded
+      if (!jsonWithBigInt) return;
 
       await __wbg_init();
       if (!fullTransaction || !fullTransaction.tx) {
@@ -169,7 +166,6 @@ const BuildTransaction: FC = () => {
     }
   }, [fullTransaction, tx, jsonWithBigInt]);
 
-  // Validate transaction fields
   useEffect(() => {
     const updateErrorSourceAccount = () => {
       try {
@@ -281,7 +277,6 @@ const BuildTransaction: FC = () => {
     fullTransaction,
   ]);
 
-  // Handle loading state for jsonWithBigInt
   if (!jsonWithBigInt) {
     return <div>Loading...</div>;
   }

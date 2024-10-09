@@ -74,6 +74,10 @@ const AccountInfo: FC<Props> = ({ ID }) => {
   }, [information, decodedTransactions]);
 
   useEffect(() => {
+    console.log(net)
+  }, [net])
+
+  useEffect(() => {
     const checkAccount = async () => {
       const serverUrl =
         net === "testnet"
@@ -120,8 +124,8 @@ const AccountInfo: FC<Props> = ({ ID }) => {
   useEffect(() => {
     const handler = async () => {
       if (ID != "") {
-        const horizonInfo = await getMainInformation(ID as string);
-        const accountIssuer = await getAccountIssuerInformation(ID as string);
+        const horizonInfo = await getMainInformation(ID as string, net);
+        const accountIssuer = await getAccountIssuerInformation(ID as string, net);
 
         let tomlInformation = "";
 
@@ -255,7 +259,9 @@ const AccountInfo: FC<Props> = ({ ID }) => {
       <div className="container">
         <div className="account-view">
           {isLoading ? (
-            "Loading..."
+            <center>
+              Loading...
+            </center>
           ) : exists ? (
             <>
               <h2 className="word-break relative condensed">
@@ -979,12 +985,9 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                   </div>
                 )}
               <ShowTransactions
-                ID={ID}
                 decodedTransactions={decodedTransactions}
-                setDecodedTransactions={setDecodedTransactions}
                 seqNumsIsStales={seqNumsIsStales}
                 transactionsFromFirebase={transactionsFromFirebase}
-                setTransactionsFromFirebase={setTransactionsFromFirebase}
               />
             </>
           ) : (

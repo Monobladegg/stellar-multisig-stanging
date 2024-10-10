@@ -5,11 +5,10 @@ import { useStore } from "@/shared/store";
 import { SetOptions, ManageData } from "@/widgets";
 import { IOperation } from "@/shared/types/store/slices/BuildTransaction/buildTxJSONSlice";
 import { useShallow } from "zustand/react/shallow";
-import { OperationType } from "stellar-sdk";
 
 const OperationsList: FC = () => {
   const { tx, addOperation, setOperations } = useStore(useShallow((state) => state));
-  const [isOperationsOpen, setIsOperationsOpen] = useState<boolean>(false);
+  const [isOperationsOpen, setIsOperationsOpen] = useState<boolean>(true);
 
   const handleAddOperation = () => {
     addOperation();
@@ -108,7 +107,7 @@ const OperationsList: FC = () => {
                 className="input"
                 value={getOperationType(operation)}
                 onChange={(e) =>
-                  setOperationType(index, e.target.value as OperationType)
+                  setOperationType(index, e.target.value)
                 }
               >
                 <option value="select_operation_type">

@@ -23,7 +23,7 @@ import {
   DecodedTransactions,
 } from "@/shared/types";
 import { processKeys } from "@/shared/lib";
-import BalanceItem from "@/views/account/(BalanceItem)";
+import { BalanceItem } from "@/features/AccountInfo";
 import ignoredHomeDomains from "@/shared/configs/ignored-home-domains.json";
 import { getAllTransactions } from "@/shared/api/firebase/firestore/Transactions";
 import {
@@ -31,6 +31,7 @@ import {
   collapseAccount,
   isSequenceNumberOutdated,
 } from "@/shared/helpers";
+import { IsShowedBlock } from "@/shared/widgets";
 
 export enum TransactionStatuses {
   signing = "Signing",
@@ -44,7 +45,8 @@ interface Props {
 }
 
 const AccountInfo: FC<Props> = ({ ID }) => {
-  const { net, accounts, network } = useStore(useShallow((state) => state));
+  const { net, accounts, network, collapsesBlocks, setCollapsesBlocks } =
+    useStore(useShallow((state) => state));
   const [information, setInformation] = useState<Information>(
     {} as Information
   );
@@ -62,7 +64,6 @@ const AccountInfo: FC<Props> = ({ ID }) => {
   const [transactionsFromFirebase, setTransactionsFromFirebase] = useState<
     TransactionData[]
   >([]);
-  const [isShowSummary, setIsShowSummary] = useState<boolean>(true);
 
   useEffect(() => {
     if (
@@ -75,8 +76,41 @@ const AccountInfo: FC<Props> = ({ ID }) => {
   }, [information, decodedTransactions]);
 
   useEffect(() => {
-    console.log(net);
-  }, [net]);
+    const newCollapsesBlocks = { ...collapsesBlocks };
+
+    const isShowSummary = window.localStorage.getItem("isShowSummary");
+    if (isShowSummary !== null) {
+      newCollapsesBlocks.summary = isShowSummary === "true";
+    }
+
+    const isShowBalances = window.localStorage.getItem("isShowBalances");
+    if (isShowBalances !== null) {
+      newCollapsesBlocks.balances = isShowBalances === "true";
+    }
+
+    const isShowTransactions =
+      window.localStorage.getItem("isShowTransactions");
+    if (isShowTransactions !== null) {
+      newCollapsesBlocks.transactions = isShowTransactions === "true";
+    }
+
+    setCollapsesBlocks(newCollapsesBlocks);
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      "isShowSummary",
+      collapsesBlocks.summary ? "true" : "false"
+    );
+    window.localStorage.setItem(
+      "isShowBalances",
+      collapsesBlocks.balances ? "true" : "false"
+    );
+    window.localStorage.setItem(
+      "isShowTransactions",
+      collapsesBlocks.transactions ? "true" : "false"
+    );
+  }, [collapsesBlocks]);
 
   useEffect(() => {
     const checkAccount = async () => {
@@ -214,7 +248,6 @@ const AccountInfo: FC<Props> = ({ ID }) => {
         const transactions = await getAllTransactions(net);
         setTransactionsFromFirebase(transactions);
 
-        // Временный массив с типом 'DecodedTransaction[]'
         const decodedList: DecodedTransactions = [];
 
         transactions.forEach(({ xdr }, index) => {
@@ -232,7 +265,6 @@ const AccountInfo: FC<Props> = ({ ID }) => {
           }
         });
 
-        // Обновляем состояние, проверяем длину списка
         setDecodedTransactions(decodedList.length > 0 ? decodedList : null);
       } catch (error) {
         console.error("Ошибка при получении транзакций:", error);
@@ -302,76 +334,106 @@ const AccountInfo: FC<Props> = ({ ID }) => {
               </h2>
 
               <div className="row space">
-                <div className="column column-50">
+                <div
+                  className="column column-50"
+                  style={{ height: collapsesBlocks.summary ? "auto" : "65px" }}
+                >
                   <div className="segment blank">
                     <span className="flex" style={{ position: "relative" }}>
                       <h3 style={{ margin: "0" }}>Summary</h3>
-                      {isShowSummary ? (
-                        <i
-                          className="fa-solid fa-angles-up"
-                          style={{
-                            position: "absolute",
-                            right: "0",
-                            top: "5px",
-                            cursor: "pointer",
-                          }}
-                          onClick={() => setIsShowSummary(false)}
-                        ></i>
-                      ) : (
-                        <i
-                          className="fa-solid fa-angles-down"
-                          style={{
-                            position: "absolute",
-                            right: "0",
-                            top: "5px",
-                            cursor: "pointer",
-                          }}
-                          onClick={() => setIsShowSummary(true)}
-                        ></i>
-                      )}
+                      <IsShowedBlock
+                        condition={collapsesBlocks.summary}
+                        onToggle={() =>
+                          setCollapsesBlocks({
+                            ...collapsesBlocks,
+                            summary: !collapsesBlocks.summary,
+                          })
+                        }
+                        style={{
+                          position: "absolute",
+                          right: "0",
+                          top: "5px",
+                          cursor: "pointer",
+                        }}
+                      />
                     </span>
-                    <hr className="flare"></hr>
-                    {isShowSummary ? <div>
-                    <dl>
-                      {information?.home_domain !== undefined &&
-                      isVisibleHomeDomainInfo &&
-                      information.home_domain &&
-                      !ignoredHomeDomains.includes(information.home_domain) ? (
-                        <>
-                          <dt>Home domain:</dt>
+                    {collapsesBlocks.summary && <hr className="flare"></hr>}
+                    {collapsesBlocks.summary ? (
+                      <div>
+                        <dl>
+                          {information?.home_domain !== undefined &&
+                          isVisibleHomeDomainInfo &&
+                          information.home_domain &&
+                          !ignoredHomeDomains.includes(
+                            information.home_domain
+                          ) ? (
+                            <>
+                              <dt>Home domain:</dt>
+                              <dd>
+                                <a
+                                  href={`${
+                                    information?.home_domain === undefined
+                                      ? "#"
+                                      : information?.home_domain
+                                  }`}
+                                  rel="noreferrer noopener"
+                                  target="_blank"
+                                >
+                                  {information?.home_domain === undefined
+                                    ? "none"
+                                    : information?.home_domain}
+                                </a>
+                                <i className="trigger icon info-tooltip small icon-help">
+                                  <div
+                                    className="tooltip-wrapper"
+                                    style={{
+                                      maxWidth: "20em",
+                                      left: "-193px",
+                                      top: "-142px",
+                                    }}
+                                  >
+                                    <div className="tooltip top">
+                                      <div className="tooltip-content">
+                                        A domain name that can optionally be
+                                        added to the account. Clients can look
+                                        up a stellar.toml from this domain. The
+                                        federation procol can use the home
+                                        domain to look up more details about a
+                                        transaction’s memo or address details
+                                        about an account.
+                                        <a
+                                          href="https://developers.stellar.org/docs/learn/glossary#home-domain"
+                                          className="info-tooltip-link"
+                                          target="_blank"
+                                        >
+                                          Read more…
+                                        </a>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </i>
+                              </dd>
+                            </>
+                          ) : null}
+                          <dt>Account lock status:</dt>
                           <dd>
-                            <a
-                              href={`${
-                                information?.home_domain === undefined
-                                  ? "#"
-                                  : information?.home_domain
-                              }`}
-                              rel="noreferrer noopener"
-                              target="_blank"
-                            >
-                              {information?.home_domain === undefined
-                                ? "none"
-                                : information?.home_domain}
-                            </a>
+                            unlocked
                             <i className="trigger icon info-tooltip small icon-help">
                               <div
                                 className="tooltip-wrapper"
                                 style={{
                                   maxWidth: "20em",
                                   left: "-193px",
-                                  top: "-142px",
+                                  top: "-105px",
                                 }}
                               >
                                 <div className="tooltip top">
                                   <div className="tooltip-content">
-                                    A domain name that can optionally be added
-                                    to the account. Clients can look up a
-                                    stellar.toml from this domain. The
-                                    federation procol can use the home domain to
-                                    look up more details about a transaction’s
-                                    memo or address details about an account.
+                                    The account is unlocked, all operations are
+                                    permitted, including payments, trades,
+                                    settings changes, and assets issuing.
                                     <a
-                                      href="https://developers.stellar.org/docs/learn/glossary#home-domain"
+                                      href="https://developers.stellar.org/docs/learn/encyclopedia/security/signatures-multisig#thresholds"
                                       className="info-tooltip-link"
                                       target="_blank"
                                     >
@@ -382,270 +444,182 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                               </div>
                             </i>
                           </dd>
-                        </>
-                      ) : null}
-                      <dt>Account lock status:</dt>
-                      <dd>
-                        unlocked
-                        <i className="trigger icon info-tooltip small icon-help">
-                          <div
-                            className="tooltip-wrapper"
-                            style={{
-                              maxWidth: "20em",
-                              left: "-193px",
-                              top: "-105px",
-                            }}
-                          >
-                            <div className="tooltip top">
-                              <div className="tooltip-content">
-                                The account is unlocked, all operations are
-                                permitted, including payments, trades, settings
-                                changes, and assets issuing.
-                                <a
-                                  href="https://developers.stellar.org/docs/learn/encyclopedia/security/signatures-multisig#thresholds"
-                                  className="info-tooltip-link"
-                                  target="_blank"
-                                >
-                                  Read more…
-                                </a>
-                              </div>
-                            </div>
-                          </div>
-                        </i>
-                      </dd>
-                      <dt>Operation thresholds:</dt>
-                      <dd>
-                        <span title="Low threshold">
-                          {information?.thresholds?.low_threshold}
-                        </span>{" "}
-                        /
-                        <span title="Medium threshold">
-                          {" "}
-                          {information?.thresholds?.med_threshold}
-                        </span>{" "}
-                        /
-                        <span title="High threshold">
-                          {" "}
-                          {information?.thresholds?.high_threshold}
-                        </span>
-                        <i className="trigger icon info-tooltip small icon-help">
-                          <div
-                            className="tooltip-wrapper"
-                            style={{
-                              maxWidth: "20em",
-                              left: "-193px",
-                              top: "-86px",
-                            }}
-                          >
-                            <div className="tooltip top">
-                              <div className="tooltip-content">
-                                This field specifies thresholds for low-,
-                                medium-, and high-access level operations.
-                                <a
-                                  href="https://developers.stellar.org/docs/learn/encyclopedia/security/signatures-multisig#thresholds"
-                                  className="info-tooltip-link"
-                                  target="_blank"
-                                >
-                                  Read more…
-                                </a>
-                              </div>
-                            </div>
-                          </div>
-                        </i>
-                      </dd>
-                      <dt>Asset authorization flags:</dt>
-                      <dd>
-                        {information?.flags?.auth_required == true
-                          ? "required, "
-                          : ""}
-                        {information?.flags?.auth_revocable == true
-                          ? "revocable, "
-                          : ""}
-                        {information?.flags?.auth_clawback_enabled == true
-                          ? "clawback_enabled, "
-                          : ""}
-                        {information?.flags?.auth_immutable == true
-                          ? "immutable, "
-                          : ""}
-                        {information?.flags?.auth_required == false &&
-                        information?.flags?.auth_revocable == false &&
-                        information?.flags?.auth_clawback_enabled == false &&
-                        information?.flags?.auth_immutable == false
-                          ? "none"
-                          : ""}
-
-                        <i className="trigger icon info-tooltip small icon-help">
-                          <div
-                            className="tooltip-wrapper"
-                            style={{
-                              maxWidth: "20em",
-                              left: "-193px",
-                              top: "-256px",
-                            }}
-                          >
-                            <div className="tooltip top">
-                              <div className="tooltip-content">
-                                <ul>
-                                  <li>
-                                    <code>AUTH_REQUIRED</code> Requires the
-                                    issuing account to give other accounts
-                                    permission before they can hold the issuing
-                                    account’s credit.
-                                  </li>
-                                  <li>
-                                    <code>AUTH_REVOCABLE</code> Allows the
-                                    issuing account to revoke its credit held by
-                                    other accounts.
-                                  </li>
-                                  <li>
-                                    <code>AUTH_CLAWBACK_ENABLED</code> Allows
-                                    the issuing account to clawback tokens
-                                    without the account consent in case of
-                                    service terms violation.
-                                  </li>
-                                  <li>
-                                    <code>AUTH_IMMUTABLE</code> If set then none
-                                    of the authorization flags can be set and
-                                    the account can never be deleted.
-                                  </li>
-                                </ul>
-                                <a
-                                  href="https://developers.stellar.org/docs/learn/glossary#flags"
-                                  className="info-tooltip-link"
-                                  target="_blank"
-                                >
-                                  Read more…
-                                </a>
-                              </div>
-                            </div>
-                          </div>
-                        </i>
-                      </dd>
-                    </dl>
-
-                    {information?.issuers?.length &&
-                    information?.issuers?.length > 0 ? (
-                      <div className="account-issued-assets">
-                        <h4
-                          style={{
-                            marginBottom: "0px",
-                          }}
-                        >
-                          Issued Assets
-                          <i className="trigger icon info-tooltip small icon-help">
-                            <div
-                              className="tooltip-wrapper"
-                              style={{
-                                maxWidth: "20em",
-                                left: "-193px",
-                                top: "-86px",
-                              }}
-                            >
-                              <div className="tooltip top">
-                                <div className="tooltip-content">
-                                  An account can issue custom Stellar assets.
-                                  Any asset on the network can be traded and
-                                  exchanged with any other.
-                                  <a
-                                    href="https://developers.stellar.org/docs/learn/fundamentals/stellar-data-structures/assets"
-                                    className="info-tooltip-link"
-                                    target="_blank"
-                                  >
-                                    Read more…
-                                  </a>
+                          <dt>Operation thresholds:</dt>
+                          <dd>
+                            <span title="Low threshold">
+                              {information?.thresholds?.low_threshold}
+                            </span>{" "}
+                            /
+                            <span title="Medium threshold">
+                              {" "}
+                              {information?.thresholds?.med_threshold}
+                            </span>{" "}
+                            /
+                            <span title="High threshold">
+                              {" "}
+                              {information?.thresholds?.high_threshold}
+                            </span>
+                            <i className="trigger icon info-tooltip small icon-help">
+                              <div
+                                className="tooltip-wrapper"
+                                style={{
+                                  maxWidth: "20em",
+                                  left: "-193px",
+                                  top: "-86px",
+                                }}
+                              >
+                                <div className="tooltip top">
+                                  <div className="tooltip-content">
+                                    This field specifies thresholds for low-,
+                                    medium-, and high-access level operations.
+                                    <a
+                                      href="https://developers.stellar.org/docs/learn/encyclopedia/security/signatures-multisig#thresholds"
+                                      className="info-tooltip-link"
+                                      target="_blank"
+                                    >
+                                      Read more…
+                                    </a>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </i>
-                        </h4>
-                        <div className="text-small">
-                          <ul>
-                            {Array.isArray(information?.issuers) &&
-                              (information?.issuers as Issuer[]).map(
-                                (issuer: Issuer, key: number) => {
-                                  return (
-                                    <li key={key}>
+                            </i>
+                          </dd>
+                          <dt>Asset authorization flags:</dt>
+                          <dd>
+                            {information?.flags?.auth_required == true
+                              ? "required, "
+                              : ""}
+                            {information?.flags?.auth_revocable == true
+                              ? "revocable, "
+                              : ""}
+                            {information?.flags?.auth_clawback_enabled == true
+                              ? "clawback_enabled, "
+                              : ""}
+                            {information?.flags?.auth_immutable == true
+                              ? "immutable, "
+                              : ""}
+                            {information?.flags?.auth_required == false &&
+                            information?.flags?.auth_revocable == false &&
+                            information?.flags?.auth_clawback_enabled ==
+                              false &&
+                            information?.flags?.auth_immutable == false
+                              ? "none"
+                              : ""}
+
+                            <i className="trigger icon info-tooltip small icon-help">
+                              <div
+                                className="tooltip-wrapper"
+                                style={{
+                                  maxWidth: "20em",
+                                  left: "-193px",
+                                  top: "-256px",
+                                }}
+                              >
+                                <div className="tooltip top">
+                                  <div className="tooltip-content">
+                                    <ul>
+                                      <li>
+                                        <code>AUTH_REQUIRED</code> Requires the
+                                        issuing account to give other accounts
+                                        permission before they can hold the
+                                        issuing account’s credit.
+                                      </li>
+                                      <li>
+                                        <code>AUTH_REVOCABLE</code> Allows the
+                                        issuing account to revoke its credit
+                                        held by other accounts.
+                                      </li>
+                                      <li>
+                                        <code>AUTH_CLAWBACK_ENABLED</code>{" "}
+                                        Allows the issuing account to clawback
+                                        tokens without the account consent in
+                                        case of service terms violation.
+                                      </li>
+                                      <li>
+                                        <code>AUTH_IMMUTABLE</code> If set then
+                                        none of the authorization flags can be
+                                        set and the account can never be
+                                        deleted.
+                                      </li>
+                                    </ul>
+                                    <a
+                                      href="https://developers.stellar.org/docs/learn/glossary#flags"
+                                      className="info-tooltip-link"
+                                      target="_blank"
+                                    >
+                                      Read more…
+                                    </a>
+                                  </div>
+                                </div>
+                              </div>
+                            </i>
+                          </dd>
+                        </dl>
+
+                        {information?.issuers?.length &&
+                        information?.issuers?.length > 0 ? (
+                          <div className="account-issued-assets">
+                            <h4
+                              style={{
+                                marginBottom: "0px",
+                              }}
+                            >
+                              Issued Assets
+                              <i className="trigger icon info-tooltip small icon-help">
+                                <div
+                                  className="tooltip-wrapper"
+                                  style={{
+                                    maxWidth: "20em",
+                                    left: "-193px",
+                                    top: "-86px",
+                                  }}
+                                >
+                                  <div className="tooltip top">
+                                    <div className="tooltip-content">
+                                      An account can issue custom Stellar
+                                      assets. Any asset on the network can be
+                                      traded and exchanged with any other.
                                       <a
-                                        aria-label={issuer.paging_token}
-                                        className="asset-link"
-                                        href={`https://stellar.expert/explorer/${net}/asset/${issuer.asset_code}-${issuer.asset_issuer}`}
+                                        href="https://developers.stellar.org/docs/learn/fundamentals/stellar-data-structures/assets"
+                                        className="info-tooltip-link"
                                         target="_blank"
                                       >
-                                        {issuer?.asset_code}
+                                        Read more…
                                       </a>
-                                      &nbsp;
-                                    </li>
-                                  );
-                                }
-                              )}
-                          </ul>
-                        </div>
-                      </div>
-                    ) : (
-                      <></>
-                    )}
-
-                    <h4 style={{ marginBottom: "0px" }}>
-                      Signers
-                      <i className="trigger icon info-tooltip small icon-help">
-                        <div
-                          className="tooltip-wrapper"
-                          style={{
-                            maxWidth: "20em",
-                            left: "0px",
-                            top: "0px",
-                          }}
-                        >
-                          <div className="tooltip top">
-                            <div className="tooltip-content">
-                              Used for multi-sig. This field lists other public
-                              keys and their weights, which can be used to
-                              authorize transactions for this account.
-                              <a
-                                href="https://developers.stellar.org/docs/learn/encyclopedia/security/signatures-multisig"
-                                className="info-tooltip-link"
-                                target="_blank"
-                              >
-                                Read more…
-                              </a>
+                                    </div>
+                                  </div>
+                                </div>
+                              </i>
+                            </h4>
+                            <div className="text-small">
+                              <ul>
+                                {Array.isArray(information?.issuers) &&
+                                  (information?.issuers as Issuer[]).map(
+                                    (issuer: Issuer, key: number) => {
+                                      return (
+                                        <li key={key}>
+                                          <a
+                                            aria-label={issuer.paging_token}
+                                            className="asset-link"
+                                            href={`https://stellar.expert/explorer/${net}/asset/${issuer.asset_code}-${issuer.asset_issuer}`}
+                                            target="_blank"
+                                          >
+                                            {issuer?.asset_code}
+                                          </a>
+                                          &nbsp;
+                                        </li>
+                                      );
+                                    }
+                                  )}
+                              </ul>
                             </div>
                           </div>
-                        </div>
-                      </i>
-                    </h4>
-                    <ul className="text-small condensed">
-                      {information?.signers?.map(
-                        (item: Signer, index: number) => {
-                          return (
-                            <li key={index}>
-                              <Link
-                                href={`/public/account?id=${item.key}`}
-                                legacyBehavior
-                              >
-                                <a
-                                  title={item.key}
-                                  aria-label={item.key}
-                                  className="account-address word-break"
-                                >
-                                  <span>{collapseAccount(item.key)} </span>
-                                </a>
-                              </Link>
-                              (w:
-                              <b>{item.weight}</b>)
-                            </li>
-                          );
-                        }
-                      )}
-                    </ul>
-                    {information?.entries &&
-                    Object.keys(information?.entries).length ? (
-                      <>
-                        <h4
-                          style={{
-                            marginBottom: "0px",
-                          }}
-                        >
-                          Data Entries
+                        ) : (
+                          <></>
+                        )}
+
+                        <h4 style={{ marginBottom: "0px" }}>
+                          Signers
                           <i className="trigger icon info-tooltip small icon-help">
                             <div
                               className="tooltip-wrapper"
@@ -657,11 +631,12 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                             >
                               <div className="tooltip top">
                                 <div className="tooltip-content">
-                                  Data entries are key value pairs attached to
-                                  an account. They allow account controllers to
-                                  attach arbitrary data to their account.
+                                  Used for multi-sig. This field lists other
+                                  public keys and their weights, which can be
+                                  used to authorize transactions for this
+                                  account.
                                   <a
-                                    href="https://www.stellar.org/developers/guides/concepts/ledger.html#data-entry"
+                                    href="https://developers.stellar.org/docs/learn/encyclopedia/security/signatures-multisig"
                                     className="info-tooltip-link"
                                     target="_blank"
                                   >
@@ -673,93 +648,203 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                           </i>
                         </h4>
                         <ul className="text-small condensed">
-                          {information?.entries &&
-                            Object.keys(information?.entries).map(
-                              (entry: string, key: number) => {
-                                const { processedKey, processedValue } =
-                                  processKeys(
-                                    entry,
-                                    information.entries[entry]
-                                  );
-                                return (
-                                  <li className="word-break" key={key}>
-                                    {processedKey}: {processedValue}
-                                  </li>
-                                );
-                              }
-                            )}
+                          {information?.signers?.map(
+                            (item: Signer, index: number) => {
+                              return (
+                                <li key={index}>
+                                  <Link
+                                    href={`/${net}/account?id=${item.key}`}
+                                    legacyBehavior
+                                  >
+                                    <a
+                                      title={item.key}
+                                      aria-label={item.key}
+                                      className="account-address word-break"
+                                    >
+                                      <span>{collapseAccount(item.key)} </span>
+                                    </a>
+                                  </Link>
+                                  (w:
+                                  <b>{item.weight}</b>){" "}
+                                  {isVisibleBuildTx && (
+                                    <Link
+                                      href={`/${net}/build-transaction?sourceAccount=${item.key}`}
+                                    >
+                                      <i
+                                        title="Change"
+                                        className="fas fa-edit"
+                                      ></i>
+                                    </Link>
+                                  )}
+                                </li>
+                              );
+                            }
+                          )}
                         </ul>
-                      </>
+                        {information?.entries &&
+                        Object.keys(information?.entries).length ? (
+                          <>
+                            <h4
+                              style={{
+                                marginBottom: "0px",
+                              }}
+                            >
+                              Data Entries
+                              <i className="trigger icon info-tooltip small icon-help">
+                                <div
+                                  className="tooltip-wrapper"
+                                  style={{
+                                    maxWidth: "20em",
+                                    left: "0px",
+                                    top: "0px",
+                                  }}
+                                >
+                                  <div className="tooltip top">
+                                    <div className="tooltip-content">
+                                      Data entries are key value pairs attached
+                                      to an account. They allow account
+                                      controllers to attach arbitrary data to
+                                      their account.
+                                      <a
+                                        href="https://www.stellar.org/developers/guides/concepts/ledger.html#data-entry"
+                                        className="info-tooltip-link"
+                                        target="_blank"
+                                      >
+                                        Read more…
+                                      </a>
+                                    </div>
+                                  </div>
+                                </div>
+                              </i>{" "}
+                              {isVisibleBuildTx && (
+                                <i title="Add" className="fa-solid fa-plus"></i>
+                              )}
+                            </h4>
+                            <ul className="text-small condensed">
+                              {information?.entries &&
+                                Object.keys(information?.entries).map(
+                                  (entry: string, key: number) => {
+                                    const { processedKey, processedValue } =
+                                      processKeys(
+                                        entry,
+                                        information.entries[entry]
+                                      );
+                                    return (
+                                      <li className="word-break" key={key}>
+                                        {processedKey}: {processedValue}{" "}
+                                        {isVisibleBuildTx && (
+                                          <Link
+                                            href={`/${net}/build-transaction?sourceAccount=${ID}`}
+                                          >
+                                            <i
+                                              title="Change"
+                                              className="fas fa-edit"
+                                            ></i>
+                                          </Link>
+                                        )}
+                                      </li>
+                                    );
+                                  }
+                                )}
+                            </ul>
+                          </>
+                        ) : (
+                          <></>
+                        )}
+                        {isVisibleBuildTx && (
+                          <Link
+                            href={`/${net}/build-transaction?sourceAccount=${ID}`}
+                          >
+                            Build transaction
+                          </Link>
+                        )}
+                      </div>
                     ) : (
                       <></>
                     )}
-                    {isVisibleBuildTx && (
-                      <Link
-                        href={`/${net}/build-transaction?sourceAccount=${ID}`}
-                      >
-                        Build transaction
-                      </Link>
-                    )}
-                    </div> : <></>}
                   </div>
                 </div>
-                <div className="column column-50">
+                <div
+                  className="column column-50"
+                  style={{ height: collapsesBlocks.balances ? "auto" : "65px" }}
+                >
                   <div className="segment blank">
-                    <h3>Balances</h3>
-                    <hr className="flare"></hr>
-                    <div>
-                      <div className="asset-list-view">
-                        <table
-                          className="table exportable space"
-                          style={{ width: "100%" }}
-                        >
-                          <tbody>
-                            {information.balances &&
-                              information.balances.map(
-                                (item: Balance, index: number) => {
-                                  const totalInfo = item.balance.split(".");
-                                  const number = totalInfo[0];
-                                  const decimal =
-                                    Number(totalInfo[1]) === 0
-                                      ? ""
-                                      : "." + totalInfo[1];
-                                  if (item.asset_type === "native") {
-                                    return (
-                                      <BalanceItem
-                                        key={index}
-                                        number={number}
-                                        decimal={decimal}
-                                        item={item}
-                                      />
-                                    );
+                    <span className="flex" style={{ position: "relative" }}>
+                      <h3 style={{ margin: "0" }}>Balances</h3>
+                      <IsShowedBlock
+                        condition={collapsesBlocks.balances}
+                        onToggle={() =>
+                          setCollapsesBlocks({
+                            ...collapsesBlocks,
+                            balances: !collapsesBlocks.balances,
+                          })
+                        }
+                        style={{
+                          position: "absolute",
+                          right: "0",
+                          top: "5px",
+                          cursor: "pointer",
+                        }}
+                      />
+                    </span>
+                    {collapsesBlocks.balances && <hr className="flare"></hr>}
+                    {collapsesBlocks.balances ? (
+                      <div>
+                        <div className="asset-list-view">
+                          <table
+                            className="table exportable space"
+                            style={{ width: "100%" }}
+                          >
+                            <tbody>
+                              {information.balances &&
+                                information.balances.map(
+                                  (item: Balance, index: number) => {
+                                    const totalInfo = item.balance.split(".");
+                                    const number = totalInfo[0];
+                                    const decimal =
+                                      Number(totalInfo[1]) === 0
+                                        ? ""
+                                        : "." + totalInfo[1];
+                                    if (item.asset_type === "native") {
+                                      return (
+                                        <BalanceItem
+                                          key={index}
+                                          number={number}
+                                          decimal={decimal}
+                                          item={item}
+                                        />
+                                      );
+                                    }
                                   }
-                                }
-                              )}
-                            {information.balances &&
-                              information.balances.map(
-                                (item: Balance, index: number) => {
-                                  const totalInfo = item.balance.split(".");
-                                  const number = totalInfo[0];
-                                  const decimal =
-                                    Number(totalInfo[1]) === 0
-                                      ? ""
-                                      : "." + totalInfo[1];
-                                  if (item.asset_code) {
-                                    return (
-                                      <BalanceItem
-                                        key={index}
-                                        number={number}
-                                        decimal={decimal}
-                                        item={item}
-                                      />
-                                    );
+                                )}
+                              {information.balances &&
+                                information.balances.map(
+                                  (item: Balance, index: number) => {
+                                    const totalInfo = item.balance.split(".");
+                                    const number = totalInfo[0];
+                                    const decimal =
+                                      Number(totalInfo[1]) === 0
+                                        ? ""
+                                        : "." + totalInfo[1];
+                                    if (item.asset_code) {
+                                      return (
+                                        <BalanceItem
+                                          key={index}
+                                          number={number}
+                                          decimal={decimal}
+                                          item={item}
+                                        />
+                                      );
+                                    }
                                   }
-                                }
-                              )}
-                          </tbody>
-                        </table>
+                                )}
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      <></>
+                    )}
                   </div>
                 </div>
               </div>

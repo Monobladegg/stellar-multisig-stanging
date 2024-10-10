@@ -20,11 +20,11 @@ const ShowTransactions: FC<Props> = ({
   seqNumsIsStales,
   transactionsFromFirebase,
 }) => {
-  if (!decodedTransactions) return null;
-
   const { collapsesBlocks, setCollapsesBlocks } = useStore(
     useShallow((state) => state)
   );
+  
+  if (!decodedTransactions) return null;
 
   const indices = decodedTransactions.map((_, index) => index);
 

@@ -22,7 +22,7 @@ import {
   TX,
 } from "@/shared/types/store/slices/BuildTransaction/buildTxJSONSlice";
 import StellarSdk from "stellar-sdk";
-import { checkSigner } from "@/shared/helpers";
+import { checkSigner, setOperationType } from "@/shared/helpers";
 
 export interface TXErrors {
   sourceAccount: string;
@@ -49,11 +49,13 @@ const BuildTransaction: FC = () => {
     buildErrors,
     setBuildErrors,
     accounts,
+    setOperations
   } = useStore(useShallow((state) => state));
 
   const searchParams = useSearchParams();
   const sourceAccountParam = searchParams.get("sourceAccount");
   const firebaseIDParam = searchParams.get("firebaseID") || "";
+  const operationTypeParam = searchParams.get("typeOperation");
 
   const [currentXDR, setCurrentXDR] = useState<string>("");
   const [successMessageXDR, setSuccessMessageXDR] = useState<string>("");
@@ -70,6 +72,10 @@ const BuildTransaction: FC = () => {
   const [jsonWithBigInt, setJsonWithBigInt] = useState<JSONWithBigInt | null>(null);
 
   const decodedXDR = useXDRDecoding(currentXDR, currentXDR);
+
+  useEffect(() => {
+    setOperationType(0, operationTypeParam === "set_options" ? "set_options" : operationTypeParam === "manage_data" ? "manage_data" : "", tx, setOperations)
+  }, [operationTypeParam]);
 
   const updateErrors = (condition: boolean, errorMessage: string) => {
     setBuildErrors((prevBuildErrors) => {

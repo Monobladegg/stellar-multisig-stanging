@@ -410,7 +410,17 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                                         </a>
                                       </div>
                                     </div>
-                                  </div>
+                                  </div>{" "}
+                                  {isVisibleBuildTx && (
+                                    <Link
+                                      href={`/${net}/build-transaction?sourceAccount=${ID}&typeOperation=set_options`}
+                                    >
+                                      <i
+                                        title="Change"
+                                        className="fas fa-edit"
+                                      ></i>
+                                    </Link>
+                                  )}
                                 </i>
                               </dd>
                             </>
@@ -441,7 +451,14 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                                     </a>
                                   </div>
                                 </div>
-                              </div>
+                              </div>{" "}
+                              {isVisibleBuildTx && (
+                                <Link
+                                  href={`/${net}/build-transaction?sourceAccount=${ID}&typeOperation=set_options`}
+                                >
+                                  <i title="Change" className="fas fa-edit"></i>
+                                </Link>
+                              )}
                             </i>
                           </dd>
                           <dt>Operation thresholds:</dt>
@@ -481,7 +498,14 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                                     </a>
                                   </div>
                                 </div>
-                              </div>
+                              </div>{" "}
+                              {isVisibleBuildTx && (
+                                <Link
+                                  href={`/${net}/build-transaction?sourceAccount=${ID}&typeOperation=set_options`}
+                                >
+                                  <i title="Change" className="fas fa-edit"></i>
+                                </Link>
+                              )}
                             </i>
                           </dd>
                           <dt>Asset authorization flags:</dt>
@@ -551,11 +575,17 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                                     </a>
                                   </div>
                                 </div>
-                              </div>
+                              </div>{" "}
+                              {isVisibleBuildTx && (
+                                <Link
+                                  href={`/${net}/build-transaction?sourceAccount=${ID}&typeOperation=set_options`}
+                                >
+                                  <i title="Change" className="fas fa-edit"></i>
+                                </Link>
+                              )}
                             </i>
                           </dd>
                         </dl>
-
                         {information?.issuers?.length &&
                         information?.issuers?.length > 0 ? (
                           <div className="account-issued-assets">
@@ -668,7 +698,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                                   <b>{item.weight}</b>){" "}
                                   {isVisibleBuildTx && (
                                     <Link
-                                      href={`/${net}/build-transaction?sourceAccount=${item.key}`}
+                                      href={`/${net}/build-transaction?sourceAccount=${item.key}&typeOperation=set_options`}
                                     >
                                       <i
                                         title="Change"
@@ -734,7 +764,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                                         {processedKey}: {processedValue}{" "}
                                         {isVisibleBuildTx && (
                                           <Link
-                                            href={`/${net}/build-transaction?sourceAccount=${ID}`}
+                                            href={`/${net}/build-transaction?sourceAccount=${ID}&typeOperation=manage_data`}
                                           >
                                             <i
                                               title="Change"

@@ -1,6 +1,5 @@
 import { useStore } from "@/shared/store";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import React, { FC } from "react";
 import { useShallow } from "zustand/react/shallow";
 

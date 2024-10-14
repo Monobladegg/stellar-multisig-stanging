@@ -17,37 +17,10 @@ interface Props {
   isStale: boolean;
 }
 
-interface UpdateSequenceButtonProps {
-  decodedTransaction: DecodedTransaction;
-  seqNumsIsStales: ISeqNumIsStale[];
-  transactionLink: string;
-}
-
 interface TransactionLinkProps {
   transactionLink: string;
   type: string | number | undefined;
 }
-
-const UpdateSequenceButton: FC<UpdateSequenceButtonProps> = ({
-  decodedTransaction,
-  seqNumsIsStales,
-  transactionLink,
-}) => {
-  return decodedTransaction?.index &&
-    !seqNumsIsStales[decodedTransaction?.index]?.isStale ? (
-    <Link
-      href={`${transactionLink}&isStale=true`}
-      target="_blank"
-      rel="noreferrer noopener"
-    >
-      <i
-        className="fa-solid fa-arrow-rotate-right"
-        style={{ color: "#0691b7", cursor: "pointer" }}
-        title="Click to update sequence number"
-      ></i>
-    </Link>
-  ) : null;
-};
 
 const TransactionLink: FC<TransactionLinkProps> = ({
   transactionLink,

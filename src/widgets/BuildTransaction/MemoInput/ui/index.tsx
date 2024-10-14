@@ -3,6 +3,7 @@
 import { FC, useState, useEffect } from "react";
 import { useStore } from "@/shared/store";
 import { useShallow } from "zustand/react/shallow";
+import Link from "next/link";
 
 const MemoInput: FC = () => {
   const { tx, setMemo } = useStore(useShallow((state) => state));
@@ -32,19 +33,25 @@ const MemoInput: FC = () => {
   return (
     <div>
       <h4>Memo</h4>
-      {memoTypes.map((type) => (
-        <button
-          key={type}
-          className={`button ${selectedMemoType === type && "disabled"}`}
-          onClick={() => {
-            handleMemoTypeChange(type);
-            setSelectedMemoType(type);
-          }}
-          disabled={selectedMemoType === type}
-        >
-          {type}
-        </button>
-      ))}
+      <div className="tabs" style={{width: "400px"}}>
+        <div className="tabs-header">
+          {memoTypes.map((type) => (
+            <Link
+              className={`tabs-item condensed ${
+                selectedMemoType === type && "selected"
+              }`}
+              href="#"
+              key={type}
+              onClick={() => {
+                handleMemoTypeChange(type);
+                setSelectedMemoType(type);
+              }}
+            >
+              <span className="tabs-item-text">{type}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
       {tx.tx.memo !== "none" && (
         <input
           placeholder={

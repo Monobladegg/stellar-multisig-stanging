@@ -32,6 +32,7 @@ import {
   isSequenceNumberOutdated,
 } from "@/shared/helpers";
 import { IsShowedBlock } from "@/shared/widgets";
+import { TransactionIcon } from "@/entities";
 
 export enum TransactionStatuses {
   signing = "Signing",
@@ -154,7 +155,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
 
   useEffect(() => {
     setIsVisibleBuildTx(false);
-  }, [ID]);
+  }, [ID, accounts]);
 
   useEffect(() => {
     const handler = async () => {
@@ -355,6 +356,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                           top: "5px",
                           cursor: "pointer",
                         }}
+                        title="Summary"
                       />
                     </span>
                     {collapsesBlocks.summary && <hr className="flare"></hr>}
@@ -368,6 +370,12 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                             information.home_domain
                           ) ? (
                             <>
+                              <TransactionIcon
+                                ID={ID}
+                                isVisible={isVisibleBuildTx}
+                                typeIcon="Change"
+                                typeOp="set_options"
+                              />
                               <dt>Home domain:</dt>
                               <dd>
                                 <a
@@ -411,56 +419,53 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                                       </div>
                                     </div>
                                   </div>{" "}
-                                  {isVisibleBuildTx && (
-                                    <Link
-                                      href={`/${net}/build-transaction?sourceAccount=${ID}&typeOperation=set_options`}
-                                    >
-                                      <i
-                                        title="Change"
-                                        className="fas fa-edit"
-                                      ></i>
-                                    </Link>
-                                  )}
                                 </i>
                               </dd>
                             </>
                           ) : null}
-                          <dt>Account lock status:</dt>
-                          <dd>
-                            unlocked
-                            <i className="trigger icon info-tooltip small icon-help">
-                              <div
-                                className="tooltip-wrapper"
-                                style={{
-                                  maxWidth: "20em",
-                                  left: "-193px",
-                                  top: "-105px",
-                                }}
-                              >
-                                <div className="tooltip top">
-                                  <div className="tooltip-content">
-                                    The account is unlocked, all operations are
-                                    permitted, including payments, trades,
-                                    settings changes, and assets issuing.
-                                    <a
-                                      href="https://developers.stellar.org/docs/learn/encyclopedia/security/signatures-multisig#thresholds"
-                                      className="info-tooltip-link"
-                                      target="_blank"
-                                    >
-                                      Read more…
-                                    </a>
-                                  </div>
-                                </div>
-                              </div>{" "}
-                              {isVisibleBuildTx && (
-                                <Link
-                                  href={`/${net}/build-transaction?sourceAccount=${ID}&typeOperation=set_options`}
+                          <>
+                            <TransactionIcon
+                              ID={ID}
+                              isVisible={isVisibleBuildTx}
+                              typeIcon="Change"
+                              typeOp="set_options"
+                            />
+                            <dt>Account lock status:</dt>
+                            <dd>
+                              unlocked
+                              <i className="trigger icon info-tooltip small icon-help">
+                                <div
+                                  className="tooltip-wrapper"
+                                  style={{
+                                    maxWidth: "20em",
+                                    left: "-193px",
+                                    top: "-105px",
+                                  }}
                                 >
-                                  <i title="Change" className="fas fa-edit"></i>
-                                </Link>
-                              )}
-                            </i>
-                          </dd>
+                                  <div className="tooltip top">
+                                    <div className="tooltip-content">
+                                      The account is unlocked, all operations
+                                      are permitted, including payments, trades,
+                                      settings changes, and assets issuing.
+                                      <a
+                                        href="https://developers.stellar.org/docs/learn/encyclopedia/security/signatures-multisig#thresholds"
+                                        className="info-tooltip-link"
+                                        target="_blank"
+                                      >
+                                        Read more…
+                                      </a>
+                                    </div>
+                                  </div>
+                                </div>{" "}
+                              </i>
+                            </dd>
+                          </>
+                          <TransactionIcon
+                            ID={ID}
+                            isVisible={isVisibleBuildTx}
+                            typeIcon="Change"
+                            typeOp="set_options"
+                          />
                           <dt>Operation thresholds:</dt>
                           <dd>
                             <span title="Low threshold">
@@ -499,15 +504,14 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                                   </div>
                                 </div>
                               </div>{" "}
-                              {isVisibleBuildTx && (
-                                <Link
-                                  href={`/${net}/build-transaction?sourceAccount=${ID}&typeOperation=set_options`}
-                                >
-                                  <i title="Change" className="fas fa-edit"></i>
-                                </Link>
-                              )}
                             </i>
                           </dd>
+                          <TransactionIcon
+                            ID={ID}
+                            isVisible={isVisibleBuildTx}
+                            typeIcon="Change"
+                            typeOp="set_options"
+                          />
                           <dt>Asset authorization flags:</dt>
                           <dd>
                             {information?.flags?.auth_required == true
@@ -576,13 +580,6 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                                   </div>
                                 </div>
                               </div>{" "}
-                              {isVisibleBuildTx && (
-                                <Link
-                                  href={`/${net}/build-transaction?sourceAccount=${ID}&typeOperation=set_options`}
-                                >
-                                  <i title="Change" className="fas fa-edit"></i>
-                                </Link>
-                              )}
                             </i>
                           </dd>
                         </dl>
@@ -682,6 +679,12 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                             (item: Signer, index: number) => {
                               return (
                                 <li key={index}>
+                                  <TransactionIcon
+                                    ID={ID}
+                                    isVisible={isVisibleBuildTx}
+                                    typeIcon="Change"
+                                    typeOp="set_options"
+                                  />
                                   <Link
                                     href={`/${net}/account?id=${item.key}`}
                                     legacyBehavior
@@ -696,16 +699,6 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                                   </Link>
                                   (w:
                                   <b>{item.weight}</b>){" "}
-                                  {isVisibleBuildTx && (
-                                    <Link
-                                      href={`/${net}/build-transaction?sourceAccount=${item.key}&typeOperation=set_options`}
-                                    >
-                                      <i
-                                        title="Change"
-                                        className="fas fa-edit"
-                                      ></i>
-                                    </Link>
-                                  )}
                                 </li>
                               );
                             }
@@ -746,9 +739,11 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                                   </div>
                                 </div>
                               </i>{" "}
-                              {isVisibleBuildTx && (
-                                <i title="Add" className="fa-solid fa-plus"></i>
-                              )}
+                              <TransactionIcon
+                                ID={ID}
+                                isVisible={isVisibleBuildTx}
+                                typeIcon="Add"
+                              />
                             </h4>
                             <ul className="text-small condensed">
                               {information?.entries &&
@@ -761,17 +756,13 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                                       );
                                     return (
                                       <li className="word-break" key={key}>
+                                        <TransactionIcon
+                                          ID={ID}
+                                          isVisible={isVisibleBuildTx}
+                                          typeIcon="Change"
+                                          typeOp="manage_data"
+                                        />
                                         {processedKey}: {processedValue}{" "}
-                                        {isVisibleBuildTx && (
-                                          <Link
-                                            href={`/${net}/build-transaction?sourceAccount=${ID}&typeOperation=manage_data`}
-                                          >
-                                            <i
-                                              title="Change"
-                                              className="fas fa-edit"
-                                            ></i>
-                                          </Link>
-                                        )}
                                       </li>
                                     );
                                   }
@@ -815,6 +806,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                           top: "5px",
                           cursor: "pointer",
                         }}
+                        title="balances"
                       />
                     </span>
                     {collapsesBlocks.balances && <hr className="flare"></hr>}
@@ -1108,9 +1100,11 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                   </div>
                 )}
               <ShowTransactions
+                ID={ID}
                 decodedTransactions={decodedTransactions}
                 seqNumsIsStales={seqNumsIsStales}
                 transactionsFromFirebase={transactionsFromFirebase}
+                isVisibleBuildTx={isVisibleBuildTx}
               />
             </>
           ) : (

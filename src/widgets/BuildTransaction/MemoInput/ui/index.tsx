@@ -41,8 +41,8 @@ const MemoInput: FC = () => {
               }`}
               href="#"
               key={type}
-              onClick={(e) => {
-                event?.preventDefault();
+              onClick={(event) => {
+                event.preventDefault();
                 handleMemoTypeChange(type);
                 setSelectedMemoType(type);
               }}

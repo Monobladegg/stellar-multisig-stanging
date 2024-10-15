@@ -36,19 +36,20 @@ const MemoInput: FC = () => {
       <div className="tabs" style={{width: "400px"}}>
         <div className="tabs-header">
           {memoTypes.map((type) => (
-            <Link
+            <a
               className={`tabs-item condensed ${
                 selectedMemoType === type && "selected"
               }`}
               href="#"
               key={type}
-              onClick={() => {
+              onClick={(e) => {
+                event?.preventDefault();
                 handleMemoTypeChange(type);
                 setSelectedMemoType(type);
               }}
             >
               <span className="tabs-item-text">{type}</span>
-            </Link>
+            </a>
           ))}
         </div>
       </div>

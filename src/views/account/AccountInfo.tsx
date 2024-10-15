@@ -772,13 +772,6 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                         ) : (
                           <></>
                         )}
-                        {isVisibleBuildTx && (
-                          <Link
-                            href={`/${net}/build-transaction?sourceAccount=${ID}`}
-                          >
-                            Build transaction
-                          </Link>
-                        )}
                       </div>
                     ) : (
                       <></>

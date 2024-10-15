@@ -3,7 +3,6 @@
 import { FC, useState, useEffect } from "react";
 import { useStore } from "@/shared/store";
 import { useShallow } from "zustand/react/shallow";
-import Link from "next/link";
 
 const MemoInput: FC = () => {
   const { tx, setMemo } = useStore(useShallow((state) => state));

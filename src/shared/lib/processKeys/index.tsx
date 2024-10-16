@@ -16,7 +16,7 @@ const processKeys = (
   value: string
 ): { processedKey: string; processedValue: string } => {
   const processedKey = key;
-  let processedValue: string;
+  let processedValue: string = value;
 
   // Convert regular expression strings to RegExp objects with boundaries and case-insensitive flag
   const regexPatterns: { [type: string]: RegExp[] } = Object.entries(

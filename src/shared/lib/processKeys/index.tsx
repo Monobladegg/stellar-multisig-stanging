@@ -31,7 +31,7 @@ const processKeys = (
   );
 
   if (!isValidKey) {
-    throw new Error(`Invalid key: ${key}`);
+    console.log("")
   }
 
   // Decode base64 value

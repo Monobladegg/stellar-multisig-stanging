@@ -2,7 +2,6 @@ import { IBuildTxJSONSlice } from "@/shared/types/store/slices";
 import { StateCreator } from "zustand";
 import { IOperation, ISignature } from "@/shared/types/store/slices";
 import { TX } from "@/shared/types/store/slices/BuildTransaction/buildTxJSONSlice";
-import StellarSdk from "stellar-sdk";
 
 type ImmerStateCreator<T> = StateCreator<T, [["zustand/immer", never]], [], T>;
 

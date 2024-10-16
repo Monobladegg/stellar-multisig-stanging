@@ -26,6 +26,14 @@ const processKeys = (
     return acc;
   }, {} as { [type: string]: RegExp[] });
 
+  const isValidKey = Object.values(regexPatterns).some((patterns) =>
+    patterns.some((pattern) => pattern.test(key))
+  );
+
+  if (!isValidKey) {
+    throw new Error(`Invalid key: ${key}`);
+  }
+
   // Decode base64 value
   const decodedValue = decodeBase64(value);
 

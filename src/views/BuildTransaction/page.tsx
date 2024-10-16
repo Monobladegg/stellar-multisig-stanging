@@ -22,7 +22,7 @@ import {
   TX,
 } from "@/shared/types/store/slices/BuildTransaction/buildTxJSONSlice";
 import StellarSdk from "stellar-sdk";
-import { checkSigner, setOperationType, stringToHex } from "@/shared/helpers";
+import { checkSigner, stringToHex } from "@/shared/helpers";
 
 export interface TXErrors {
   sourceAccount: string;

@@ -61,7 +61,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isVisibleHomeDomainInfo, setIsVisibleHomeDomainInfo] =
     useState<boolean>(true);
-  const [isVisibleBuildTx, setIsVisibleBuildTx] = useState<boolean>(false);
+  const [isVisibleTx, setIsVisibleTx] = useState<boolean>(false);
   const [transactionsFromFirebase, setTransactionsFromFirebase] = useState<
     TransactionData[]
   >([]);
@@ -150,11 +150,11 @@ const AccountInfo: FC<Props> = ({ ID }) => {
   }, [net, ID]);
 
   useEffect(() => {
-    setIsVisibleBuildTx(checkSigner(accounts, information.signers));
+    setIsVisibleTx(checkSigner(accounts, information.signers));
   }, [accounts, information.signers]);
 
   useEffect(() => {
-    setIsVisibleBuildTx(false);
+    setIsVisibleTx(false);
   }, [ID, accounts]);
 
   useEffect(() => {
@@ -372,7 +372,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                             <>
                               <TransactionIcon
                                 ID={ID}
-                                isVisible={isVisibleBuildTx}
+                                isVisible={isVisibleTx}
                                 typeIcon="Change"
                                 typeOp="set_options"
                               />
@@ -426,7 +426,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                           <>
                             <TransactionIcon
                               ID={ID}
-                              isVisible={isVisibleBuildTx}
+                              isVisible={isVisibleTx}
                               typeIcon="Change"
                               typeOp="set_options"
                             />
@@ -462,7 +462,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                           </>
                           <TransactionIcon
                             ID={ID}
-                            isVisible={isVisibleBuildTx}
+                            isVisible={isVisibleTx}
                             typeIcon="Change"
                             typeOp="set_options"
                           />
@@ -508,7 +508,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                           </dd>
                           <TransactionIcon
                             ID={ID}
-                            isVisible={isVisibleBuildTx}
+                            isVisible={isVisibleTx}
                             typeIcon="Change"
                             typeOp="set_options"
                           />
@@ -681,7 +681,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                                 <li key={index}>
                                   <TransactionIcon
                                     ID={ID}
-                                    isVisible={isVisibleBuildTx}
+                                    isVisible={isVisibleTx}
                                     typeIcon="Change"
                                     typeOp="set_options"
                                   />
@@ -741,28 +741,70 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                               </i>{" "}
                               <TransactionIcon
                                 ID={ID}
-                                isVisible={isVisibleBuildTx}
+                                isVisible={isVisibleTx}
                                 typeIcon="Add"
                               />
                             </h4>
                             <ul className="text-small condensed">
                               {information?.entries &&
-                                Object.keys(information?.entries).map(
+                                Object.keys(information.entries).map(
                                   (entry: string, key: number) => {
                                     const { processedKey, processedValue } =
                                       processKeys(
                                         entry,
                                         information.entries[entry]
                                       );
+
+                                    // Объявляем renderedValue с правильным типом
+                                    let renderedValue: JSX.Element | string =
+                                      processedValue;
+
+                                    // Проверяем, является ли processedValue валидным Stellar публичным ключом
+                                    if (
+                                      StellarSdk.StrKey.isValidEd25519PublicKey(
+                                        processedValue
+                                      )
+                                    ) {
+                                      renderedValue = (
+                                        <Link
+                                          href={`/public/account?id=${processedValue}`}
+                                          legacyBehavior
+                                        >
+                                          <a>{processedValue}</a>
+                                        </Link>
+                                      );
+                                    }
+                                    // Проверяем, является ли processedValue ссылкой
+                                    else if (
+                                      processedValue.startsWith("http://") ||
+                                      processedValue.startsWith("https://")
+                                    ) {
+                                      renderedValue = (
+                                        <Link
+                                          href={processedValue}
+                                          legacyBehavior
+                                        >
+                                          <a
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                          >
+                                            {processedValue}
+                                          </a>
+                                        </Link>
+                                      );
+                                    }
+
                                     return (
                                       <li className="word-break" key={key}>
                                         <TransactionIcon
                                           ID={ID}
-                                          isVisible={isVisibleBuildTx}
+                                          isVisible={isVisibleTx}
                                           typeIcon="Change"
                                           typeOp="manage_data"
+                                          processedKey={processedKey}
+                                          processedValue={processedValue}
                                         />
-                                        {processedKey}: {processedValue}{" "}
+                                        {processedKey}: {renderedValue}{" "}
                                       </li>
                                     );
                                   }
@@ -1097,7 +1139,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                 decodedTransactions={decodedTransactions}
                 seqNumsIsStales={seqNumsIsStales}
                 transactionsFromFirebase={transactionsFromFirebase}
-                isVisibleBuildTx={isVisibleBuildTx}
+                isVisibleBuildTx={isVisibleTx}
               />
             </>
           ) : (

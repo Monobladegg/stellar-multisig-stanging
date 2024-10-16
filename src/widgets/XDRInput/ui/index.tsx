@@ -24,6 +24,9 @@ interface Props {
   setBaseResult?: (baseResult: TX) => void;
   txBuilderResult?: Transaction | null;
   setTxBuilderResult?: (txBuilderResult: Transaction | null) => void;
+  setCurrentTab?: (
+    currentTab: "Create Transaction" | "Import Transaction"
+  ) => void;
 }
 
 interface JSONWithBigInt {
@@ -40,6 +43,7 @@ const XDRInput: FC<Props> = ({
   baseResult,
   txBuilderResult,
   setTxBuilderResult,
+  setCurrentTab,
 }) => {
   const { net, setFullTransaction, setTransaction } = useStore(
     useShallow((state) => state)
@@ -60,13 +64,12 @@ const XDRInput: FC<Props> = ({
 
   useEffect(() => {
     const loadJSONWithBigInt = async () => {
-      const { JSONParse } = await import('json-with-bigint');
+      const { JSONParse } = await import("json-with-bigint");
       setJsonWithBigInt({ JSONParse });
     };
 
     loadJSONWithBigInt();
   }, []);
-
 
   const decodeEnvelope = async (XDR: string) => {
     try {
@@ -102,6 +105,7 @@ const XDRInput: FC<Props> = ({
         setTxBuilderResult(txBuilder);
       }
     }
+    setCurrentTab?.("Create Transaction");
   };
 
   const isValidXDR = XDR !== "" && !validationError;
@@ -113,39 +117,43 @@ const XDRInput: FC<Props> = ({
   }
 
   return (
-    <Container title={isSignPage ? "Sign Transaction" : "Import Transaction"}>
-      <p>Import a transaction envelope in XDR format</p>
-      <textarea
-        value={XDR}
-        onChange={(e) => setXDR(e.target.value)}
-        placeholder="Ex:
+    <div className="container" style={{marginTop: "11px"}}>
+      <div className="segment blank">
+        <div>
+          <p>Import a transaction envelope in XDR format</p>
+          <textarea
+            value={XDR}
+            onChange={(e) => setXDR(e.target.value)}
+            placeholder="Ex:
               AAAAAAbxCy3mlLg3hTiQX4VUEEp6pFOrJNxYM1HJbXtTwxYh2AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhWxYh2AAAAAQAQCPA8OwsZse9FAOsz/deMdhlu6/izk7SgkBG22AvpIpETBhnGkx4tF5rDZ8sVIKqwweqGUVgyUJyM0AcHbyXZQw="
-        className="XDRInput"
-      />
-      <p className={!validationError ? "success" : "error"}>
-        {validationMessage}
-      </p>
-      {isSignPage ? (
-        isValidXDR ? (
-          <Link
-            href={`/public/sign-transaction?importXDR=${encodeURIComponent(
-              XDR
-            )}`}
-            passHref
-          >
-            <button>Import XDR</button>
-          </Link>
-        ) : (
-          <button disabled className="disabled">
-            Import XDR
-          </button>
-        )
-      ) : (
-        <button onClick={handleToggleImport} disabled={!isValidXDR}>
-          {isImport ? "Clear" : "Import XDR"}
-        </button>
-      )}
-    </Container>
+            className="XDRInput"
+          />
+          <p className={!validationError ? "success" : "error"}>
+            {validationMessage}
+          </p>
+          {isSignPage ? (
+            isValidXDR ? (
+              <Link
+                href={`/public/sign-transaction?importXDR=${encodeURIComponent(
+                  XDR
+                )}`}
+                passHref
+              >
+                <button>Import XDR</button>
+              </Link>
+            ) : (
+              <button disabled className="disabled">
+                Import XDR
+              </button>
+            )
+          ) : (
+            <button onClick={handleToggleImport} disabled={!isValidXDR}>
+              {isImport ? "Clear" : "Import XDR"}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 

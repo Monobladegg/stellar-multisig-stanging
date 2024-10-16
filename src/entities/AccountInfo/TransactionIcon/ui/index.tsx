@@ -9,9 +9,19 @@ interface Props {
   ID: string;
   typeOp?: string;
   style?: React.CSSProperties;
+  processedKey?: string;
+  processedValue?: string | JSX.Element;
 }
 
-const TransactionIcon: FC<Props> = ({ isVisible, typeIcon, ID, typeOp, style }) => {
+const TransactionIcon: FC<Props> = ({
+  isVisible,
+  typeIcon,
+  ID,
+  typeOp,
+  style,
+  processedKey,
+  processedValue,
+}) => {
   const { net } = useStore(useShallow((state) => state));
 
   if (!isVisible) return null;
@@ -19,7 +29,13 @@ const TransactionIcon: FC<Props> = ({ isVisible, typeIcon, ID, typeOp, style }) 
   return (
     <Link
       style={style}
-      href={`/${net}/build-transaction?sourceAccount=${ID}&typeOperation=${typeOp}`}
+      href={`/${net}/build-transaction?sourceAccount=${ID}${
+        typeOp && `&typeOperation=${typeOp}`
+      }${
+        processedKey &&
+        processedValue &&
+        `&processedKey=${processedKey}&processedValue=${processedValue}`
+      }`}
     >
       <i
         title={typeIcon}

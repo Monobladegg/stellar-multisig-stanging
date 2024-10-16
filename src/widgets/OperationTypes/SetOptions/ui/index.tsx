@@ -351,6 +351,7 @@ const SetOptions: FC<Props> = ({ id }) => {
             StellarSdk.StrKey.isValidEd25519PublicKey(value) || value === ""
           }
           errorMessage="Public key is invalid."
+          isOptional={false}
         />
       </div>
     </>

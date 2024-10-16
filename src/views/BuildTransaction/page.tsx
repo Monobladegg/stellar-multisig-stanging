@@ -22,7 +22,7 @@ import {
   TX,
 } from "@/shared/types/store/slices/BuildTransaction/buildTxJSONSlice";
 import StellarSdk from "stellar-sdk";
-import { checkSigner, setOperationType } from "@/shared/helpers";
+import { checkSigner, setOperationType, stringToHex } from "@/shared/helpers";
 
 export interface TXErrors {
   sourceAccount: string;
@@ -38,7 +38,6 @@ interface JSONWithBigInt {
   JSONStringify<T>(value: T): string;
 }
 
-
 const BuildTransaction: FC = () => {
   const {
     tx,
@@ -49,13 +48,15 @@ const BuildTransaction: FC = () => {
     buildErrors,
     setBuildErrors,
     accounts,
-    setOperations
+    setOperations,
   } = useStore(useShallow((state) => state));
 
   const searchParams = useSearchParams();
   const sourceAccountParam = searchParams.get("sourceAccount");
   const firebaseIDParam = searchParams.get("firebaseID") || "";
   const operationTypeParam = searchParams.get("typeOperation");
+  const processedKeyParam = searchParams.get("processedKey");
+  const processedValueParam = searchParams.get("processedValue");
 
   const [currentXDR, setCurrentXDR] = useState<string>("");
   const [successMessageXDR, setSuccessMessageXDR] = useState<string>("");
@@ -69,13 +70,44 @@ const BuildTransaction: FC = () => {
 
   const [firebaseIDParamError, setFirebaseIDParamError] = useState<string>("");
 
-  const [jsonWithBigInt, setJsonWithBigInt] = useState<JSONWithBigInt | null>(null);
+  const [jsonWithBigInt, setJsonWithBigInt] = useState<JSONWithBigInt | null>(
+    null
+  );
+
+  const [currentTab, setCurrentTab] = useState<
+    "Create Transaction" | "Import Transaction"
+  >("Create Transaction");
 
   const decodedXDR = useXDRDecoding(currentXDR, currentXDR);
 
   useEffect(() => {
-    setOperationType(0, operationTypeParam === "set_options" ? "set_options" : operationTypeParam === "manage_data" ? "manage_data" : "", tx, setOperations)
-  }, [operationTypeParam]);
+    if (operationTypeParam) {
+      setOperations(
+        operationTypeParam === "set_options"
+          ? [
+              {
+                source_account: "",
+                body: {
+                  set_options: {},
+                },
+              },
+            ]
+          : operationTypeParam === "manage_data"
+          ? [
+              {
+                source_account: "",
+                body: {
+                  manage_data: {
+                    data_name: processedKeyParam ?? "",
+                    data_value: stringToHex(processedValueParam ?? "") ?? null,
+                  },
+                },
+              },
+            ]
+          : [{ source_account: "", body: {} }]
+      );
+    }
+  }, [operationTypeParam, processedKeyParam, processedValueParam]);
 
   const updateErrors = (condition: boolean, errorMessage: string) => {
     setBuildErrors((prevBuildErrors) => {
@@ -90,7 +122,7 @@ const BuildTransaction: FC = () => {
 
   useEffect(() => {
     const loadJSONWithBigInt = async () => {
-      const { JSONParse, JSONStringify } = await import('json-with-bigint');
+      const { JSONParse, JSONStringify } = await import("json-with-bigint");
       setJsonWithBigInt({ JSONParse, JSONStringify });
     };
 
@@ -256,7 +288,33 @@ const BuildTransaction: FC = () => {
           }
           return true;
         });
-        updateErrors(!isValid, "Entry Name in Manage Data operation is a required field");
+        updateErrors(
+          !isValid,
+          "Entry Name in Manage Data operation is a required field"
+        );
+      } catch (error) {
+        console.error("Error in useSetTxBuildErrors:", error);
+      }
+    };
+
+    const updateErrorOperationsSourceAccount = () => {
+      try {
+        let isValid = true;
+        isValid = fullTransaction.tx?.tx.operations.every((op) => {
+          if ("source_account" in op) {
+            return (
+              op.source_account !== "" &&
+              StellarSdk.StrKey.isValidEd25519PublicKey(op.source_account)
+            );
+          }
+
+          return true;
+        });
+
+        updateErrors(
+          !isValid,
+          "Valid source account is a required field in every transaction"
+        );
       } catch (error) {
         console.error("Error in useSetTxBuildErrors:", error);
       }
@@ -270,6 +328,7 @@ const BuildTransaction: FC = () => {
       updateErrorOperationSelectType();
       updateErrorCheckSigner();
       updateErrorOperationManageDataName();
+      updateErrorOperationsSourceAccount();
     };
 
     updateAllErrors();
@@ -281,7 +340,12 @@ const BuildTransaction: FC = () => {
     tx.tx.operations,
     accounts,
     fullTransaction,
+    tx,
   ]);
+
+  useEffect(() => {
+    console.log(tx);
+  }, [tx]);
 
   if (!jsonWithBigInt) {
     return <div>Loading...</div>;
@@ -290,46 +354,90 @@ const BuildTransaction: FC = () => {
   return (
     <MainLayout>
       <div className="container">
-        <h3>{firebaseIDParam && !tx.tx.source_account && "Loading..."}</h3>
-        <h4 className="warning">{firebaseIDParamError}</h4>
-        <div className="segment blank">
-          <SourceAccountInput />
-          <SequenceNumberInput firebaseID={firebaseIDParam} />
-          <BaseFeeInput />
-          <MemoInput />
-          <TimeBoundsInput />
-          <OperationsList />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "right",
+            marginTop: "-12px",
+          }}
+        >
+          <div className="tabs">
+            <div className="tabs-header">
+              <a
+                href="#"
+                className={`tabs-item condensed false ${
+                  currentTab === "Create Transaction" && "selected"
+                }`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentTab("Create Transaction");
+                }}
+              >
+                <span className="tabs-item-text">Create Transaction</span>
+              </a>
+              <a
+                href="#"
+                className={`tabs-item condensed false ${
+                  currentTab === "Import Transaction" && "selected"
+                }`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentTab("Import Transaction");
+                }}
+              >
+                <span className="tabs-item-text">Import Transaction</span>
+              </a>
+            </div>
+          </div>
         </div>
-        {buildErrors.length > 0 ? (
-          <TransactionErrors errors={buildErrors} />
-        ) : (
-          <ShowXdr
-            title="Here is your XDR transaction:"
-            xdr={currentXDR}
-            showHash
-            showNetPassphrase
-            buttons={
-              <ShowXdrButtons
-                firebaseID={firebaseIDParam}
-                transaction={decodedXDR.transaction}
-                setSuccessMessage={setSuccessMessageXDR}
-                setErrorMessage={setErrorMessageXDR}
-                XDR={currentXDR}
+        {currentTab === "Create Transaction" ? (
+          <>
+            <h3>{firebaseIDParam && !tx.tx.source_account && "Loading..."}</h3>
+            <h4 className="warning">{firebaseIDParamError}</h4>
+            <div className="segment blank">
+              <SourceAccountInput />
+              <SequenceNumberInput firebaseID={firebaseIDParam} />
+              <BaseFeeInput />
+              <MemoInput />
+              <TimeBoundsInput />
+              <OperationsList />
+            </div>
+            {buildErrors.length > 0 ? (
+              <TransactionErrors errors={buildErrors} />
+            ) : (
+              <ShowXdr
+                title="Here is your XDR transaction:"
+                xdr={currentXDR}
+                showHash
+                showNetPassphrase
+                buttons={
+                  <ShowXdrButtons
+                    firebaseID={firebaseIDParam}
+                    transaction={decodedXDR.transaction}
+                    setSuccessMessage={setSuccessMessageXDR}
+                    setErrorMessage={setErrorMessageXDR}
+                    XDR={currentXDR}
+                  />
+                }
+                successMessage={successMessageXDR}
+                errorMessage={errorMessageXDR}
               />
-            }
-            successMessage={successMessageXDR}
-            errorMessage={errorMessageXDR}
-          />
+            )}
+          </>
+        ) : (
+          <>
+            <XDRInput
+              XDR={XDRInputImport}
+              setXDR={setXDRInputImport}
+              isImport={isImportXDRInput}
+              setIsImport={setIsImportXDRInput}
+              baseResult={XDRInputImportBaseResult}
+              setBaseResult={setXDRInputImportBaseResult}
+              setCurrentTab={setCurrentTab}
+            />
+          </>
         )}
       </div>
-      <XDRInput
-        XDR={XDRInputImport}
-        setXDR={setXDRInputImport}
-        isImport={isImportXDRInput}
-        setIsImport={setIsImportXDRInput}
-        baseResult={XDRInputImportBaseResult}
-        setBaseResult={setXDRInputImportBaseResult}
-      />
     </MainLayout>
   );
 };

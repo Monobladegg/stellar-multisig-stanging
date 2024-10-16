@@ -70,11 +70,7 @@ export const buildTxJSONSlice: ImmerStateCreator<IBuildTxJSONSlice> = (set) => {
       set((state) => {
         const body: IOperation["body"] = {};
         (state.tx.tx.operations as IOperation[]).push({
-          source_account: StellarSdk.StrKey.isValidEd25519PublicKey(
-            state.tx.tx.source_account
-          )
-            ? state.tx.tx.source_account
-            : null,
+          source_account: "",
           body,
         } as IOperation);
         state.fullTransaction = { tx: state.tx };

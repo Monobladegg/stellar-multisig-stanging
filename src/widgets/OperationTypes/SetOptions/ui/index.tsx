@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, FC, useCallback } from "react";
+import React, { useState, FC, useCallback, useEffect } from "react";
 import FlagSelector from "../../shared/FlagSelector";
 import { setFlagsData, clearFlagsData } from "./flagsData";
 import s from "@/widgets/OperationTypes/index.module.scss";
@@ -25,7 +25,7 @@ export interface Props {
 
 const SetOptions: FC<Props> = ({ id }) => {
   const handleSourceAccountChange = useHandleSourceAccountChange();
-  const { fullTransaction, tx, setOperations } = useStore(
+  const { fullTransaction, tx, setOperations, selectedSetFlags } = useStore(
     useShallow((state) => state)
   );
 
@@ -58,11 +58,16 @@ const SetOptions: FC<Props> = ({ id }) => {
   const homeDomain = operation.body.set_options?.home_domain || "";
   const sourceAccount = operation.source_account;
 
-  const [selectedSetFlags, setSelectedSetFlags] = useState<number[]>([]);
+  const [selectedSetFlagsLocal, setSelectedSetFlagsLocal] = useState<number[]>([]);
   const [selectedClearFlags, setSelectedClearFlags] = useState<number[]>([]);
   const [currentSignerType, setCurrentSignerType] = useState<string>(
     signerOptions[0]
   );
+
+  useEffect(() => {
+    setSelectedSetFlagsLocal(selectedSetFlags[id] || []);
+  }, [setSelectedClearFlags])
+
 
   const calculateFlagPoints = (flags: number[], flagData: IFlag[]) => {
     return flags.reduce((total, flagId) => {
@@ -74,9 +79,9 @@ const SetOptions: FC<Props> = ({ id }) => {
   // Set Flags
   const handleToggleSetFlag = useCallback(
     (flagId: number) => {
-      const newSelectedSetFlags = selectedSetFlags.includes(flagId)
-        ? selectedSetFlags.filter((id) => id !== flagId)
-        : [...selectedSetFlags, flagId];
+      const newSelectedSetFlags = selectedSetFlagsLocal.includes(flagId)
+        ? selectedSetFlagsLocal.filter((id) => id !== flagId)
+        : [...selectedSetFlagsLocal, flagId];
 
       const newSetFlags = calculateFlagPoints(
         newSelectedSetFlags,
@@ -98,7 +103,7 @@ const SetOptions: FC<Props> = ({ id }) => {
         setOperations(newOperations);
       }
 
-      setSelectedSetFlags(newSelectedSetFlags);
+      setSelectedSetFlagsLocal(newSelectedSetFlags);
     },
     [selectedSetFlags, fullTransaction.tx.tx.operations, id, setOperations]
   );
@@ -202,7 +207,7 @@ const SetOptions: FC<Props> = ({ id }) => {
         <FlagSelector
           title="Set Flags"
           flags={setFlagsData}
-          selectedFlags={selectedSetFlags}
+          selectedFlags={selectedSetFlagsLocal}
           onToggle={handleToggleSetFlag}
         />
 

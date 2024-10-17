@@ -14,7 +14,7 @@ const TimeBoundsInput: FC = () => {
     <div>
       <h4>Time Bounds</h4>
       <input
-        placeholder="Lower time bound (unix timestamp)"
+        placeholder="Lower time bound unix timestamp. Ex: 1479151713"
         value={tx.tx.cond?.time?.min_time}
         onChange={(e) => {
           setTimeCondition(
@@ -24,7 +24,7 @@ const TimeBoundsInput: FC = () => {
         }}
       />
       <input
-        placeholder="Upper time bound (unix timestamp)"
+        placeholder="Upper time bound unix timestamp. Ex: 1479151713"
         value={tx.tx.cond?.time?.max_time}
         onChange={(e) => {
           setTimeCondition(

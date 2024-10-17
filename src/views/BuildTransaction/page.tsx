@@ -49,6 +49,8 @@ const BuildTransaction: FC = () => {
     setBuildErrors,
     accounts,
     setOperations,
+    setSelectedSetFlags,
+    selectedSetFlags,
   } = useStore(useShallow((state) => state));
 
   const searchParams = useSearchParams();
@@ -57,6 +59,16 @@ const BuildTransaction: FC = () => {
   const operationTypeParam = searchParams.get("typeOperation");
   const processedKeyParam = searchParams.get("processedKey");
   const processedValueParam = searchParams.get("processedValue");
+  const operationThresholdsParams = searchParams.get("operationThresholds");
+  const weightParam = searchParams.get("weight");
+  const sourceAccountForSetOptionsParam = searchParams.get(
+    "sourceAccountForSetOptions"
+  );
+  const homeDomainParam = searchParams.get("homeDomain");
+  const auth_clawback_enabledParam = searchParams.get("auth_clawback_enabled");
+  const auth_immutableParam = searchParams.get("auth_immutable");
+  const auth_requiredParam = searchParams.get("auth_required");
+  const auth_revocableParam = searchParams.get("auth_revocable");
 
   const [currentXDR, setCurrentXDR] = useState<string>("");
   const [successMessageXDR, setSuccessMessageXDR] = useState<string>("");
@@ -78,7 +90,42 @@ const BuildTransaction: FC = () => {
     "Create Transaction" | "Import Transaction"
   >("Create Transaction");
 
+  const [scoreOfSetFlags, setScoreOfSetFlags] = useState<number>(0);
+
   const decodedXDR = useXDRDecoding(currentXDR, currentXDR);
+
+  useEffect(() => {
+    if (auth_requiredParam) {
+      setScoreOfSetFlags((prev) => prev + 1);
+      const newSelectedSetFlags = selectedSetFlags;
+      newSelectedSetFlags[0].push(0);
+      setSelectedSetFlags(newSelectedSetFlags);
+    }
+    if (auth_revocableParam) {
+      setScoreOfSetFlags((prev) => prev + 2);
+      const newSelectedSetFlags = selectedSetFlags;
+      newSelectedSetFlags[0].push(1);
+      setSelectedSetFlags(newSelectedSetFlags);
+    }
+    if (auth_immutableParam) {
+      setScoreOfSetFlags((prev) => prev + 4);
+      const newSelectedSetFlags = selectedSetFlags;
+      newSelectedSetFlags[0].push(2);
+      setSelectedSetFlags(newSelectedSetFlags);
+    }
+    if (auth_clawback_enabledParam) {
+      setScoreOfSetFlags((prev) => prev + 8);
+      const newSelectedSetFlags = selectedSetFlags;
+      newSelectedSetFlags[0].push(3);
+      setSelectedSetFlags(newSelectedSetFlags);
+    }
+  }, [
+    auth_clawback_enabledParam,
+    auth_immutableParam,
+    auth_revocableParam,
+    auth_requiredParam,
+    selectedSetFlags,
+  ]);
 
   useEffect(() => {
     if (operationTypeParam) {
@@ -86,9 +133,22 @@ const BuildTransaction: FC = () => {
         operationTypeParam === "set_options"
           ? [
               {
-                source_account: "",
+                source_account: sourceAccountForSetOptionsParam ?? "",
                 body: {
-                  set_options: {},
+                  set_options: {
+                    low_threshold: operationThresholdsParams
+                      ? Number(operationThresholdsParams.split(",")[0])
+                      : null,
+                    med_threshold: operationThresholdsParams
+                      ? Number(operationThresholdsParams.split(",")[1])
+                      : null,
+                    high_threshold: operationThresholdsParams
+                      ? Number(operationThresholdsParams.split(",")[2])
+                      : null,
+                    master_weight: weightParam ? Number(weightParam) : null,
+                    home_domain: homeDomainParam ? homeDomainParam : null,
+                    set_flags: scoreOfSetFlags,
+                  },
                 },
               },
             ]
@@ -107,7 +167,12 @@ const BuildTransaction: FC = () => {
           : [{ source_account: "", body: {} }]
       );
     }
-  }, [operationTypeParam, processedKeyParam, processedValueParam]);
+  }, [
+    operationTypeParam,
+    processedKeyParam,
+    processedValueParam,
+    scoreOfSetFlags,
+  ]);
 
   const updateErrors = (condition: boolean, errorMessage: string) => {
     setBuildErrors((prevBuildErrors) => {
@@ -342,10 +407,6 @@ const BuildTransaction: FC = () => {
     fullTransaction,
     tx,
   ]);
-
-  useEffect(() => {
-    console.log(tx);
-  }, [tx]);
 
   if (!jsonWithBigInt) {
     return <div>Loading...</div>;

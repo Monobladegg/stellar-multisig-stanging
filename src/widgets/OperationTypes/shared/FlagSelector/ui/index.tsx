@@ -37,16 +37,6 @@ const FlagSelector: FC<FlagSelectorProps> = ({
       <div className={s.flagsContainer}>
         <div className={s.flags}>
               {flags.map((flag) => (
-                // <button
-                //   key={flag.id}
-                //   onClick={() => onToggle(flag.id)}
-                //   className={`${s.noMarginButton} ${
-                //     isSelected(flag.id) ? s.disabled : ""
-                //   }`}
-                //   style={{ cursor: "pointer" }}
-                // >
-                //   {flag.name}
-                // </button>
                 <a
                   key={flag.id}
                   onClick={(e) => {

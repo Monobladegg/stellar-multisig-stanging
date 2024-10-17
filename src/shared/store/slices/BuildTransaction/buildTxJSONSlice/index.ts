@@ -10,11 +10,11 @@ export const buildTxJSONSlice: ImmerStateCreator<IBuildTxJSONSlice> = (set) => {
     tx: {
       source_account: "",
       fee: 100,
-      seq_num: 0,
+      seq_num: "",
       cond: {
         time: {
-          min_time: 0,
-          max_time: 0,
+          min_time: "",
+          max_time: "",
         },
       },
       memo: "none",
@@ -27,6 +27,7 @@ export const buildTxJSONSlice: ImmerStateCreator<IBuildTxJSONSlice> = (set) => {
   return {
     fullTransaction: { tx: initialTx },
     tx: initialTx,
+    selectedSetFlags: [[]],
     signatures: [] as ISignature[],
     setFullTransaction: (tx: TX) => set({ fullTransaction: { tx } }),
     setTransaction: (tx: TX) => set({ tx }),
@@ -95,5 +96,6 @@ export const buildTxJSONSlice: ImmerStateCreator<IBuildTxJSONSlice> = (set) => {
         fullTransaction: { tx: initialTx },
         signatures: [],
       })),
+    setSelectedSetFlags: (newFlags) => set({ selectedSetFlags: newFlags }),
   };
 };

@@ -375,6 +375,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                                 isVisible={isVisibleTx}
                                 typeIcon="Change"
                                 typeOp="set_options"
+                                homeDomain={information?.home_domain}
                               />
                               <dt>Home domain:</dt>
                               <dd>
@@ -465,6 +466,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                             isVisible={isVisibleTx}
                             typeIcon="Change"
                             typeOp="set_options"
+                            operationThresholds={information?.thresholds}
                           />
                           <dt>Operation thresholds:</dt>
                           <dd>
@@ -511,6 +513,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                             isVisible={isVisibleTx}
                             typeIcon="Change"
                             typeOp="set_options"
+                            flags={information?.flags}
                           />
                           <dt>Asset authorization flags:</dt>
                           <dd>
@@ -684,6 +687,8 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                                     isVisible={isVisibleTx}
                                     typeIcon="Change"
                                     typeOp="set_options"
+                                    sourceAccount={item.key}
+                                    weight={item.weight}
                                   />
                                   <Link
                                     href={`/${net}/account?id=${item.key}`}

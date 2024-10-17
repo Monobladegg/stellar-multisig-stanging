@@ -22,7 +22,7 @@ const SourceAccountInput: FC = () => {
       setError("");
     }
   }, [tx.tx.source_account, accounts]);
-  
+
   return (
     <div>
       <h4>Source Account</h4>
@@ -32,7 +32,7 @@ const SourceAccountInput: FC = () => {
         onChange={(e) => setSourceAccount(e.target.value)}
       />
       {error && <p className="error">{error}</p>}
-      {!isValid && <p className="error">Invalid source account</p>}
+      {!isValid && <></>}
     </div>
   );
 };

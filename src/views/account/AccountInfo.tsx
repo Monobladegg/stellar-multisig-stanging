@@ -305,7 +305,16 @@ const AccountInfo: FC<Props> = ({ ID }) => {
   useEffect(() => {
     console.log(signerWeights);
   }, [signerWeights]);
-
+  useEffect(() => {
+    if (information?.signers && information.signers.length > 0) {
+      // Сортировка от большего к меньшему по weight
+      const result = [...information.signers]
+        .sort((a, b) => (a.key < b.key ? 1 : -1)) 
+        .sort((a, b) => b.weight - a.weight);
+      setInformation({ ...information, signers: result });
+    }
+  }, [information.signers]);
+  //
   return (
     <MainLayout>
       <div className="container">

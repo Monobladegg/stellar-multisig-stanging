@@ -601,7 +601,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                                 marginBottom: "0px",
                               }}
                             >
-                              Issued Assets
+                              🪙 Issued Assets
                               <i className="trigger icon info-tooltip small icon-help">
                                 <div
                                   className="tooltip-wrapper"

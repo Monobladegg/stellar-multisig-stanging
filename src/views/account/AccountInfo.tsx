@@ -29,6 +29,7 @@ import { getAllTransactions } from "@/shared/api/firebase/firestore/Transactions
 import {
   checkSigner,
   collapseAccount,
+  collectSignerWeights,
   isSequenceNumberOutdated,
 } from "@/shared/helpers";
 import { IsShowedBlock } from "@/shared/widgets";
@@ -65,6 +66,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
   const [transactionsFromFirebase, setTransactionsFromFirebase] = useState<
     TransactionData[]
   >([]);
+  const [signerWeights, setSignerWeights] = useState<number>(0);
 
   useEffect(() => {
     if (
@@ -296,6 +298,14 @@ const AccountInfo: FC<Props> = ({ ID }) => {
     }
   }, [decodedTransactions, secondInformation]);
 
+  useEffect(() => {
+    collectSignerWeights(information, setSignerWeights);
+  }, [information.signers]);
+
+  useEffect(() => {
+    console.log(signerWeights);
+  }, [signerWeights]);
+
   return (
     <MainLayout>
       <div className="container">
@@ -424,43 +434,6 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                               </dd>
                             </>
                           ) : null}
-                          <>
-                            <TransactionIcon
-                              ID={ID}
-                              isVisible={isVisibleTx}
-                              typeIcon="Change"
-                              typeOp="set_options"
-                            />
-                            <dt>Account lock status:</dt>
-                            <dd>
-                              unlocked
-                              <i className="trigger icon info-tooltip small icon-help">
-                                <div
-                                  className="tooltip-wrapper"
-                                  style={{
-                                    maxWidth: "20em",
-                                    left: "-193px",
-                                    top: "-105px",
-                                  }}
-                                >
-                                  <div className="tooltip top">
-                                    <div className="tooltip-content">
-                                      The account is unlocked, all operations
-                                      are permitted, including payments, trades,
-                                      settings changes, and assets issuing.
-                                      <a
-                                        href="https://developers.stellar.org/docs/learn/encyclopedia/security/signatures-multisig#thresholds"
-                                        className="info-tooltip-link"
-                                        target="_blank"
-                                      >
-                                       Read more…
-                                      </a>
-                                    </div>
-                                  </div>
-                                </div>{" "}
-                              </i>
-                            </dd>
-                          </>
                           <TransactionIcon
                             ID={ID}
                             isVisible={isVisibleTx}
@@ -471,16 +444,50 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                           <dt>Thresholds:</dt>
                           <dd>
                             <span title="Low threshold">
+                              {signerWeights >
+                                Number(
+                                  information?.thresholds?.low_threshold
+                                ) && signerWeights !== 0 ? (
+                                <span title=" The threshold is unlocked, operations are permitted">
+                                  🟢
+                                </span>
+                              ) : (
+                                <span title="The threshold is locked, operations are prohibited">
+                                  🔴
+                                </span>
+                              )}
                               {information?.thresholds?.low_threshold}
                             </span>{" "}
                             /
                             <span title="Medium threshold">
-                              {" "}
+                              {signerWeights >
+                                Number(
+                                  information?.thresholds?.med_threshold
+                                ) && signerWeights !== 0 ? (
+                                <span title=" The threshold is unlocked, operations are permitted">
+                                  🟢
+                                </span>
+                              ) : (
+                                <span title="The threshold is locked, operations are prohibited">
+                                  🔴
+                                </span>
+                              )}
                               {information?.thresholds?.med_threshold}
                             </span>{" "}
                             /
                             <span title="High threshold">
-                              {" "}
+                              {signerWeights >
+                                Number(
+                                  information?.thresholds?.high_threshold
+                                ) && signerWeights !== 0 ? (
+                                <span title=" The threshold is unlocked, operations are permitted">
+                                  🟢
+                                </span>
+                              ) : (
+                                <span title="The threshold is locked, operations are prohibited">
+                                  🔴
+                                </span>
+                              )}
                               {information?.thresholds?.high_threshold}
                             </span>
                             <i className="trigger icon info-tooltip small icon-help">
@@ -515,7 +522,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                             typeOp="set_options"
                             flags={information?.flags}
                           />
-                          <dt>🪙Issued Assets:</dt>
+                          <dt>Issued Assets:</dt>
                           <dd>
                             {information?.flags?.auth_required == true
                               ? "required, "
@@ -649,7 +656,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                         )}
 
                         <h4 style={{ marginBottom: "0px" }}>
-                        ✍️Signers
+                          ✍️ Signers
                           <i className="trigger icon info-tooltip small icon-help">
                             <div
                               className="tooltip-wrapper"
@@ -760,11 +767,9 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                                         information.entries[entry]
                                       );
 
-                                    // Объявляем renderedValue с правильным типом
                                     let renderedValue: JSX.Element | string =
                                       processedValue;
 
-                                    // Проверяем, является ли processedValue валидным Stellar публичным ключом
                                     if (
                                       StellarSdk.StrKey.isValidEd25519PublicKey(
                                         processedValue
@@ -778,9 +783,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                                           <a>{processedValue}</a>
                                         </Link>
                                       );
-                                    }
-                                    // Проверяем, является ли processedValue ссылкой
-                                    else if (
+                                    } else if (
                                       processedValue.startsWith("http://") ||
                                       processedValue.startsWith("https://")
                                     ) {

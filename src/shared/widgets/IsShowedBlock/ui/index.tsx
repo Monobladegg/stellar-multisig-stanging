@@ -4,7 +4,7 @@ import React, { FC } from "react";
 interface Props {
   condition: boolean;
   onToggle: () => void;
-  title: string;
+  title?: string;
   style?: React.CSSProperties;
 }
 
@@ -12,7 +12,7 @@ const IsShowedBlock: FC<Props> = ({ onToggle, condition, style, title }) => {
   const className = condition
     ? "fa-solid fa-angles-up"
     : "fa-solid fa-angles-down";
-  title = condition ? `Hide ${title}` : `Show ${title}`;
+    title = condition ? "Collapse" : "Expand";
   return (
     <Link href="#">
       <i

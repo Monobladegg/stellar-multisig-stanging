@@ -453,7 +453,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                                         className="info-tooltip-link"
                                         target="_blank"
                                       >
-                                        Read more…
+                                       Read more…
                                       </a>
                                     </div>
                                   </div>
@@ -468,7 +468,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                             typeOp="set_options"
                             operationThresholds={information?.thresholds}
                           />
-                          <dt>Operation thresholds:</dt>
+                          <dt>Thresholds:</dt>
                           <dd>
                             <span title="Low threshold">
                               {information?.thresholds?.low_threshold}
@@ -515,7 +515,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                             typeOp="set_options"
                             flags={information?.flags}
                           />
-                          <dt>Asset authorization flags:</dt>
+                          <dt>🪙Issued Assets:</dt>
                           <dd>
                             {information?.flags?.auth_required == true
                               ? "required, "
@@ -649,7 +649,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                         )}
 
                         <h4 style={{ marginBottom: "0px" }}>
-                          Signers
+                        ✍️Signers
                           <i className="trigger icon info-tooltip small icon-help">
                             <div
                               className="tooltip-wrapper"
@@ -717,7 +717,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                                 marginBottom: "0px",
                               }}
                             >
-                              Data Entries
+                              📄 Data Entries
                               <i className="trigger icon info-tooltip small icon-help">
                                 <div
                                   className="tooltip-wrapper"

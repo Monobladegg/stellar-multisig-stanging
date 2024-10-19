@@ -6,7 +6,8 @@ import {
   IServerSlice,
   IThemeSlice,
   ITransactionsFromFirebaseSlice,
-  ICollapsesBlocksSlice
+  ICollapsesBlocksSlice,
+  IInformationSlice
 } from "./slices";
 
 interface Store
@@ -17,6 +18,6 @@ interface Store
     IServerSlice,
     ITransactionsFromFirebaseSlice,
     IBuildErrorsSlice,
-    ICollapsesBlocksSlice {}
+    ICollapsesBlocksSlice, IInformationSlice {}
 
 export default Store;

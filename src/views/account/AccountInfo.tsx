@@ -7,7 +7,7 @@ import {
   getMainInformation,
 } from "@/features/hooks";
 import StellarSdk, { Transaction, TransactionBuilder } from "stellar-sdk";
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import "./public.css";
 import { useStore } from "@/shared/store";
@@ -34,6 +34,7 @@ import {
 } from "@/shared/helpers";
 import { IsShowedBlock } from "@/shared/widgets";
 import { TransactionIcon } from "@/entities";
+import InlineThresholds from "@/features/AccountInfo/Summary/InlineThresholds/ui";
 
 export enum TransactionStatuses {
   signing = "Signing",
@@ -47,11 +48,15 @@ interface Props {
 }
 
 const AccountInfo: FC<Props> = ({ ID }) => {
-  const { net, accounts, network, collapsesBlocks, setCollapsesBlocks } =
-    useStore(useShallow((state) => state));
-  const [information, setInformation] = useState<Information>(
-    {} as Information
-  );
+  const {
+    net,
+    accounts,
+    network,
+    collapsesBlocks,
+    setCollapsesBlocks,
+    setInformation,
+    information,
+  } = useStore(useShallow((state) => state));
   const [secondInformation, setSecondInformation] = useState<Information>();
   const [seqNumsIsStales, setSeqNumsIsStales] = useState<ISeqNumIsStale[]>([]);
   const [decodedTransactions, setDecodedTransactions] =
@@ -70,7 +75,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
 
   useEffect(() => {
     if (
-      information.signers &&
+      information?.signers &&
       information.signers.length > 0 &&
       (decodedTransactions === null || decodedTransactions.length > 0)
     ) {
@@ -152,8 +157,10 @@ const AccountInfo: FC<Props> = ({ ID }) => {
   }, [net, ID]);
 
   useEffect(() => {
-    setIsVisibleTx(checkSigner(accounts, information.signers));
-  }, [accounts, information.signers]);
+    if (information?.signers) {
+      setIsVisibleTx(checkSigner(accounts, information.signers));
+    }
+  }, [accounts, information]);
 
   useEffect(() => {
     setIsVisibleTx(false);
@@ -162,9 +169,9 @@ const AccountInfo: FC<Props> = ({ ID }) => {
   useEffect(() => {
     const handler = async () => {
       if (ID != "") {
-        const horizonInfo = await getMainInformation(ID as string, net);
+        const horizonInfo = await getMainInformation(ID.toString(), net);
         const accountIssuer = await getAccountIssuerInformation(
-          ID as string,
+          ID.toString(),
           net
         );
 
@@ -198,6 +205,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
             .replace(/"/g, "")
             .trim();
         }
+
         setInformation({
           home_domain: horizonInfo.home_domain,
           created_at: horizonInfo.last_modified_time,
@@ -206,17 +214,17 @@ const AccountInfo: FC<Props> = ({ ID }) => {
           signers: horizonInfo.signers,
           entries: horizonInfo.data_attr,
           balances: horizonInfo.balances,
-          meta_data: documentInfo,
           issuers: accountIssuer.records,
+          meta_data: documentInfo,
           tomlInfo: tomlInformation,
         });
       }
     };
     handler();
-  }, [ID]);
+  }, [ID, setInformation]);
 
   useEffect(() => {
-    if (information.tomlInfo) {
+    if (information?.tomlInfo) {
       const accountsMatch = information.tomlInfo.match(
         /ACCOUNTS\s*=\s*\[([\s\S]*?)\]/
       );
@@ -243,7 +251,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
     } else {
       setIsVisibleHomeDomainInfo(false);
     }
-  }, [information.tomlInfo, ID]);
+  }, [information?.tomlInfo, ID]);
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -299,22 +307,20 @@ const AccountInfo: FC<Props> = ({ ID }) => {
   }, [decodedTransactions, secondInformation]);
 
   useEffect(() => {
-    collectSignerWeights(information, setSignerWeights);
-  }, [information.signers]);
-
-  useEffect(() => {
-    console.log(signerWeights);
-  }, [signerWeights]);
-  useEffect(() => {
-    if (information?.signers && information.signers.length > 0) {
-      // Сортировка от большего к меньшему по weight
-      const result = [...information.signers]
-        .sort((a, b) => (a.key < b.key ? 1 : -1)) 
-        .sort((a, b) => b.weight - a.weight);
-      setInformation({ ...information, signers: result });
+    if (information?.signers) {
+      collectSignerWeights(information, setSignerWeights);
     }
-  }, [information.signers]);
-  //
+  }, [information]);
+
+  const sortedSigners = useMemo(() => {
+    if (information?.signers) {
+      return [...information.signers]
+        .sort((a, b) => (a.key < b.key ? 1 : -1))
+        .sort((a, b) => b.weight - a.weight);
+    }
+    return [];
+  }, [information?.signers]);
+
   return (
     <MainLayout>
       <div className="container">
@@ -325,7 +331,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
             <>
               <h2 className="word-break relative condensed">
                 <span className="dimmed">
-                  {information.signers?.length === 1 ? (
+                  {information?.signers?.length === 1 ? (
                     <span>Personal</span>
                   ) : (
                     <span>Corporate</span>
@@ -384,7 +390,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                         <dl>
                           {information?.home_domain !== undefined &&
                           isVisibleHomeDomainInfo &&
-                          information.home_domain &&
+                          information?.home_domain &&
                           !ignoredHomeDomains.includes(
                             information.home_domain
                           ) ? (
@@ -443,87 +449,11 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                               </dd>
                             </>
                           ) : null}
-                          <TransactionIcon
+                          <InlineThresholds
                             ID={ID}
-                            isVisible={isVisibleTx}
-                            typeIcon="Change"
-                            typeOp="set_options"
-                            operationThresholds={information?.thresholds}
+                            isVisibleTx={isVisibleTx}
+                            signerWeights={signerWeights}
                           />
-                          <dt>Thresholds:</dt>
-                          <dd>
-                            <span title="Low threshold">
-                              {signerWeights >
-                                Number(
-                                  information?.thresholds?.low_threshold
-                                ) && signerWeights !== 0 ? (
-                                <span title=" The threshold is unlocked, operations are permitted">
-                                  🟢
-                                </span>
-                              ) : (
-                                <span title="The threshold is locked, operations are prohibited">
-                                  🔴
-                                </span>
-                              )}
-                              {information?.thresholds?.low_threshold}
-                            </span>{" "}
-                            /
-                            <span title="Medium threshold">
-                              {signerWeights >
-                                Number(
-                                  information?.thresholds?.med_threshold
-                                ) && signerWeights !== 0 ? (
-                                <span title=" The threshold is unlocked, operations are permitted">
-                                  🟢
-                                </span>
-                              ) : (
-                                <span title="The threshold is locked, operations are prohibited">
-                                  🔴
-                                </span>
-                              )}
-                              {information?.thresholds?.med_threshold}
-                            </span>{" "}
-                            /
-                            <span title="High threshold">
-                              {signerWeights >
-                                Number(
-                                  information?.thresholds?.high_threshold
-                                ) && signerWeights !== 0 ? (
-                                <span title=" The threshold is unlocked, operations are permitted">
-                                  🟢
-                                </span>
-                              ) : (
-                                <span title="The threshold is locked, operations are prohibited">
-                                  🔴
-                                </span>
-                              )}
-                              {information?.thresholds?.high_threshold}
-                            </span>
-                            <i className="trigger icon info-tooltip small icon-help">
-                              <div
-                                className="tooltip-wrapper"
-                                style={{
-                                  maxWidth: "20em",
-                                  left: "-193px",
-                                  top: "-86px",
-                                }}
-                              >
-                                <div className="tooltip top">
-                                  <div className="tooltip-content">
-                                    This field specifies thresholds for low-,
-                                    medium-, and high-access level operations.
-                                    <a
-                                      href="https://developers.stellar.org/docs/learn/encyclopedia/security/signatures-multisig#thresholds"
-                                      className="info-tooltip-link"
-                                      target="_blank"
-                                    >
-                                      Read more…
-                                    </a>
-                                  </div>
-                                </div>
-                              </div>{" "}
-                            </i>
-                          </dd>
                           <TransactionIcon
                             ID={ID}
                             isVisible={isVisibleTx}
@@ -694,7 +624,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                           </i>
                         </h4>
                         <ul className="text-small condensed">
-                          {information?.signers?.map(
+                          {sortedSigners.map(
                             (item: Signer, index: number) => {
                               return (
                                 <li key={index}>
@@ -870,7 +800,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                             style={{ width: "100%" }}
                           >
                             <tbody>
-                              {information.balances &&
+                              {information?.balances &&
                                 information.balances.map(
                                   (item: Balance, index: number) => {
                                     const totalInfo = item.balance.split(".");
@@ -891,7 +821,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                                     }
                                   }
                                 )}
-                              {information.balances &&
+                              {information?.balances &&
                                 information.balances.map(
                                   (item: Balance, index: number) => {
                                     const totalInfo = item.balance.split(".");
@@ -1032,7 +962,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                                       information?.meta_data["ORG_DESCRIPTION"]}
                                   </span>
                                 </dd>
-                                {information.meta_data[
+                                {information?.meta_data[
                                   "ORG_PHYSICAL_ADDRESS"
                                 ] !== undefined && (
                                   <>
@@ -1047,7 +977,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                                           display: "inline",
                                         }}
                                       >
-                                        {information.meta_data &&
+                                        {information?.meta_data &&
                                           information?.meta_data[
                                             "ORG_PHYSICAL_ADDRESS"
                                           ]}
@@ -1055,8 +985,9 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                                     </dd>
                                   </>
                                 )}
-                                {information.meta_data["ORG_OFFICIAL_EMAIL"] !==
-                                  undefined && (
+                                {information?.meta_data[
+                                  "ORG_OFFICIAL_EMAIL"
+                                ] !== undefined && (
                                   <>
                                     <dt>Org official email:</dt>
                                     <dd>

@@ -10,7 +10,8 @@ import {
   serverSlice,
   transactionsFromFirebaseSlice,
   buildErrorsSlice,
-  collapsesBlocksSlice
+  collapsesBlocksSlice,
+  informationSlice
 } from "./slices";
 import { Store } from "@/shared/types";
 
@@ -26,6 +27,7 @@ export const useStore = create<Store>()(
         ...transactionsFromFirebaseSlice(...a),
         ...buildErrorsSlice(...a),
         ...collapsesBlocksSlice(...a),
+        ...informationSlice(...a),
       }))
     )
   )

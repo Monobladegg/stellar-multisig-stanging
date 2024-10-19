@@ -1,5 +1,4 @@
 import { Information } from "@/shared/types/information";
-import { Net } from "../../shared";
 
 export interface InformationState {
   information: Information;

@@ -1,7 +1,7 @@
 import React, { FC } from "react";
-import Features from "@/views/Features/ui";
+import Features from "@/views/Features/page";
 
-const Page: FC = () => (
-    <Features />
-);
+const Page: FC = () => {
+  return <Features />;
+};
 export default Page;

@@ -15,9 +15,11 @@ type Props = {
 
 const PageLayout: FC<Props> = ({ children }) => {
   const [isWindowDefined, setIsWindowDefined] = useState<boolean>(false);
-  const [commitHash, setCommitHash] = useState(process.env.NEXT_PUBLIC_COMMIT_HASH ?? "");
+  const [commitHash, setCommitHash] = useState(
+    process.env.NEXT_PUBLIC_COMMIT_HASH ?? ""
+  );
   const pathname = usePathname();
-  const [showPopup, setShowPopup] = useState(false)
+  const [showPopup, setShowPopup] = useState(false);
   const {
     theme,
     setTheme,
@@ -76,9 +78,7 @@ const PageLayout: FC<Props> = ({ children }) => {
     setServer(net);
     setNetwork(net);
   }, [net]);
- 
-  
-  // dynamic function on version acquisition git hub 
+
   useEffect(() => {
     const fetchLatestCommitHash = async () => {
       try {
@@ -90,25 +90,19 @@ const PageLayout: FC<Props> = ({ children }) => {
         console.log(latestHash);
 
         if (latestHash !== process.env.NEXT_PUBLIC_COMMIT_HASH) {
-          setShowPopup(true); 
-          <PopupVersionTheSite/>
+          setShowPopup(true);
+          <PopupVersionTheSite />;
         }
       } catch (error) {
         console.error("Ошибка:", error);
       }
     };
     fetchLatestCommitHash();
-    
 
     const intervalId = setInterval(fetchLatestCommitHash, 10000);
 
-
     return () => clearInterval(intervalId);
   }, []);
-  
-  
- 
-  
 
   if (!isWindowDefined) {
     return (
@@ -129,10 +123,7 @@ const PageLayout: FC<Props> = ({ children }) => {
     <html lang="en" data-theme={!theme || themeLS}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta
-          name="commit-hash"
-          content={commitHash }
-        />
+        <meta name="commit-hash" content={commitHash} />
         <title>MTL Stellar Multisig</title>
         <link
           rel="stylesheet"
@@ -152,7 +143,6 @@ const PageLayout: FC<Props> = ({ children }) => {
         </main>
         {isOpenAddAccountModal && <AddAccountModal />}
         {showPopup && <PopupVersionTheSite />}
-        
       </body>
     </html>
   );

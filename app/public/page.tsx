@@ -5,6 +5,7 @@ const Home = () => {
     return (
         <MainLayout>
             <SearchBar />
+            
         </MainLayout>
     );
 };

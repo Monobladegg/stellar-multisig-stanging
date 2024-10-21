@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useStore } from "@/shared/store";
 import { Store } from "@/shared/types";
 import { useShallow } from "zustand/react/shallow";
+import { PopupVersionTheSite } from "@/widgets/shared/ui/PopupVersionTheSite";
 
 const SearchBar: FC = () => {
     const { net }: Store = useStore(useShallow((state) => state));
@@ -96,8 +97,12 @@ const SearchBar: FC = () => {
                     onChange={changeHandler}
                     placeholder="Paste an account address here"
                 />
+
+
             </div>
+            
         </>
+        
     );
 };
 

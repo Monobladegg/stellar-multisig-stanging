@@ -35,6 +35,7 @@ import {
 import { IsShowedBlock } from "@/shared/widgets";
 import { TransactionIcon } from "@/entities";
 import InlineThresholds from "@/features/AccountInfo/Summary/InlineThresholds/ui";
+import { PopupVersionTheSite } from "@/widgets/shared/ui/PopupVersionTheSite";
 
 export enum TransactionStatuses {
   signing = "Signing",
@@ -889,6 +890,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                         </div>
                       </div>
                       <hr className="flare"></hr>
+                      
                       <div className="tabs-body">
                         {tabIndex == 1 ? (
                           <div className="segment blank">
@@ -1110,8 +1112,11 @@ const AccountInfo: FC<Props> = ({ ID }) => {
             </div>
           )}
         </div>
+       
       </div>
+ 
     </MainLayout>
+    
   );
 };
 

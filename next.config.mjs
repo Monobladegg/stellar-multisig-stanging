@@ -1,6 +1,8 @@
 import path from "path";
 import getCommitHash from "./getCommitHash.mjs";
 
+
+
 const nextConfig = {
     images: {
         unoptimized: true,

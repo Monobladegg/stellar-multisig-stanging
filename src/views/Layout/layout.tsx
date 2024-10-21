@@ -15,7 +15,7 @@ type Props = {
 
 const PageLayout: FC<Props> = ({ children }) => {
   const [isWindowDefined, setIsWindowDefined] = useState<boolean>(false);
-  
+
   const [commitHash, setCommitHash] = useState(
     process.env.NEXT_PUBLIC_COMMIT_HASH ?? ""
   );
@@ -80,6 +80,7 @@ const PageLayout: FC<Props> = ({ children }) => {
     setNetwork(net);
   }, [net]);
 
+  
   useEffect(() => {
     const fetchLatestCommitHash = async () => {
       try {
@@ -99,7 +100,7 @@ const PageLayout: FC<Props> = ({ children }) => {
 
         if (latestHash !== process.env.NEXT_PUBLIC_COMMIT_HASH) {
           setShowPopup(true);
-   
+
         }
       } catch (error) {
         console.error("Ошибка:", error);

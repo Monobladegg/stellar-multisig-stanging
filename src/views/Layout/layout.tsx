@@ -107,7 +107,7 @@ const PageLayout: FC<Props> = ({ children }) => {
     };
     fetchLatestCommitHash();
 
-    const intervalId = setInterval(fetchLatestCommitHash, 10000);
+    const intervalId = setInterval(fetchLatestCommitHash, 5000);
 
     return () => clearInterval(intervalId);
   }, []);

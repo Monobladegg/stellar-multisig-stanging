@@ -8,6 +8,7 @@ import AddAccountModal from "@/widgets/shared/layouts/Header/ui/AddAccountModal"
 import { usePathname } from "next/navigation";
 import { PopupVersionTheSite } from "@/widgets/shared/ui/PopupVersionTheSite";
 import axios from "axios";
+import { cacheConfig } from "@/shared/configs";
 
 type Props = {
   children: React.ReactNode;
@@ -80,7 +81,6 @@ const PageLayout: FC<Props> = ({ children }) => {
     setNetwork(net);
   }, [net]);
 
-  
   useEffect(() => {
     const fetchLatestCommitHash = async () => {
       try {
@@ -94,21 +94,20 @@ const PageLayout: FC<Props> = ({ children }) => {
         );
         const latestHash = response.data[0].sha.substring(0, 7);
         setCommitHash(latestHash);
-        console.log("Latest from GitHub:", latestHash);
-        console.log("Current commit hash:", process.env.NEXT_PUBLIC_COMMIT_HASH);
-        console.log(process.env.NEXT_PUBLIC_GITHUB_TOKEN);
-
         if (latestHash !== process.env.NEXT_PUBLIC_COMMIT_HASH) {
           setShowPopup(true);
-
+          console.log("Version changed");
         }
       } catch (error) {
-        console.error("Ошибка:", error);
+        console.error("Error:", error);
       }
     };
     fetchLatestCommitHash();
 
-    const intervalId = setInterval(fetchLatestCommitHash, 5000);
+    const intervalId = setInterval(
+      fetchLatestCommitHash,
+      cacheConfig.checkOfCurrentVersionDurationMs
+    );
 
     return () => clearInterval(intervalId);
   }, []);

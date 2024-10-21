@@ -10,7 +10,7 @@ export const PopupVersionTheSite: FC = () => {
   return (
     isVisible && (
       <div
-        className="bg-gray-800 text-white p-4 rounded-lg shadow-lg w-40 z-50"
+        className="bg-gray-800 text-white p-4 rounded-lg shadow-lg w-40 z-50 segment blank"
         style={{
           position: "fixed",
           bottom: "20px",

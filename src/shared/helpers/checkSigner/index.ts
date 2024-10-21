@@ -10,8 +10,8 @@ export type CheckSigner = (
  * Checks if a given signer is associated with any of the provided accounts.
  *
  * This function operates in two modes:
- * 1. When `signers` array is provided, it checks if any account matches any key from the signers.
- * 2. When a single `signer` is provided, it checks if any account matches this specific signer.
+ *1. When `signers` array is provided, it checks if any account matches any key from the signers.
+ *2. When a single `signer` is provided, it checks if any account matches this specific signer.
  *
  * @param {IAccount[]} accounts - The array of accounts to be checked.
  * @param {Information["signers"]} [signers] - Optional. An array of signers to check against the accounts.

@@ -17,7 +17,8 @@ const nextConfig = {
     env: {
         NEXT_PUBLIC_COMMIT_HASH: getCommitHash(),
 
-        NEXT_PUBLIC_GITHUB_TOKEN: process.env.GITHUB_TOKEN,
+        NEXT_PUBLIC_GITHUB_TOKEN: process.env.NEXT_PUBLIC_GITHUB_TOKEN,
+
 
         // firebase
         NEXT_PUBLIC_APP_ID: process.env.NEXT_PUBLIC_APP_ID,

@@ -91,7 +91,7 @@ const PageLayout: FC<Props> = ({ children }) => {
 
         if (latestHash !== process.env.NEXT_PUBLIC_COMMIT_HASH) {
           setShowPopup(true);
-          <PopupVersionTheSite />;
+   
         }
       } catch (error) {
         console.error("Ошибка:", error);

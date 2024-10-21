@@ -35,7 +35,7 @@ import {
 import { IsShowedBlock } from "@/shared/widgets";
 import { TransactionIcon } from "@/entities";
 import InlineThresholds from "@/features/AccountInfo/Summary/InlineThresholds/ui";
-import { PopupVersionTheSite } from "@/widgets/shared/ui/PopupVersionTheSite";
+
 
 export enum TransactionStatuses {
   signing = "Signing",

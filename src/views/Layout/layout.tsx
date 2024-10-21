@@ -83,12 +83,7 @@ const PageLayout: FC<Props> = ({ children }) => {
     const fetchLatestCommitHash = async () => {
       try {
         const response = await axios.get(
-          "https://api.github.com/repos/Monobladegg/stellar-multisig-stanging/commits",
-          {
-            headers: {
-              Authorization: `Bearer ${process.env.NEXT_PUBLIC_GITHUB_TOKEN}`,
-            },
-          }
+          "https://api.github.com/repos/Monobladegg/stellar-multisig-stanging/commits"
         );
         const latestHash = response.data[0].sha.substring(0, 7);
         setCommitHash(latestHash);
@@ -98,11 +93,10 @@ const PageLayout: FC<Props> = ({ children }) => {
 
         if (latestHash !== process.env.NEXT_PUBLIC_COMMIT_HASH) {
           setShowPopup(true);
+   
         }
       } catch (error) {
-        console.log("Current commit hash:", process.env.NEXT_PUBLIC_COMMIT_HASH);
-        console.log(process.env.NEXT_PUBLIC_GITHUB_TOKEN);
-        console.error("Ошибка при получении информации о последнем коммите:", error);
+        console.error("Ошибка:", error);
       }
     };
     fetchLatestCommitHash();

@@ -124,6 +124,16 @@ export const Header: FC = () => {
                 <span style={{ marginTop: "-6px" }}> Assets</span>
               )}
             </Link>
+            <Link href={"/" + net + "/FEATURES"}>
+              {theme === "day" ? (
+                <span style={{ marginTop: "-6px", color: "#333" }}>
+                  {" "}
+                  FEATURES
+                </span>
+              ) : (
+                <span style={{ marginTop: "-6px" }}> FEATURES</span>
+              )}
+            </Link>
           </div>
           {isAuth ? (
             <div className="top-menu-block right" style={{ float: "right" }}>

@@ -1,0 +1,113 @@
+[
+    {
+      "code": "UB2116",
+      "issuer": "GBZDJTHEDPVRXCQ6L3XNL4SHNW7FWLL7GVSAT5V5NGMVJTFC",
+      "tag": "land"
+    },
+    {
+      "code": "UB2117",
+      "issuer": "GBZDJTHEDPVRXCQ6L3XNL4SHNW7FWLL7GVSAT5V5NGMVJTFC",
+      "tag": "land"
+    },
+    {
+      "code": "UB2120",
+      "issuer": "GBZDJTHEDPVRXCQ6L3XNL4SHNW7FWLL7GVSAT5V5NGMVJTFC",
+      "tag": "land"
+    },
+    {
+      "code": "UB2121",
+      "issuer": "GBZDJTHEDPVRXCQ6L3XNL4SHNW7FWLL7GVSAT5V5NGMVJTFC",
+      "tag": "land"
+    },
+    {
+      "code": "MAT",
+      "issuer": "GD6XGLIHQL3CJGX6W74HJ42UYPXMAWOPXYJFB64UQY3G4SBXAQ",
+      "tag": "token"
+    },
+    {
+      "code": "USDM",
+      "issuer": "GDDN3XVCGQJXZAVB62HJGZFFYMZZC6UMQXEQEADHLBDXAABHKL",
+      "tag": "stablecoin"
+    },
+    {
+      "code": "MTLFE",
+      "issuer": "GACKTN6DAZGWXRWB2WLM6OPBDHAMT6SJNGLJZPQMEZBUR4JUGBXUKNY",
+      "tag": "event"
+    },
+    {
+      "code": "MTLland",
+      "issuer": "GACKTN6DAZGWXRWB2WLM6OPBDHAMT6SJNGLJZPQMEZBUR4JUGBXUKNY",
+      "tag": "share"
+    },
+    {
+      "code": "UBMB",
+      "issuer": "GAWR2DVPRXVMLCQTXJH6ZRMLWG34QZDZYXQPCMAZUQ6CT4DZCYT3SUK",
+      "tag": "meeting"
+    },
+    {
+      "code": "DomCoin",
+      "issuer": "GAVW6GZHGGAY3LDKLLY5ESMRQDFZN4SMDEBXYH4J4LXYXMMLVT",
+      "tag": "token"
+    },
+    {
+      "code": "TIC",
+      "issuer": "GDGPBEKNH5VXPBYBQBS7AJUAYO3SD72OZWZZZZCQU2KK72JS6",
+      "tag": "bond"
+    },
+    {
+      "code": "VBC",
+      "issuer": "GBJQRM4MQ66J3YPDW7ABM5NGXTHHSXNHNMCZXHFGFYCD4NSYE",
+      "tag": "bond"
+    },
+    {
+      "code": "UBMC",
+      "issuer": "GAMALSCMBJ7K7BY5YJTYABVSYRHSOYT7WDKHJNMAVO4MSP6ESK5",
+      "tag": "share"
+    },
+    {
+      "code": "LIM",
+      "issuer": "GDBZJSTPQWQZXMMNZLJJ3GZKNG34NMY5NWHD77GZP2KZJMPNG",
+      "tag": "share"
+    },
+    {
+      "code": "USDMM",
+      "issuer": "GBKPVXZBTTZLC52MDMNW7HD2P7YMJFVDJZLBHWBMD66DCJVT",
+      "tag": "stablecoin"
+    },
+    {
+      "code": "MTLAP",
+      "issuer": "GCNVDZIHGX473FEI7IXCUAEXUJ4BGCKEMHF36VYP5EMS7PX2QBLAMTLA",
+      "tag": "nft"
+    },
+    {
+      "code": "UBMB210",
+      "issuer": "GAWR2DVPRXVMLCQTXJH6ZRMLWG34QZDZYXQPCMAZUQ6CT4DZCYT3SUK",
+      "tag": "land"
+    },
+    {
+      "code": "UB2118",
+      "issuer": "GBZDJTHEDPVRXCQ6L3XNL4SHNW7FWLL7GVSAT5V5NGMVJTFC",
+      "tag": "land"
+    },
+    {
+      "code": "UB2120",
+      "issuer": "GBZDJTHEDPVRXCQ6L3XNL4SHNW7FWLL7GVSAT5V5NGMVJTFC",
+      "tag": "land"
+    },
+    {
+      "code": "UB2108",
+      "issuer": "GBZDJTHEDPVRXCQ6L3XNL4SHNW7FWLL7GVSAT5V5NGMVJTFC",
+      "tag": "land"
+    },
+    {
+      "code": "TOMBT",
+      "issuer": "GBKPVXZBTTZLC52MDMNW7HD2P7YMJFVDJZLBHWBMD66DCJVT",
+      "tag": "bond"
+    },
+    {
+      "code": "MGL",
+      "issuer": "GACKTN6DAZGWXRWB2WLM6OPBDHAMT6SJNGLJZPQMEZBUR4JUGBXUKNY",
+      "tag": "share"
+    }
+  ]
+  

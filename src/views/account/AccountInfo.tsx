@@ -322,6 +322,8 @@ const AccountInfo: FC<Props> = ({ ID }) => {
     return [];
   }, [information?.signers]);
 
+  //
+
   return (
     <MainLayout>
       <div className="container">
@@ -895,7 +897,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                         </div>
                       </div>
                       <hr className="flare"></hr>
-                      
+
                       <div className="tabs-body">
                         {tabIndex == 1 ? (
                           <div className="segment blank">
@@ -1117,11 +1119,11 @@ const AccountInfo: FC<Props> = ({ ID }) => {
             </div>
           )}
         </div>
-       
+
       </div>
- 
+
     </MainLayout>
-    
+
   );
 };
 

@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import Features from "@/views/Features";
+import {default as Features} from "@/views/Features";
 
 const Page: FC = () => {
   return <Features />;

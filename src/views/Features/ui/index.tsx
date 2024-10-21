@@ -3,10 +3,8 @@ import React, { FC } from "react";
 
 const Features: FC = () => {
   return (
-    <MainLayout defaultContainer>
-      <h2>
-        <span>Features</span>
-      </h2>
+    <MainLayout defaultContainer={true}>
+      <h2>Features</h2>
       <span>
         Lorem Ipsum is simply dummy text of the printing and typesetting
         industry. Lorem Ipsum has been the industry's standard dummy text ever

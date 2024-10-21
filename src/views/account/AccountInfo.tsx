@@ -450,97 +450,11 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                               </dd>
                             </>
                           ) : null}
-                          <InlineThresholds
-                            ID={ID}
-                            isVisibleTx={isVisibleTx}
-                            signerWeights={signerWeights}
-                          />
-                          <TransactionIcon
-                            ID={ID}
-                            isVisible={isVisibleTx}
-                            typeIcon="Change"
-                            typeOp="set_options"
-                            flags={information?.flags}
-                          />
-                          <dt>Issued Assets:</dt>
-                          <dd>
-                            {information?.flags?.auth_required == true
-                              ? "required, "
-                              : ""}
-                            {information?.flags?.auth_revocable == true
-                              ? "revocable, "
-                              : ""}
-                            {information?.flags?.auth_clawback_enabled == true
-                              ? "clawback_enabled, "
-                              : ""}
-                            {information?.flags?.auth_immutable == true
-                              ? "immutable, "
-                              : ""}
-                            {information?.flags?.auth_required == false &&
-                            information?.flags?.auth_revocable == false &&
-                            information?.flags?.auth_clawback_enabled ==
-                              false &&
-                            information?.flags?.auth_immutable == false
-                              ? "none"
-                              : ""}
-
-                            <i className="trigger icon info-tooltip small icon-help">
-                              <div
-                                className="tooltip-wrapper"
-                                style={{
-                                  maxWidth: "20em",
-                                  left: "-193px",
-                                  top: "-256px",
-                                }}
-                              >
-                                <div className="tooltip top">
-                                  <div className="tooltip-content">
-                                    <ul>
-                                      <li>
-                                        <code>AUTH_REQUIRED</code> Requires the
-                                        issuing account to give other accounts
-                                        permission before they can hold the
-                                        issuing account’s credit.
-                                      </li>
-                                      <li>
-                                        <code>AUTH_REVOCABLE</code> Allows the
-                                        issuing account to revoke its credit
-                                        held by other accounts.
-                                      </li>
-                                      <li>
-                                        <code>AUTH_CLAWBACK_ENABLED</code>{" "}
-                                        Allows the issuing account to clawback
-                                        tokens without the account consent in
-                                        case of service terms violation.
-                                      </li>
-                                      <li>
-                                        <code>AUTH_IMMUTABLE</code> If set then
-                                        none of the authorization flags can be
-                                        set and the account can never be
-                                        deleted.
-                                      </li>
-                                    </ul>
-                                    <a
-                                      href="https://developers.stellar.org/docs/learn/glossary#flags"
-                                      className="info-tooltip-link"
-                                      target="_blank"
-                                    >
-                                      Read more…
-                                    </a>
-                                  </div>
-                                </div>
-                              </div>{" "}
-                            </i>
-                          </dd>
                         </dl>
                         {information?.issuers?.length &&
                         information?.issuers?.length > 0 ? (
                           <div className="account-issued-assets">
-                            <h4
-                              style={{
-                                marginBottom: "0px",
-                              }}
-                            >
+                            <h4 style={{ marginBottom: "0px" }}>
                               🪙 Issued Assets
                               <i className="trigger icon info-tooltip small icon-help">
                                 <div
@@ -568,6 +482,87 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                                 </div>
                               </i>
                             </h4>
+                            <dl>
+                              <TransactionIcon
+                                ID={ID}
+                                isVisible={isVisibleTx}
+                                typeIcon="Change"
+                                typeOp="set_options"
+                                flags={information?.flags}
+                              />
+                              <dt>Asset authorization flags</dt>
+                              <dd>
+                                {(() => {
+                                  const flags = [
+                                    information?.flags?.auth_required
+                                      ? "required"
+                                      : "",
+                                    information?.flags?.auth_revocable
+                                      ? "revocable"
+                                      : "",
+                                    information?.flags?.auth_clawback_enabled
+                                      ? "clawback_enabled"
+                                      : "",
+                                    information?.flags?.auth_immutable
+                                      ? "immutable"
+                                      : "",
+                                  ].filter(Boolean); // фильтрация пустых строк
+
+                                  return flags.length > 0
+                                    ? flags.join(", ")
+                                    : "none"; // проверка и вывод "none", если флаги пусты
+                                })()}
+
+                                <i className="trigger icon info-tooltip small icon-help">
+                                  <div
+                                    className="tooltip-wrapper"
+                                    style={{
+                                      maxWidth: "20em",
+                                      left: "-193px",
+                                      top: "-256px",
+                                    }}
+                                  >
+                                    <div className="tooltip top">
+                                      <div className="tooltip-content">
+                                        <ul>
+                                          <li>
+                                            <code>AUTH_REQUIRED</code> Requires
+                                            the issuing account to give other
+                                            accounts permission before they can
+                                            hold the issuing account’s credit.
+                                          </li>
+                                          <li>
+                                            <code>AUTH_REVOCABLE</code> Allows
+                                            the issuing account to revoke its
+                                            credit held by other accounts.
+                                          </li>
+                                          <li>
+                                            <code>AUTH_CLAWBACK_ENABLED</code>{" "}
+                                            Allows the issuing account to
+                                            clawback tokens without the account
+                                            consent in case of service terms
+                                            violation.
+                                          </li>
+                                          <li>
+                                            <code>AUTH_IMMUTABLE</code> If set
+                                            then none of the authorization flags
+                                            can be set and the account can never
+                                            be deleted.
+                                          </li>
+                                        </ul>
+                                        <a
+                                          href="https://developers.stellar.org/docs/learn/glossary#flags"
+                                          className="info-tooltip-link"
+                                          target="_blank"
+                                        >
+                                          Read more…
+                                        </a>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </i>
+                              </dd>
+                            </dl>
                             <div className="text-small">
                               <ul>
                                 {Array.isArray(information?.issuers) &&
@@ -622,39 +617,49 @@ const AccountInfo: FC<Props> = ({ ID }) => {
                                 </div>
                               </div>
                             </div>
-                          </i>
+                          </i>{" "}
+                          <TransactionIcon
+                            ID={ID}
+                            isVisible={isVisibleTx}
+                            typeIcon="Add"
+                          />
                         </h4>
+                        <dl>
+                          <InlineThresholds
+                            ID={ID}
+                            isVisibleTx={isVisibleTx}
+                            signerWeights={signerWeights}
+                          />
+                        </dl>
                         <ul className="text-small condensed">
-                          {sortedSigners.map(
-                            (item: Signer, index: number) => {
-                              return (
-                                <li key={index}>
-                                  <TransactionIcon
-                                    ID={ID}
-                                    isVisible={isVisibleTx}
-                                    typeIcon="Change"
-                                    typeOp="set_options"
-                                    sourceAccount={item.key}
-                                    weight={item.weight}
-                                  />
-                                  <Link
-                                    href={`/${net}/account?id=${item.key}`}
-                                    legacyBehavior
+                          {sortedSigners.map((item: Signer, index: number) => {
+                            return (
+                              <li key={index}>
+                                <TransactionIcon
+                                  ID={ID}
+                                  isVisible={isVisibleTx}
+                                  typeIcon="Change"
+                                  typeOp="set_options"
+                                  sourceAccount={item.key}
+                                  weight={item.weight}
+                                />
+                                <Link
+                                  href={`/${net}/account?id=${item.key}`}
+                                  legacyBehavior
+                                >
+                                  <a
+                                    title={item.key}
+                                    aria-label={item.key}
+                                    className="account-address word-break"
                                   >
-                                    <a
-                                      title={item.key}
-                                      aria-label={item.key}
-                                      className="account-address word-break"
-                                    >
-                                      <span>{collapseAccount(item.key)} </span>
-                                    </a>
-                                  </Link>
-                                  (w:
-                                  <b>{item.weight}</b>){" "}
-                                </li>
-                              );
-                            }
-                          )}
+                                    <span>{collapseAccount(item.key)} </span>
+                                  </a>
+                                </Link>
+                                (w:
+                                <b>{item.weight}</b>){" "}
+                              </li>
+                            );
+                          })}
                         </ul>
                         {information?.entries &&
                         Object.keys(information?.entries).length ? (

@@ -451,6 +451,7 @@ const BuildTransaction: FC = () => {
             </div>
           </div>
         </div>
+        <hr style={{ marginTop: "0" }} className="flare" />
         {currentTab === "Create Transaction" ? (
           <>
             <h3>{firebaseIDParam && !tx.tx.source_account && "Loading..."}</h3>

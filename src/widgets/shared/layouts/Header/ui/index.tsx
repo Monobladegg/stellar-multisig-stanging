@@ -20,9 +20,7 @@ export const Header: FC = () => {
     setIsOpenAddAccountModal,
     isOpenAddAccountModal,
     isAuth,
-  } = useStore(
-    useShallow((state) => state)
-  );
+  } = useStore(useShallow((state) => state));
   const [isOpenNet, setIsOpenNet] = useState<boolean>(false);
   const [isOpenAccount, setIsOpenAccount] = useState<boolean>(false);
   const dropdownRefNet = useRef<HTMLDivElement>(null);
@@ -96,7 +94,7 @@ export const Header: FC = () => {
   const addAccountOpen = () => {
     setIsOpenAddAccountModal(true);
     setIsOpenAccount(false);
-  }
+  };
 
   return (
     <div className="top-block">
@@ -124,14 +122,14 @@ export const Header: FC = () => {
                 <span style={{ marginTop: "-6px" }}> Assets</span>
               )}
             </Link>
-            <Link href={"/" + net + "/FEATURES"}>
+            <Link href={"/" + net + "/features"}>
               {theme === "day" ? (
                 <span style={{ marginTop: "-6px", color: "#333" }}>
                   {" "}
-                  FEATURES
+                  Features
                 </span>
               ) : (
-                <span style={{ marginTop: "-6px" }}> FEATURES</span>
+                <span style={{ marginTop: "-6px" }}> Features</span>
               )}
             </Link>
           </div>
@@ -276,10 +274,7 @@ export const Header: FC = () => {
                         style={{ textAlign: "center" }}
                         onClick={addAccountOpen}
                       >
-                        <span
-                        >
-                          Add account
-                        </span>
+                        <span>Add account</span>
                       </li>
                       <li
                         className={

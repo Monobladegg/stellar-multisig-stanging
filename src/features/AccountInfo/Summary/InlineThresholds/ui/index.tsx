@@ -7,12 +7,31 @@ interface InlineThresholdsProps {
   isVisibleTx: boolean;
   signerWeights: number;
 }
+
 const InlineThresholds: FC<InlineThresholdsProps> = ({
   ID,
   isVisibleTx,
   signerWeights,
 }) => {
   const { information } = useStore((state) => state);
+
+  const thresholds = [
+    {
+      label: "Low",
+      value: Number(information?.thresholds?.low_threshold),
+      title: "Low threshold",
+    },
+    {
+      label: "Med",
+      value: Number(information?.thresholds?.med_threshold),
+      title: "Medium threshold",
+    },
+    {
+      label: "High",
+      value: Number(information?.thresholds?.high_threshold),
+      title: "High threshold",
+    },
+  ];
 
   return (
     <>
@@ -25,77 +44,36 @@ const InlineThresholds: FC<InlineThresholdsProps> = ({
       />
       <dt>Thresholds:</dt>
       <dd>
-        <span title="Low threshold">
-          Low{" "}
-          {signerWeights > Number(information?.thresholds?.low_threshold) &&
-          signerWeights !== 0 ? (
-            <span title="Low threshold is unlocked, operations are permitted">
-              🟢
+        {thresholds.map((threshold, index) => (
+          <React.Fragment key={threshold.label}>
+            {index > 0 && " / "}
+            <span title={threshold.title}>
+              {threshold.label}{" "}
+              {signerWeights > threshold.value && signerWeights !== 0 ? (
+                <span
+                  title={`${threshold.label} threshold is unlocked, operations are permitted`}
+                >
+                  🟢
+                </span>
+              ) : (
+                <span
+                  title={`${threshold.label} threshold is locked, operations are prohibited`}
+                >
+                  🔴
+                </span>
+              )}
+              <span
+                title={
+                  signerWeights > threshold.value && signerWeights !== 0
+                    ? `${threshold.label} threshold is unlocked, operations are permitted`
+                    : `${threshold.label} threshold is locked, operations are prohibited`
+                }
+              >
+                {threshold.value}
+              </span>
             </span>
-          ) : (
-            <span title="Low threshold is locked, operations are prohibited">
-              🔴
-            </span>
-          )}
-          <span
-            title={
-              signerWeights > Number(information?.thresholds?.low_threshold) &&
-              signerWeights !== 0
-                ? "Low threshold is unlocked, operations are permitted"
-                : "Low threshold is locked, operations are prohibited"
-            }
-          >
-            {information?.thresholds?.low_threshold}
-          </span>
-        </span>{" "}
-        /{" "}
-        <span title="Medium threshold">
-          Med{" "}
-          {signerWeights > Number(information?.thresholds?.med_threshold) &&
-          signerWeights !== 0 ? (
-            <span title="Medium threshold is unlocked, operations are permitted">
-              🟢
-            </span>
-          ) : (
-            <span title="Medium threshold is locked, operations are prohibited">
-              🔴
-            </span>
-          )}
-          <span
-            title={
-              signerWeights > Number(information?.thresholds?.med_threshold) &&
-              signerWeights !== 0
-                ? "Medium threshold is unlocked, operations are permitted"
-                : "Medium threshold is locked, operations are prohibited"
-            }
-          >
-            {information?.thresholds?.med_threshold}
-          </span>
-        </span>{" "}
-        /{" "}
-        <span title="High threshold">
-          High{" "}
-          {signerWeights > Number(information?.thresholds?.high_threshold) &&
-          signerWeights !== 0 ? (
-            <span title="High threshold is unlocked, operations are permitted">
-              🟢
-            </span>
-          ) : (
-            <span title="High threshold is locked, operations are prohibited">
-              🔴
-            </span>
-          )}
-          <span
-            title={
-              signerWeights > Number(information?.thresholds?.high_threshold) &&
-              signerWeights !== 0
-                ? "High threshold is unlocked, operations are permitted"
-                : "High threshold is locked, operations are prohibited"
-            }
-          >
-            {information?.thresholds?.high_threshold}
-          </span>
-        </span>
+          </React.Fragment>
+        ))}
         <i className="trigger icon info-tooltip small icon-help">
           <div
             className="tooltip-wrapper"

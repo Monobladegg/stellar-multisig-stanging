@@ -45,7 +45,7 @@ const TransactionIcon: FC<Props> = ({
     <Link
       style={style}
       href={`/${net}/build-transaction?sourceAccount=${ID}${
-        typeOp && `&typeOperation=${typeOp}`
+        typeOp ? `&typeOperation=${typeOp}` : ``
       }${
         processedKey && processedValue
           ? `&processedKey=${processedKey}&processedValue=${processedValue}`

@@ -93,8 +93,9 @@ const PageLayout: FC<Props> = ({ children }) => {
         const latestHash = response.data[0].sha.substring(0, 7);
         setCommitHash(latestHash);
         console.log("Latest from GitHub:", latestHash);
+        console.log(process.env.NEXT_PUBLIC_GITHUB_TOKEN);
         console.log("Current commit hash:", process.env.NEXT_PUBLIC_COMMIT_HASH);
-  
+
         if (latestHash !== process.env.NEXT_PUBLIC_COMMIT_HASH) {
           setShowPopup(true);
         }
@@ -103,9 +104,9 @@ const PageLayout: FC<Props> = ({ children }) => {
       }
     };
     fetchLatestCommitHash();
-  
-    const intervalId = setInterval(fetchLatestCommitHash, 60000);
-  
+
+    const intervalId = setInterval(fetchLatestCommitHash, 10000);
+
     return () => clearInterval(intervalId);
   }, []);
 

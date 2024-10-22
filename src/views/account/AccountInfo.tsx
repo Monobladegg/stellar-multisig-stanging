@@ -36,7 +36,6 @@ import { IsShowedBlock } from "@/shared/widgets";
 import { TransactionIcon } from "@/entities";
 import InlineThresholds from "@/features/AccountInfo/Summary/InlineThresholds/ui";
 
-
 export enum TransactionStatuses {
   signing = "Signing",
   submitted = "Submitted",
@@ -321,8 +320,6 @@ const AccountInfo: FC<Props> = ({ ID }) => {
     }
     return [];
   }, [information?.signers]);
-
-  //
 
   return (
     <MainLayout>
@@ -1119,11 +1116,8 @@ const AccountInfo: FC<Props> = ({ ID }) => {
             </div>
           )}
         </div>
-
       </div>
-
     </MainLayout>
-
   );
 };
 

@@ -1,37 +1,31 @@
 // shared/api/firebase/app/index.ts
-import { initializeApp, getApps, FirebaseApp } from "firebase/app";
+import { initializeApp, getApps, FirebaseApp, FirebaseOptions } from "firebase/app";
 
 let firebaseApp: FirebaseApp | undefined;
 
-if (typeof window !== "undefined") {
-  const firebaseConfig = {
-    apiKey:
-      localStorage.getItem("Firebase-apiKey") || process.env.NEXT_PUBLIC_API_KEY,
-    authDomain:
-      localStorage.getItem("Firebase-authDomain") ||
-      process.env.NEXT_PUBLIC_AUTH_DOMAIN,
-    projectId:
-      localStorage.getItem("Firebase-projectId") ||
-      process.env.NEXT_PUBLIC_PROJECT_ID,
-    storageBucket:
-      localStorage.getItem("Firebase-storageBucket") ||
-      process.env.NEXT_PUBLIC_STORAGE_BUCKET,
-    messagingSenderId:
-      localStorage.getItem("Firebase-messagingSenderId") ||
-      process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID,
-    appId:
-      localStorage.getItem("Firebase-appId") || process.env.NEXT_PUBLIC_APP_ID,
-    measurementId:
-      localStorage.getItem("Firebase-measurementId") ||
-      process.env.NEXT_PUBLIC_MEASUREMENT_ID,
-  };
+/**
+ * Initializes Firebase with the provided configuration.
+ * If Firebase is already initialized, it returns the existing instance.
+ *
+ * @param config - Firebase configuration object
+ * @returns Promise resolving to the FirebaseApp instance
+ */
+export const initializeFirebase = (config: FirebaseOptions): Promise<FirebaseApp> => {
+  return new Promise((resolve, reject) => {
+    try {
+      if (!getApps().length) {
+        firebaseApp = initializeApp(config);
+        console.log("Firebase successfully initialized:", firebaseApp.name);
+      } else {
+        firebaseApp = getApps()[0];
+        console.log("Firebase already initialized:", firebaseApp.name);
+      }
+      resolve(firebaseApp);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
 
-  // Проверяем, были ли уже инициализированы приложения Firebase
-  if (!getApps().length) {
-    firebaseApp = initializeApp(firebaseConfig);
-  } else {
-    firebaseApp = getApps()[0];
-  }
-}
-
+// Export the initialized Firebase app as default (can be undefined initially)
 export default firebaseApp;

@@ -4,11 +4,11 @@ import { FC, useEffect, useState } from "react";
 import { useStore } from "@/shared/store";
 import { Footer, Header } from "@/widgets";
 import { useShallow } from "zustand/react/shallow";
-import AddAccountModal from "@/widgets/shared/layouts/Header/ui/AddAccountModal";
 import { usePathname } from "next/navigation";
 import { PopupVersionTheSite } from "@/widgets/shared/ui/PopupVersionTheSite";
 import axios from "axios";
 import { cacheConfig } from "@/shared/configs";
+import Modals from "@/widgets/Layout/Modals";
 
 type Props = {
   children: React.ReactNode;
@@ -149,8 +149,8 @@ const PageLayout: FC<Props> = ({ children }) => {
           {children}
           <Footer />
         </main>
-        {isOpenAddAccountModal && <AddAccountModal />}
         {showPopup && <PopupVersionTheSite />}
+        <Modals />
       </body>
     </html>
   );

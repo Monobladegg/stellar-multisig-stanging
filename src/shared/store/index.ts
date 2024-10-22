@@ -11,7 +11,8 @@ import {
   transactionsFromFirebaseSlice,
   buildErrorsSlice,
   collapsesBlocksSlice,
-  informationSlice
+  informationSlice,
+  modalsSlice,
 } from "./slices";
 import { Store } from "@/shared/types";
 
@@ -28,6 +29,7 @@ export const useStore = create<Store>()(
         ...buildErrorsSlice(...a),
         ...collapsesBlocksSlice(...a),
         ...informationSlice(...a),
+        ...modalsSlice(...a),
       }))
     )
   )

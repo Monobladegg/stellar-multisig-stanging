@@ -20,6 +20,8 @@ export const Header: FC = () => {
     setIsOpenAddAccountModal,
     isOpenAddAccountModal,
     isAuth,
+    setIsOpenFirebaseSettingsModal,
+    isOpenFirebaseSettingsModal
   } = useStore(useShallow((state) => state));
   const [isOpenNet, setIsOpenNet] = useState<boolean>(false);
   const [isOpenAccount, setIsOpenAccount] = useState<boolean>(false);
@@ -91,10 +93,19 @@ export const Header: FC = () => {
     }
   };
 
-  const addAccountOpen = () => {
-    setIsOpenAddAccountModal(true);
+  const openModal = (modalName: string) => {
+    if (modalName === "addAccount") {
+      setIsOpenAddAccountModal(!isOpenAddAccountModal);
+    } else if (modalName === "firebaseSettings") {
+      setIsOpenFirebaseSettingsModal(!isOpenFirebaseSettingsModal);
+    }
     setIsOpenAccount(false);
   };
+
+  const settingsOpen = () => {
+    setIsOpenFirebaseSettingsModal(true);
+    setIsOpenAccount(false);
+  }
 
   return (
     <div className="top-block">
@@ -272,9 +283,20 @@ export const Header: FC = () => {
                             : `dropdown-item-light selected`
                         }
                         style={{ textAlign: "center" }}
-                        onClick={addAccountOpen}
+                        onClick={() => openModal("addAccount")}
                       >
                         <span>Add account</span>
+                      </li>
+                      <li
+                        className={
+                          theme === "night"
+                            ? `dropdown-item selected`
+                            : `dropdown-item-light selected`
+                        }
+                        style={{ textAlign: "center" }}
+                        onClick={() => openModal("firebaseSettings")}
+                      >
+                        <span>Settings</span>
                       </li>
                       <li
                         className={

@@ -8,14 +8,12 @@ export type IAccount = {
 
 export interface AccountState {
   accounts: IAccount[]
-  isOpenAddAccountModal: boolean
   isAuth: boolean
   currentAccount: IAccount | null
 }
 
 export interface AccountActions {
   setAccounts: (Accounts: IAccount[]) => void
-  setIsOpenAddAccountModal: (isOpenAddAccountModal: boolean) => void
   setIsAuth: (isAuth: boolean) => void
 }
 

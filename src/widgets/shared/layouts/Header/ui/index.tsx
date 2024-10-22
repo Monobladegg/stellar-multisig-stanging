@@ -102,7 +102,7 @@ export const Header: FC = () => {
     setIsOpenAccount(false);
   };
 
-  const settingsOpen = () => {
+  const menusItem = () => {
     setIsOpenFirebaseSettingsModal(true);
     setIsOpenAccount(false);
   }

@@ -10,6 +10,7 @@ export interface AccountState {
   accounts: IAccount[]
   isAuth: boolean
   currentAccount: IAccount | null
+  isOpenAddAccountModal: boolean;
 }
 
 export interface AccountActions {

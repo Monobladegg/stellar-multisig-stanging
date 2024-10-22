@@ -7,7 +7,7 @@ import {
   getMainInformation,
 } from "@/features/hooks";
 import StellarSdk, { Transaction, TransactionBuilder } from "stellar-sdk";
-import React, { FC, useEffect, menusItem, useState } from "react";
+import React, { FC, useEffect,  useState } from "react";
 import Link from "next/link";
 import "./public.css";
 import { useStore } from "@/shared/store";
@@ -312,7 +312,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
     }
   }, [information]);
 
-  const sortedSigners = menusItem(() => {
+  const sortedSigners = React.useMemo(() => {
     if (information?.signers) {
       return [...information.signers]
         .sort((a, b) => (a.key < b.key ? 1 : -1))

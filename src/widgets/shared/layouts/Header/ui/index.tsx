@@ -102,10 +102,7 @@ export const Header: FC = () => {
     setIsOpenAccount(false);
   };
 
-  const menusItem = () => {
-    setIsOpenFirebaseSettingsModal(true);
-    setIsOpenAccount(false);
-  }
+
 
   return (
     <div className="top-block">

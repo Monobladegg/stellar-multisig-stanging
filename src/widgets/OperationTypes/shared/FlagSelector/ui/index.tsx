@@ -32,10 +32,10 @@ const FlagSelector: FC<FlagSelectorProps> = ({
       <h4 className={s.sectionTitle}>
         {title} <span className={s.optional}>(optional)</span>
       </h4>
-          <div className="tabs">
-            <div className="tabs-header">
-      <div className={s.flagsContainer}>
-        <div className={s.flags}>
+      <div className="tabs">
+        <div className="tabs-header">
+          <div className={s.flagsContainer}>
+            <div className={s.flags}>
               {flags.map((flag) => (
                 <a
                   key={flag.id}
@@ -43,13 +43,18 @@ const FlagSelector: FC<FlagSelectorProps> = ({
                     e.preventDefault();
                     onToggle(flag.id);
                   }}
-                  className={`tabs-item condensed ${
+                  className={`tabs-item ww condensed border: none;  ${
                     isSelected(flag.id) && "selected"
                   }`}
-                  style={{ cursor: "pointer", width: "280px" }}
+                  style={{ cursor: "pointer", width: "130px", height: "100%" }}
                   href="#"
                 >
-                  <span className="tabs-item-text" style={{ fontSize: "1.6rem", width: "280px" }}>{flag.name}</span>
+                  <span
+                    className="tabs-item-text  "
+                    style={{ fontSize: "100%" }}
+                  >
+                    {flag.name}
+                  </span>
                 </a>
               ))}
             </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { FC, useState, useEffect, useMemo } from "react";
+import React, { FC, useState, useEffect, menusItem } from "react";
 import { MainLayout, ShowXdr } from "@/widgets";
 import { useSearchParams } from "next/navigation";
 import {
@@ -57,7 +57,7 @@ const SignTransaction: FC = () => {
     transaction,
   } = useXDRDecoding(importXDRParam, transactionEnvelope);
 
-  const currentTransaction = useMemo(() => {
+  const currentTransaction = menusItem(() => {
     if (!resultXdr) return null;
     try {
       return TransactionBuilder.fromXDR(resultXdr, networkPassphrase);

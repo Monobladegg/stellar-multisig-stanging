@@ -88,7 +88,7 @@ const FirebaseSettingsModal: FC = () => {
         });
       }
     }
-  }, []);
+  }, [window]);
 
   const changeFormValue = (key: keyof FormValues, value: string) => {
     setFormValues((prev) => ({
@@ -103,10 +103,7 @@ const FirebaseSettingsModal: FC = () => {
   }, [currentFirebase]);
 
   useEffect(() => {
-    if (!window) {
-      console.log("error window");
-    }
-    if (currentFirebase === "Custom") {
+    if (currentFirebase === "Custom" && typeof window !== "undefined") {
       const apiKey = localStorage.getItem("Firebase-apiKey") || "";
       const authDomain = localStorage.getItem("Firebase-authDomain") || "";
       const projectId = localStorage.getItem("Firebase-projectId") || "";
@@ -137,7 +134,7 @@ const FirebaseSettingsModal: FC = () => {
         measurementId: process.env.NEXT_PUBLIC_MEASUREMENT_ID || "",
       });
     }
-  }, [currentFirebase]);
+  }, [currentFirebase, window]);
 
   return (
     <ModalLayout

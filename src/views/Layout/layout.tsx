@@ -17,7 +17,7 @@ type Props = {
 
 const PageLayout: FC<Props> = ({ children }) => {
   const [isWindowDefined, setIsWindowDefined] = useState<boolean>(false);
-
+  let lastCheckTime = 0;
   const [commitHash, setCommitHash] = useState(
     process.env.NEXT_PUBLIC_COMMIT_HASH ?? ""
   );
@@ -83,6 +83,8 @@ const PageLayout: FC<Props> = ({ children }) => {
   }, [net]);
 
   useEffect(() => {
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+
     const fetchLatestCommitHash = async () => {
       try {
         const response = await axios.get(
@@ -95,23 +97,49 @@ const PageLayout: FC<Props> = ({ children }) => {
         );
         const latestHash = response.data[0].sha.substring(0, 7);
         setCommitHash(latestHash);
+
         if (latestHash !== process.env.NEXT_PUBLIC_COMMIT_HASH) {
           setShowPopup(true);
           console.log("Version changed");
         }
       } catch (error) {
-        console.error("Error:", error);
+        console.error("Error fetching commit hash:", error);
       }
     };
+
+    const startPolling = () => {
+      if (intervalId) clearInterval(intervalId); // Очистка существующего интервала
+      intervalId = setInterval(fetchLatestCommitHash, cacheConfig.checkOfCurrentVersionDurationMs);
+    };
+
+    const stopPolling = () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null; // Устанавливаем в `null` для безопасности
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        fetchLatestCommitHash(); // Мгновенная проверка при возврате на вкладку
+        startPolling(); // Запуск интервала
+      } else {
+        stopPolling(); // Остановка интервала при уходе с вкладки
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // Запуск проверки и интервала при первой загрузке
     fetchLatestCommitHash();
+    startPolling();
 
-    const intervalId = setInterval(
-      fetchLatestCommitHash,
-      cacheConfig.checkOfCurrentVersionDurationMs
-    );
-
-    return () => clearInterval(intervalId);
-  }, []);
+    // Очистка ресурсов при размонтировании компонента
+    return () => {
+      stopPolling(); // Остановка интервала
+      document.removeEventListener("visibilitychange", handleVisibilityChange); // Удаление обработчика
+    };
+  }, [cacheConfig.checkOfCurrentVersionDurationMs]);
 
   useEffect(() => {
     if (isWindowDefined) {

@@ -14,9 +14,7 @@ import { firebaseConfig } from "@/shared/api/firebase/app";
 type Props = {
   children: React.ReactNode;
 };
-const cacheConfig2 = {
-  checkOfCurrentVersionDurationMs: 60000, // Интервал проверки (например, 60 сек)
-};
+
 const PageLayout: FC<Props> = ({ children }) => {
   const [isWindowDefined, setIsWindowDefined] = useState<boolean>(false);
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
@@ -102,9 +100,9 @@ const PageLayout: FC<Props> = ({ children }) => {
 
         if (latestHash !== process.env.NEXT_PUBLIC_COMMIT_HASH) {
           console.log("Version changed");
-          if (timeoutId) clearTimeout(timeoutId); // Очистка таймера, если он был
+          if (timeoutId) clearTimeout(timeoutId); 
           
-          // Установка таймера на показ попапа через 1 минуту
+
           timeoutId = setTimeout(() => {
             setShowPopup(true);
           }, 60000);
@@ -116,14 +114,14 @@ const PageLayout: FC<Props> = ({ children }) => {
    
 
     const startPolling = () => {
-      if (intervalId) clearInterval(intervalId); // Очистка существующего интервала
+      if (intervalId) clearInterval(intervalId); 
       intervalId = setInterval(fetchLatestCommitHash, cacheConfig.checkOfCurrentVersionDurationMs);
     };
 
     const stopPolling = () => {
       if (intervalId) {
         clearInterval(intervalId);
-        intervalId = null; // Устанавливаем в `null` для безопасности
+        intervalId = null; 
       }
     };
 

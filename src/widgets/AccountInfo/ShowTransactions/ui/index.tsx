@@ -29,7 +29,10 @@ const ShowTransactions: FC<Props> = ({
   );
 
   if (!decodedTransactions) return null;
-
+  const filteredTransactions = decodedTransactions.filter(
+    (transaction) => transaction !== null
+  );
+  if (filteredTransactions.length === 0) return null;
   const indices = decodedTransactions.map((_, index) => index);
 
   indices.sort((a, b) => {

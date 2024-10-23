@@ -221,7 +221,7 @@ const SetOptions: FC<Props> = ({ id }) => {
         <InputField
           title="Master Weight"
           placeholder="0-255"
-          value={masterWeight.toString()}
+          value={highThreshold  === 0 ? '' : masterWeight.toString()}
           onChange={handleInputChange("master_weight")}
           validate={validateRange}
           errorMessage="Expected an integer between 0 and 255 (inclusive)."
@@ -231,7 +231,7 @@ const SetOptions: FC<Props> = ({ id }) => {
         <InputField
           title="Low Threshold"
           placeholder="0-255"
-          value={lowThreshold.toString()}
+          value={highThreshold  === 0 ? '' : lowThreshold.toString()}
           onChange={handleInputChange("low_threshold")}
           validate={validateRange}
           errorMessage="Expected an integer between 0 and 255 (inclusive)."
@@ -240,7 +240,7 @@ const SetOptions: FC<Props> = ({ id }) => {
         <InputField
           title="Medium Threshold"
           placeholder="0-255"
-          value={mediumThreshold.toString()}
+          value={highThreshold  === 0 ? '' : mediumThreshold.toString()}
           onChange={handleInputChange("med_threshold")}
           validate={validateRange}
           errorMessage="Expected an integer between 0 and 255 (inclusive)."
@@ -250,7 +250,8 @@ const SetOptions: FC<Props> = ({ id }) => {
         <InputField
           title="High Threshold"
           placeholder="0-255"
-          value={highThreshold.toString()}
+          
+          value={highThreshold  === 0 ? '' : highThreshold.toString()}
           onChange={handleInputChange("high_threshold")}
           validate={validateRange}
           errorMessage="Expected an integer between 0 and 255 (inclusive)."

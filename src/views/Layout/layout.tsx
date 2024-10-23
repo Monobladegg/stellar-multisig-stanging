@@ -139,7 +139,7 @@ const PageLayout: FC<Props> = ({ children }) => {
       stopPolling(); // Остановка интервала
       document.removeEventListener("visibilitychange", handleVisibilityChange); // Удаление обработчика
     };
-  }, [cacheConfig.checkOfCurrentVersionDurationMs]);
+  }, []);
 
   useEffect(() => {
     if (isWindowDefined) {

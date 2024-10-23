@@ -12,7 +12,17 @@ const OperationsList: FC = () => {
   const [isOperationsOpen, setIsOperationsOpen] = useState<boolean>(true);
 
   const handleAddOperation = () => {
-    addOperation();
+    addOperation(); // Добавляем пустую операцию
+    const newOperation: IOperation = {
+      source_account: "", // Укажите значение исходного аккаунта
+      body: {
+        manage_data: {
+          data_name: "", // Значение по умолчанию для data_name
+          data_value: null, // Значение по умолчанию для data_value
+        },
+      },
+    };
+    setOperations([...tx.tx.operations, newOperation]); // Обновляем операции
     setIsOperationsOpen(true);
   };
 

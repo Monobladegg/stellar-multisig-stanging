@@ -28,20 +28,20 @@ const ShowTransactions: FC<Props> = ({
     useShallow((state) => state)
   );
 
-  if (!decodedTransactions) return null;
-  const filteredTransactions = decodedTransactions.filter(
-    (transaction) => transaction !== null
-  );
-  if (filteredTransactions.length === 0) return null;
-  const indices = decodedTransactions.map((_, index) => index);
-
+   if (!decodedTransactions) return null;
+   const filteredTransactions = decodedTransactions.filter(
+     (transaction) => transaction !== null
+   );
+   if (filteredTransactions.length === 0) return null;
+  const indices = decodedTransactions?.map((_, index) => index);
+  if (indices) {
   indices.sort((a, b) => {
     return (
       transactionsFromFirebase[b].createdAt -
       transactionsFromFirebase[a].createdAt
     );
   });
-
+  }
   return (
     <>
       <div className="tabs space inline-right">
@@ -100,7 +100,7 @@ const ShowTransactions: FC<Props> = ({
                   </tr>
                 </thead>
                 <tbody>
-                  {indices
+                {indices && indices
                     .filter((index) => decodedTransactions[index] !== null)
                     .map((index) => (
                       <InlineTransaction

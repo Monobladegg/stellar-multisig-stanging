@@ -49,7 +49,7 @@ const FirebaseSettingsModal: FC = () => {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const currentFirebaseLocalStorage = localStorage.getItem(
+      const currentFirebaseLocalStorage = window.localStorage.getItem(
         "Firebase-currentFirebase"
       );
 
@@ -57,15 +57,15 @@ const FirebaseSettingsModal: FC = () => {
         setCurrentFirebase(currentFirebaseLocalStorage as FirebaseType);
       }
 
-      const apiKey = localStorage.getItem("Firebase-apiKey");
-      const authDomain = localStorage.getItem("Firebase-authDomain");
-      const projectId = localStorage.getItem("Firebase-projectId");
-      const storageBucket = localStorage.getItem("Firebase-storageBucket");
-      const messagingSenderId = localStorage.getItem(
+      const apiKey = window.localStorage.getItem("Firebase-apiKey");
+      const authDomain = window.localStorage.getItem("Firebase-authDomain");
+      const projectId = window.localStorage.getItem("Firebase-projectId");
+      const storageBucket = window.localStorage.getItem("Firebase-storageBucket");
+      const messagingSenderId = window.localStorage.getItem(
         "Firebase-messagingSenderId"
       );
-      const appId = localStorage.getItem("Firebase-appId");
-      const measurementId = localStorage.getItem("Firebase-measurementId");
+      const appId = window.localStorage.getItem("Firebase-appId");
+      const measurementId = window.localStorage.getItem("Firebase-measurementId");
 
       if (
         currentFirebase === "Custom" &&
@@ -99,20 +99,20 @@ const FirebaseSettingsModal: FC = () => {
   };
 
   useEffect(() => {
-    localStorage.setItem("Firebase-currentFirebase", currentFirebase);
+    window.localStorage.setItem("Firebase-currentFirebase", currentFirebase);
   }, [currentFirebase]);
 
   useEffect(() => {
     if (currentFirebase === "Custom" && typeof window !== "undefined") {
-      const apiKey = localStorage.getItem("Firebase-apiKey") || "";
-      const authDomain = localStorage.getItem("Firebase-authDomain") || "";
-      const projectId = localStorage.getItem("Firebase-projectId") || "";
-      const storageBucket = localStorage.getItem("Firebase-storageBucket") || "";
-      const messagingSenderId = localStorage.getItem(
+      const apiKey = window.localStorage.getItem("Firebase-apiKey") || "";
+      const authDomain = window.localStorage.getItem("Firebase-authDomain") || "";
+      const projectId = window.localStorage.getItem("Firebase-projectId") || "";
+      const storageBucket = window.localStorage.getItem("Firebase-storageBucket") || "";
+      const messagingSenderId = window.localStorage.getItem(
         "Firebase-messagingSenderId"
       ) || "";
-      const appId = localStorage.getItem("Firebase-appId") || "";
-      const measurementId = localStorage.getItem("Firebase-measurementId") || "";
+      const appId = window.localStorage.getItem("Firebase-appId") || "";
+      const measurementId = window.localStorage.getItem("Firebase-measurementId") || "";
 
       setFormValues({
         apiKey,

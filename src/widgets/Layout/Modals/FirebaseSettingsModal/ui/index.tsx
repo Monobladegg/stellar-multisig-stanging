@@ -9,6 +9,7 @@ import { ModalLayout } from "@/features";
 import InputField from "@/entities/Layout/Modals/FirebaseSettingsModal/InputField";
 import { initializeFirebase } from "@/shared/api/firebase/app";
 import React from "react";
+import { firebaseConfig } from "@/shared/api/firebase/app";
 
 type FirebaseType = "Default" | "Custom";
 
@@ -51,58 +52,59 @@ const FirebaseSettingsModal: FC = () => {
     }
   }, [formValues, currentFirebase]);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const currentFirebaseLocalStorage = window.localStorage.getItem(
-        "Firebase-currentFirebase"
-      );
+  // useEffect(() => {
+  //   if (typeof window !== "undefined") {
+  //     const currentFirebaseLocalStorage = window.localStorage.getItem(
+  //       "Firebase-currentFirebase"
+  //     );
 
-      if (currentFirebaseLocalStorage) {
-        setCurrentFirebase(currentFirebaseLocalStorage as FirebaseType);
-      }
+  //     if (currentFirebaseLocalStorage) {
+  //       setCurrentFirebase(currentFirebaseLocalStorage as FirebaseType);
+  //     }
 
-      const apiKey = window.localStorage.getItem("Firebase-apiKey");
-      const authDomain = window.localStorage.getItem("Firebase-authDomain");
-      const projectId = window.localStorage.getItem("Firebase-projectId");
-      const storageBucket = window.localStorage.getItem(
-        "Firebase-storageBucket"
-      );
-      const messagingSenderId = window.localStorage.getItem(
-        "Firebase-messagingSenderId"
-      );
-      const appId = window.localStorage.getItem("Firebase-appId");
-      const measurementId = window.localStorage.getItem(
-        "Firebase-measurementId"
-      );
+  //     const apiKey = window.localStorage.getItem("Firebase-apiKey");
+  //     const authDomain = window.localStorage.getItem("Firebase-authDomain");
+  //     const projectId = window.localStorage.getItem("Firebase-projectId");
+  //     const storageBucket = window.localStorage.getItem(
+  //       "Firebase-storageBucket"
+  //     );
+  //     const messagingSenderId = window.localStorage.getItem(
+  //       "Firebase-messagingSenderId"
+  //     );
+  //     const appId = window.localStorage.getItem("Firebase-appId");
+  //     const measurementId = window.localStorage.getItem(
+  //       "Firebase-measurementId"
+  //     );
 
-      if (
-        currentFirebase === "Custom" &&
-        apiKey &&
-        authDomain &&
-        projectId &&
-        storageBucket &&
-        messagingSenderId &&
-        appId &&
-        measurementId
-      ) {
-        setFormValues({
-          apiKey,
-          authDomain,
-          projectId,
-          storageBucket,
-          messagingSenderId,
-          appId,
-          measurementId,
-        });
-      }
-    }
-  }, [window]);
+  //     if (
+  //       currentFirebase === "Custom" &&
+  //       apiKey &&
+  //       authDomain &&
+  //       projectId &&
+  //       storageBucket &&
+  //       messagingSenderId &&
+  //       appId &&
+  //       measurementId
+  //     ) {
+  //       setFormValues({
+  //         apiKey,
+  //         authDomain,
+  //         projectId,
+  //         storageBucket,
+  //         messagingSenderId,
+  //         appId,
+  //         measurementId,
+  //       });
+  //     }
+  //   }
+  // }, [window]);
 
   const changeFormValue = (key: keyof FormValues, value: string) => {
     setFormValues((prev) => ({
       ...prev,
       [key]: value,
     }));
+    firebaseConfig[key] = value;
     window.localStorage.setItem("Firebase-" + key, value);
   };
 
@@ -133,6 +135,14 @@ const FirebaseSettingsModal: FC = () => {
         appId,
         measurementId,
       });
+
+      firebaseConfig.apiKey = apiKey;
+      firebaseConfig.authDomain = authDomain;
+      firebaseConfig.projectId = projectId;
+      firebaseConfig.storageBucket = storageBucket;
+      firebaseConfig.messagingSenderId = messagingSenderId;
+      firebaseConfig.appId = appId;
+      firebaseConfig.measurementId = measurementId;
     } else {
       setFormValues({
         apiKey: process.env.NEXT_PUBLIC_API_KEY || "",
@@ -143,6 +153,14 @@ const FirebaseSettingsModal: FC = () => {
         appId: process.env.NEXT_PUBLIC_APP_ID || "",
         measurementId: process.env.NEXT_PUBLIC_MEASUREMENT_ID || "",
       });
+      firebaseConfig.apiKey = process.env.NEXT_PUBLIC_API_KEY;
+      firebaseConfig.authDomain = process.env.NEXT_PUBLIC_AUTH_DOMAIN;
+      firebaseConfig.projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
+      firebaseConfig.storageBucket = process.env.NEXT_PUBLIC_STORAGE_BUCKET;
+      firebaseConfig.messagingSenderId =
+        process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID;
+      firebaseConfig.appId = process.env.NEXT_PUBLIC_APP_ID;
+      firebaseConfig.measurementId = process.env.NEXT_PUBLIC_MEASUREMENT_ID;
     }
   }, [currentFirebase, window]);
 

@@ -4695,10 +4695,9 @@ button.button-clear[disabled]:hover {
 @use "../basic-styles/variables";
 .tabs .tabs-header {
   display: flex;
-  flex-wrap: nowrap; 
-  justify-content: space-between; 
+  flex-wrap: wrap;
+  justify-content: space-between;
   margin-top: 1em;
-  
 }
 
 .tabs .tabs-header .tabs-item {
@@ -4707,47 +4706,15 @@ button.button-clear[disabled]:hover {
   font-family: Roboto Condensed, Arial, Helvetica, sans-serif;
   font-size: 1.6rem;
   font-weight: 400;
-  height: 40px;
-  width: 150px; 
-  box-sizing: border-box;
-
-  min-width: 4em;
-  padding: 0 0.8em;
-  position: relative;
-  text-align: center;
-  text-decoration: none;
-}
-.tabs .memo .tabs-item {
-  color: var(--color-bg);
-  display: inline-block;
-  font-family: Roboto Condensed, Arial, Helvetica, sans-serif;
-  font-size: 1.6rem;
-  font-weight: 400;
-  height: 40px;
-  width: 150px; 
-  box-sizing: border-box;
-
-  min-width: 4em;
-  padding: 0 0.8em;
-  position: relative;
-  text-align: center;
-  text-decoration: none;
-}
-.line{
+  height: 4rem;
   line-height: 2.6;
+  min-width: 4em;
+  padding: 0 0.8em;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
 }
-.ww{
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-.tabs .tabs-header .tabs-item-text {
-  font-size: 100%;
-  width: auto;
-}
-.tabs .tabs-header .tabs-item.selected {
-    color: var(--color-text);
-}
+
 @media (max-width: 992px) {
   .tabs .tabs-header .tabs-item {
     font-size: 1.44rem;
@@ -4757,7 +4724,6 @@ button.button-clear[disabled]:hover {
 
 .tabs .tabs-header .tabs-item:before {
   background: #08b5e5;
-
   content: "";
   display: block;
   height: 100%;
@@ -4773,8 +4739,6 @@ button.button-clear[disabled]:hover {
 
 .tabs .tabs-header .tabs-item + .tabs-item:before {
   border-left: 2px solid #0691b7;
-  border: none; 
-  
   margin-left: -1px;
 }
 
@@ -4789,11 +4753,6 @@ button.button-clear[disabled]:hover {
 
 .tabs .tabs-header .tabs-item .tabs-item-text {
   position: relative;
-  padding: 0; 
-  margin: 0; 
-
-  font-size: 1.4rem; 
-
 }
 
 .tabs.inline-right .tabs-header {
@@ -4814,7 +4773,7 @@ button.button-clear[disabled]:hover {
   border-radius: 0.3rem;
   color: var(--color-text);
   display: flex;
-  height: 6rem;
+  height: 4rem;
   justify-content: flex-start;
   padding: 0.2rem 1rem;
   width: 100%;

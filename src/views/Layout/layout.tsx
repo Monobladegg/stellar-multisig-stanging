@@ -9,6 +9,7 @@ import { PopupVersionTheSite } from "@/widgets/shared/ui/PopupVersionTheSite";
 import axios from "axios";
 import { cacheConfig } from "@/shared/configs";
 import Modals from "@/widgets/Layout/Modals";
+import { firebaseConfig } from "@/shared/api/firebase/app";
 
 type Props = {
   children: React.ReactNode;
@@ -111,6 +112,44 @@ const PageLayout: FC<Props> = ({ children }) => {
 
     return () => clearInterval(intervalId);
   }, []);
+
+  useEffect(() => {
+    if (isWindowDefined) {
+      if (
+        window.localStorage.getItem("Firebase-currentFirebase") === "Default"
+      ) {
+        firebaseConfig.apiKey = process.env.NEXT_PUBLIC_API_KEY;
+        firebaseConfig.authDomain = process.env.NEXT_PUBLIC_AUTH_DOMAIN;
+        firebaseConfig.projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
+        firebaseConfig.storageBucket = process.env.NEXT_PUBLIC_STORAGE_BUCKET;
+        firebaseConfig.messagingSenderId =
+          process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID;
+        firebaseConfig.appId = process.env.NEXT_PUBLIC_APP_ID;
+        firebaseConfig.measurementId = process.env.NEXT_PUBLIC_MEASUREMENT_ID;
+      } else {
+        const apiKey = window.localStorage.getItem("Firebase-apiKey") || "";
+        const authDomain =
+          window.localStorage.getItem("Firebase-authDomain") || "";
+        const projectId =
+          window.localStorage.getItem("Firebase-projectId") || "";
+        const storageBucket =
+          window.localStorage.getItem("Firebase-storageBucket") || "";
+        const messagingSenderId =
+          window.localStorage.getItem("Firebase-messagingSenderId") || "";
+        const appId = window.localStorage.getItem("Firebase-appId") || "";
+        const measurementId =
+          window.localStorage.getItem("Firebase-measurementId") || "";
+
+        firebaseConfig.apiKey = apiKey;
+        firebaseConfig.authDomain = authDomain;
+        firebaseConfig.projectId = projectId;
+        firebaseConfig.storageBucket = storageBucket;
+        firebaseConfig.messagingSenderId = messagingSenderId;
+        firebaseConfig.appId = appId;
+        firebaseConfig.measurementId = measurementId;
+      }
+    }
+  }, [isWindowDefined]);
 
   if (!isWindowDefined) {
     return (

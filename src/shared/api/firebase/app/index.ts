@@ -8,7 +8,7 @@ import {
 
 let firebaseApp: FirebaseApp | undefined;
 
-const firebaseConfig: FirebaseOptions = {
+export let firebaseConfig: FirebaseOptions = {
   apiKey:
     window.localStorage.getItem("Firebase-apiKey") ||
     process.env.NEXT_PUBLIC_API_KEY,

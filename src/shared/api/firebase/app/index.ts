@@ -6,28 +6,29 @@ import {
   FirebaseOptions,
 } from "firebase/app";
 
-// Existing Firebase app initialization
 let firebaseApp: FirebaseApp | undefined;
 
 const firebaseConfig: FirebaseOptions = {
   apiKey:
-    localStorage.getItem("Firebase-apiKey") || process.env.NEXT_PUBLIC_API_KEY,
+    window.localStorage.getItem("Firebase-apiKey") ||
+    process.env.NEXT_PUBLIC_API_KEY,
   authDomain:
-    localStorage.getItem("Firebase-authDomain") ||
+    window.localStorage.getItem("Firebase-authDomain") ||
     process.env.NEXT_PUBLIC_AUTH_DOMAIN,
   projectId:
-    localStorage.getItem("Firebase-projectId") ||
+    window.localStorage.getItem("Firebase-projectId") ||
     process.env.NEXT_PUBLIC_PROJECT_ID,
   storageBucket:
-    localStorage.getItem("Firebase-storageBucket") ||
+    window.localStorage.getItem("Firebase-storageBucket") ||
     process.env.NEXT_PUBLIC_STORAGE_BUCKET,
   messagingSenderId:
-    localStorage.getItem("Firebase-messagingSenderId") ||
+    window.localStorage.getItem("Firebase-messagingSenderId") ||
     process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID,
   appId:
-    localStorage.getItem("Firebase-appId") || process.env.NEXT_PUBLIC_APP_ID,
+    window.localStorage.getItem("Firebase-appId") ||
+    process.env.NEXT_PUBLIC_APP_ID,
   measurementId:
-    localStorage.getItem("Firebase-measurementId") ||
+    window.localStorage.getItem("Firebase-measurementId") ||
     process.env.NEXT_PUBLIC_MEASUREMENT_ID,
 };
 

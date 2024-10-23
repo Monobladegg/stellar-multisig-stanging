@@ -17,7 +17,7 @@ type Props = {
 
 const PageLayout: FC<Props> = ({ children }) => {
   const [isWindowDefined, setIsWindowDefined] = useState<boolean>(false);
-  let lastCheckTime = 0;
+
   const [commitHash, setCommitHash] = useState(
     process.env.NEXT_PUBLIC_COMMIT_HASH ?? ""
   );

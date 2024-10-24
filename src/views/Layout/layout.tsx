@@ -140,9 +140,9 @@ const PageLayout: FC<Props> = ({ children }) => {
     fetchLatestCommitHash();
     startPolling();
 
-    // Очистка ресурсов при размонтировании компонента
+    
     return () => {
-      stopPolling(); // Остановка интервала
+      stopPolling(); 
       document.removeEventListener("visibilitychange", handleVisibilityChange); // Удаление обработчика
     };
   }, []);

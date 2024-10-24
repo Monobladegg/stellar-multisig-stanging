@@ -46,7 +46,7 @@ const FlagSelector: FC<FlagSelectorProps> = ({
                   className={`tabs-item ww condensed border: none;  ${
                     isSelected(flag.id) && "selected"
                   }`}
-                  style={{ cursor: "pointer", width: "130px", height: "100%" }}
+                  style={{ cursor: "pointer", width: "140px", height: "90%"  }}
                   href="#"
                 >
                   <span

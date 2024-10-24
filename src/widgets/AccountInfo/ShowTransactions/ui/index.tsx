@@ -28,10 +28,10 @@ const ShowTransactions: FC<Props> = ({
     useShallow((state) => state)
   );
 
-   if (!decodedTransactions) return null;
-   const filteredTransactions = decodedTransactions.filter(
+    if (!decodedTransactions) return null;
+    const filteredTransactions = decodedTransactions.filter(
      (transaction) => transaction !== null
-   );
+    );
    if (filteredTransactions.length === 0) return null;
   const indices = decodedTransactions?.map((_, index) => index);
   if (indices) {

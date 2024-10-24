@@ -30,7 +30,7 @@ export const firebaseSettingsSlice: StateCreator<
       }
     }
 
-    let newFirebaseApp = initializeApp(config, name);
+    const newFirebaseApp = initializeApp(config, name);
     set({ firebaseApp: newFirebaseApp });
 
     const newFirestore = getFirestore(newFirebaseApp);

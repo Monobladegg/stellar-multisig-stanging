@@ -51,6 +51,7 @@ const BuildTransaction: FC = () => {
     setOperations,
     setSelectedSetFlags,
     selectedSetFlags,
+    firestore
   } = useStore(useShallow((state) => state));
 
   const searchParams = useSearchParams();
@@ -201,7 +202,7 @@ const BuildTransaction: FC = () => {
       try {
         await __wbg_init();
         if (firebaseIDParam) {
-          const transaction = await getTransactionByID(net, firebaseIDParam);
+          const transaction = await getTransactionByID(firestore, net, firebaseIDParam);
           if (!transaction) {
             console.error("Transaction not found from firebase ID");
             setFirebaseIDParamError("Transaction not found from firebase ID");

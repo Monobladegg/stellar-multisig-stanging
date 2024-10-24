@@ -140,7 +140,6 @@ const PageLayout: FC<Props> = ({ children }) => {
     fetchLatestCommitHash();
     startPolling();
 
-
     return () => {
       stopPolling();
       document.removeEventListener("visibilitychange", handleVisibilityChange);
@@ -148,7 +147,10 @@ const PageLayout: FC<Props> = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    if (window.localStorage.getItem("Firebase-currentFirebase") === "Default") {
+    if (
+      window.localStorage.getItem("Firebase-currentFirebase") === "Default" ||
+      !window.localStorage.getItem("Firebase-currentFirebase")
+    ) {
       initializeFirebase({
         apiKey: process.env.NEXT_PUBLIC_API_KEY,
         authDomain: process.env.NEXT_PUBLIC_AUTH_DOMAIN,
@@ -164,13 +166,14 @@ const PageLayout: FC<Props> = ({ children }) => {
         authDomain: window.localStorage.getItem("Firebase-authDomain")!,
         projectId: window.localStorage.getItem("Firebase-projectId")!,
         storageBucket: window.localStorage.getItem("Firebase-storageBucket")!,
-        messagingSenderId: window.localStorage.getItem("Firebase-messagingSenderId")!,
+        messagingSenderId: window.localStorage.getItem(
+          "Firebase-messagingSenderId"
+        )!,
         appId: window.localStorage.getItem("Firebase-appId")!,
         measurementId: window.localStorage.getItem("Firebase-measurementId")!,
       });
     }
   }, []);
-
 
   if (!isWindowDefined) {
     return (

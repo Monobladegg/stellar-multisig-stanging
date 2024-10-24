@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { useStore } from "@/shared/store";
 import { SetOptions, ManageData } from "@/widgets";
 import { IOperation } from "@/shared/types/store/slices/BuildTransaction/buildTxJSONSlice";
@@ -8,24 +8,29 @@ import { useShallow } from "zustand/react/shallow";
 import { setOperationType } from "@/shared/helpers";
 
 const OperationsList: FC = () => {
-  const { tx, addOperation, setOperations } = useStore(useShallow((state) => state));
+  const { tx,  setOperations } = useStore(useShallow((state) => state));
   const [isOperationsOpen, setIsOperationsOpen] = useState<boolean>(true);
 
-  const handleAddOperation = () => {
-    addOperation(); // Добавляем пустую операцию
-    const newOperation: IOperation = {
-      source_account: "", // Укажите значение исходного аккаунта
-      body: {
-        manage_data: {
-          data_name: "", // Значение по умолчанию для data_name
-          data_value: null, // Значение по умолчанию для data_value
-        },
-      },
-    };
-    setOperations([...tx.tx.operations, newOperation]); // Обновляем операции
-    setIsOperationsOpen(true);
-  };
-
+  useEffect(() => {
+    if (tx.tx.operations.length > 0) {
+      const updatedOperations = tx.tx.operations.map((operation) => {
+        // Если тип операции не установлен, ставим "Manage Data"
+        if (!operation.body?.set_options && !operation.body?.manage_data) {
+          return {
+            ...operation,
+            body: {
+              manage_data: {
+                data_name: "",  // Предустановленные значения для manage_data
+                data_value: null,
+              },
+            },
+          };
+        }
+        return operation;
+      });
+      setOperations(updatedOperations);  // Обновляем операции с предустановленным типом
+    }
+  }, []);
   const duplicateOperation = (index: number) => {
     const operationToDuplicate = tx.tx.operations[index];
     if (operationToDuplicate) {
@@ -112,7 +117,7 @@ const OperationsList: FC = () => {
                 </option>
                 <option value="manage_data">Manage Data</option>
                 <option value="set_options">Set Options</option>
-              </select>
+              </select>не
 
               <div className="mt-3">
                 {getOperationType(operation) === "set_options" && (
@@ -125,7 +130,7 @@ const OperationsList: FC = () => {
             </div>
           </div>
         ))}
-        <button onClick={handleAddOperation}>Add New Operation</button>
+        <button >Add New Operation</button>
     </>
   );
 };

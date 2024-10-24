@@ -9,6 +9,7 @@ import {
   ICollapsesBlocksSlice,
   IInformationSlice,
   IModalsSlice,
+  IFirebaseSettingsSlice,
 } from "./slices";
 
 interface Store
@@ -22,6 +23,7 @@ interface Store
     ICollapsesBlocksSlice,
     IInformationSlice,
     ICollapsesBlocksSlice,
-    IModalsSlice {}
+    IModalsSlice,
+    IFirebaseSettingsSlice {}
 
 export default Store;

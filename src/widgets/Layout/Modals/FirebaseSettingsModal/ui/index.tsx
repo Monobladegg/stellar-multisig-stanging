@@ -7,30 +7,24 @@ import { useShallow } from "zustand/react/shallow";
 import Link from "next/link";
 import { ModalLayout } from "@/features";
 import InputField from "@/entities/Layout/Modals/FirebaseSettingsModal/InputField";
-import { initializeFirebase } from "@/shared/api/firebase/app";
 import React from "react";
-import { firebaseConfig } from "@/shared/api/firebase/app";
+import { FirebaseOptions } from "firebase/app";
 
 type FirebaseType = "Default" | "Custom";
 
-interface FormValues {
-  apiKey: string;
-  authDomain: string;
-  projectId: string;
-  storageBucket: string;
-  messagingSenderId: string;
-  appId: string;
-  measurementId: string;
-}
-
 const FirebaseSettingsModal: FC = () => {
-  const { theme, isOpenFirebaseSettingsModal, setIsOpenFirebaseSettingsModal } =
-    useStore(useShallow((state) => state));
+  const {
+    theme,
+    isOpenFirebaseSettingsModal,
+    setIsOpenFirebaseSettingsModal,
+    initializeFirebase,
+    firebaseApp,
+  } = useStore(useShallow((state) => state));
 
   const [currentFirebase, setCurrentFirebase] =
     useState<FirebaseType>("Default");
 
-  const [formValues, setFormValues] = useState<FormValues>({
+  const [formValues, setFormValues] = useState<FirebaseOptions>({
     apiKey: "",
     authDomain: "",
     projectId: "",
@@ -40,129 +34,39 @@ const FirebaseSettingsModal: FC = () => {
     measurementId: "",
   });
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      initializeFirebase(formValues)
-        .then((q) => {
-          console.log("Firebase initialized", q);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    }
-  }, [formValues, currentFirebase]);
-
-  // useEffect(() => {
-  //   if (typeof window !== "undefined") {
-  //     const currentFirebaseLocalStorage = window.localStorage.getItem(
-  //       "Firebase-currentFirebase"
-  //     );
-
-  //     if (currentFirebaseLocalStorage) {
-  //       setCurrentFirebase(currentFirebaseLocalStorage as FirebaseType);
-  //     }
-
-  //     const apiKey = window.localStorage.getItem("Firebase-apiKey");
-  //     const authDomain = window.localStorage.getItem("Firebase-authDomain");
-  //     const projectId = window.localStorage.getItem("Firebase-projectId");
-  //     const storageBucket = window.localStorage.getItem(
-  //       "Firebase-storageBucket"
-  //     );
-  //     const messagingSenderId = window.localStorage.getItem(
-  //       "Firebase-messagingSenderId"
-  //     );
-  //     const appId = window.localStorage.getItem("Firebase-appId");
-  //     const measurementId = window.localStorage.getItem(
-  //       "Firebase-measurementId"
-  //     );
-
-  //     if (
-  //       currentFirebase === "Custom" &&
-  //       apiKey &&
-  //       authDomain &&
-  //       projectId &&
-  //       storageBucket &&
-  //       messagingSenderId &&
-  //       appId &&
-  //       measurementId
-  //     ) {
-  //       setFormValues({
-  //         apiKey,
-  //         authDomain,
-  //         projectId,
-  //         storageBucket,
-  //         messagingSenderId,
-  //         appId,
-  //         measurementId,
-  //       });
-  //     }
-  //   }
-  // }, [window]);
-
-  const changeFormValue = (key: keyof FormValues, value: string) => {
+  const changeFormValue = (key: keyof FirebaseOptions, value: string) => {
     setFormValues((prev) => ({
       ...prev,
       [key]: value,
     }));
-    firebaseConfig[key] = value;
     window.localStorage.setItem("Firebase-" + key, value);
   };
 
   useEffect(() => {
-    window.localStorage.setItem("Firebase-currentFirebase", currentFirebase);
-  }, [currentFirebase]);
+    console.log(formValues);
+    initializeFirebase(formValues);
+    console.log(firebaseApp);
+  }, [formValues]);
 
   useEffect(() => {
-    if (currentFirebase === "Custom" && typeof window !== "undefined") {
-      const apiKey = window.localStorage.getItem("Firebase-apiKey") || "";
-      const authDomain =
-        window.localStorage.getItem("Firebase-authDomain") || "";
-      const projectId = window.localStorage.getItem("Firebase-projectId") || "";
-      const storageBucket =
-        window.localStorage.getItem("Firebase-storageBucket") || "";
-      const messagingSenderId =
-        window.localStorage.getItem("Firebase-messagingSenderId") || "";
-      const appId = window.localStorage.getItem("Firebase-appId") || "";
-      const measurementId =
-        window.localStorage.getItem("Firebase-measurementId") || "";
-
-      setFormValues({
-        apiKey,
-        authDomain,
-        projectId,
-        storageBucket,
-        messagingSenderId,
-        appId,
-        measurementId,
-      });
-
-      firebaseConfig.apiKey = apiKey;
-      firebaseConfig.authDomain = authDomain;
-      firebaseConfig.projectId = projectId;
-      firebaseConfig.storageBucket = storageBucket;
-      firebaseConfig.messagingSenderId = messagingSenderId;
-      firebaseConfig.appId = appId;
-      firebaseConfig.measurementId = measurementId;
-    } else {
-      setFormValues({
-        apiKey: process.env.NEXT_PUBLIC_API_KEY || "",
-        authDomain: process.env.NEXT_PUBLIC_AUTH_DOMAIN || "",
-        projectId: process.env.NEXT_PUBLIC_PROJECT_ID || "",
-        storageBucket: process.env.NEXT_PUBLIC_STORAGE_BUCKET || "",
-        messagingSenderId: process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID || "",
-        appId: process.env.NEXT_PUBLIC_APP_ID || "",
-        measurementId: process.env.NEXT_PUBLIC_MEASUREMENT_ID || "",
-      });
-      firebaseConfig.apiKey = process.env.NEXT_PUBLIC_API_KEY;
-      firebaseConfig.authDomain = process.env.NEXT_PUBLIC_AUTH_DOMAIN;
-      firebaseConfig.projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
-      firebaseConfig.storageBucket = process.env.NEXT_PUBLIC_STORAGE_BUCKET;
-      firebaseConfig.messagingSenderId =
-        process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID;
-      firebaseConfig.appId = process.env.NEXT_PUBLIC_APP_ID;
-      firebaseConfig.measurementId = process.env.NEXT_PUBLIC_MEASUREMENT_ID;
-    }
-  }, [currentFirebase, window]);
+    setFormValues({
+      apiKey: window.localStorage.getItem("Firebase-apiKey") ?? "",
+      authDomain: window.localStorage.getItem("Firebase-authDomain") ?? "",
+      projectId: window.localStorage.getItem("Firebase-projectId") ?? "",
+      storageBucket:
+        window.localStorage.getItem("Firebase-storageBucket") ?? "",
+      messagingSenderId:
+        window.localStorage.getItem("Firebase-messagingSenderId") ?? "",
+      appId: window.localStorage.getItem("Firebase-appId") ?? "",
+      measurementId:
+        window.localStorage.getItem("Firebase-measurementId") ?? "",
+    });
+    setCurrentFirebase(
+      (window.localStorage.getItem(
+        "Firebase-currentFirebase"
+      ) as FirebaseType) ?? "Default"
+    );
+  }, []);
 
   return (
     <ModalLayout
@@ -185,7 +89,13 @@ const FirebaseSettingsModal: FC = () => {
               {["Default", "Custom"].map((type) => (
                 <React.Fragment key={type}>
                   <Link
-                    onClick={() => setCurrentFirebase(type as FirebaseType)}
+                    onClick={() => {
+                      setCurrentFirebase(type as FirebaseType);
+                      window.localStorage.setItem(
+                        "Firebase-currentFirebase",
+                        type
+                      );
+                    }}
                     href="#"
                     className={
                       `tabs-item condensed ` +
@@ -214,18 +124,52 @@ const FirebaseSettingsModal: FC = () => {
             </div>
           </div>
         </div>
-        <div className="flex modal-container-content-form">
-          {currentFirebase === "Custom" &&
-            (Object.keys(formValues) as (keyof FormValues)[]).map((key) => (
-              <InputField
-                key={key}
-                title={key}
-                placeholder={key}
-                value={formValues[key]}
-                setValue={(value) => changeFormValue(key, value)}
-              />
-            ))}
-        </div>
+        {currentFirebase === "Custom" && (
+          <div className="flex modal-container-content-form">
+            <InputField
+              title={"API Key"}
+              placeholder={"API Key"}
+              value={formValues.apiKey || ""}
+              setValue={(value) => changeFormValue("apiKey", value)}
+            />
+            <InputField
+              title={"Auth Domain"}
+              placeholder={"Auth Domain"}
+              value={formValues.authDomain || ""}
+              setValue={(value) => changeFormValue("authDomain", value)}
+            />
+            <InputField
+              title={"Project ID"}
+              placeholder={"Project ID"}
+              value={formValues.projectId || ""}
+              setValue={(value) => changeFormValue("projectId", value)}
+            />
+            <InputField
+              title={"Storage Bucket"}
+              placeholder={"Storage Bucket"}
+              value={formValues.storageBucket || ""}
+              setValue={(value) => changeFormValue("storageBucket", value)}
+            />
+            <InputField
+              title={"Messaging Sender ID"}
+              placeholder={"Messaging Sender ID"}
+              value={formValues.messagingSenderId || ""}
+              setValue={(value) => changeFormValue("messagingSenderId", value)}
+            />
+            <InputField
+              title={"App ID"}
+              placeholder={"App ID"}
+              value={formValues.appId || ""}
+              setValue={(value) => changeFormValue("appId", value)}
+            />
+            <InputField
+              title={"Measurement ID"}
+              placeholder={"Measurement ID"}
+              value={formValues.measurementId || ""}
+              setValue={(value) => changeFormValue("measurementId", value)}
+            />
+          </div>
+        )}
       </form>
     </ModalLayout>
   );

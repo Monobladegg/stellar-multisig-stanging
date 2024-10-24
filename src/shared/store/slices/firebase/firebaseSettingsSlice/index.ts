@@ -1,0 +1,53 @@
+import { IFirebaseSettingsSlice } from "@/shared/types/index";
+import {
+  FirebaseApp,
+  FirebaseOptions,
+  getApps,
+  initializeApp,
+  deleteApp,
+} from "firebase/app";
+import { Firestore, getFirestore } from "firebase/firestore";
+import { StateCreator } from "zustand";
+
+export const firebaseSettingsSlice: StateCreator<
+  IFirebaseSettingsSlice,
+  [["zustand/immer", never]],
+  [],
+  IFirebaseSettingsSlice
+> = (set /*, get*/) => {
+  let firebaseApp: FirebaseApp | undefined = undefined;
+  let firestore: Firestore | undefined = undefined;
+
+  const initializeFirebase = (config: FirebaseOptions, appName?: string) => {
+    const name = appName || "[DEFAULT]";
+    const existingApps = getApps();
+
+    if (existingApps.length) {
+      for (const app of existingApps) {
+        if (app.name === name) {
+          deleteApp(app);
+        }
+      }
+    }
+
+    let newFirebaseApp = initializeApp(config, name);
+    set({ firebaseApp: newFirebaseApp });
+
+    const newFirestore = getFirestore(newFirebaseApp);
+    set({ firestore: newFirestore });
+
+    return newFirebaseApp;
+  };
+
+  const setFirestore = (newFirestore: Firestore) => {
+    firestore = newFirestore;
+    set({ firestore });
+  };
+
+  return {
+    firestore,
+    firebaseApp,
+    setFirestore,
+    initializeFirebase,
+  };
+};

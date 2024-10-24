@@ -9,7 +9,6 @@ import { PopupVersionTheSite } from "@/widgets/shared/ui/PopupVersionTheSite";
 import axios from "axios";
 import { cacheConfig } from "@/shared/configs";
 import Modals from "@/widgets/Layout/Modals";
-import { firebaseConfig } from "@/shared/api/firebase/app";
 
 type Props = {
   children: React.ReactNode;
@@ -34,6 +33,7 @@ const PageLayout: FC<Props> = ({ children }) => {
     net,
     setServer,
     setNetwork,
+    initializeFirebase,
   } = useStore(useShallow((state) => state));
 
   useEffect(() => {
@@ -100,8 +100,7 @@ const PageLayout: FC<Props> = ({ children }) => {
 
         if (latestHash !== process.env.NEXT_PUBLIC_COMMIT_HASH) {
           console.log("Version changed");
-          if (timeoutId) clearTimeout(timeoutId); 
-          
+          if (timeoutId) clearTimeout(timeoutId);
 
           timeoutId = setTimeout(() => {
             setShowPopup(true);
@@ -111,17 +110,19 @@ const PageLayout: FC<Props> = ({ children }) => {
         console.error("Error fetching commit hash:", error);
       }
     };
-   
 
     const startPolling = () => {
-      if (intervalId) clearInterval(intervalId); 
-      intervalId = setInterval(fetchLatestCommitHash, cacheConfig.checkOfCurrentVersionDurationMs);
+      if (intervalId) clearInterval(intervalId);
+      intervalId = setInterval(
+        fetchLatestCommitHash,
+        cacheConfig.checkOfCurrentVersionDurationMs
+      );
     };
 
     const stopPolling = () => {
       if (intervalId) {
         clearInterval(intervalId);
-        intervalId = null; 
+        intervalId = null;
       }
     };
 
@@ -148,42 +149,28 @@ const PageLayout: FC<Props> = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    if (isWindowDefined) {
-      if (
-        window.localStorage.getItem("Firebase-currentFirebase") === "Default"
-      ) {
-        firebaseConfig.apiKey = process.env.NEXT_PUBLIC_API_KEY;
-        firebaseConfig.authDomain = process.env.NEXT_PUBLIC_AUTH_DOMAIN;
-        firebaseConfig.projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
-        firebaseConfig.storageBucket = process.env.NEXT_PUBLIC_STORAGE_BUCKET;
-        firebaseConfig.messagingSenderId =
-          process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID;
-        firebaseConfig.appId = process.env.NEXT_PUBLIC_APP_ID;
-        firebaseConfig.measurementId = process.env.NEXT_PUBLIC_MEASUREMENT_ID;
-      } else {
-        const apiKey = window.localStorage.getItem("Firebase-apiKey") || "";
-        const authDomain =
-          window.localStorage.getItem("Firebase-authDomain") || "";
-        const projectId =
-          window.localStorage.getItem("Firebase-projectId") || "";
-        const storageBucket =
-          window.localStorage.getItem("Firebase-storageBucket") || "";
-        const messagingSenderId =
-          window.localStorage.getItem("Firebase-messagingSenderId") || "";
-        const appId = window.localStorage.getItem("Firebase-appId") || "";
-        const measurementId =
-          window.localStorage.getItem("Firebase-measurementId") || "";
-
-        firebaseConfig.apiKey = apiKey;
-        firebaseConfig.authDomain = authDomain;
-        firebaseConfig.projectId = projectId;
-        firebaseConfig.storageBucket = storageBucket;
-        firebaseConfig.messagingSenderId = messagingSenderId;
-        firebaseConfig.appId = appId;
-        firebaseConfig.measurementId = measurementId;
-      }
-    }
-  }, [isWindowDefined]);
+    window.localStorage.getItem("Firebase-currentFirebase") === "Default"
+      ? initializeFirebase({
+          apiKey: process.env.NEXT_PUBLIC_API_KEY,
+          authDomain: process.env.NEXT_PUBLIC_AUTH_DOMAIN,
+          projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
+          storageBucket: process.env.NEXT_PUBLIC_STORAGE_BUCKET,
+          messagingSenderId: process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID,
+          appId: process.env.NEXT_PUBLIC_APP_ID,
+          measurementId: process.env.NEXT_PUBLIC_MEASUREMENT_ID,
+        })
+      : initializeFirebase({
+          apiKey: window.localStorage.getItem("Firebase-apiKey")!,
+          authDomain: window.localStorage.getItem("Firebase-authDomain")!,
+          projectId: window.localStorage.getItem("Firebase-projectId")!,
+          storageBucket: window.localStorage.getItem("Firebase-storageBucket")!,
+          messagingSenderId: window.localStorage.getItem(
+            "Firebase-messagingSenderId"
+          )!,
+          appId: window.localStorage.getItem("Firebase-appId")!,
+          measurementId: window.localStorage.getItem("Firebase-measurementId")!,
+        });
+  }, []);
 
   if (!isWindowDefined) {
     return (

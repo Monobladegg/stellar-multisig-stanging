@@ -56,6 +56,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
     setCollapsesBlocks,
     setInformation,
     information,
+    firestore
   } = useStore(useShallow((state) => state));
   const [secondInformation, setSecondInformation] = useState<Information>();
   const [seqNumsIsStales, setSeqNumsIsStales] = useState<ISeqNumIsStale[]>([]);
@@ -256,7 +257,7 @@ const AccountInfo: FC<Props> = ({ ID }) => {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const transactions = await getAllTransactions(net);
+        const transactions = await getAllTransactions(firestore, net);
         setTransactionsFromFirebase(transactions);
 
         const decodedList: DecodedTransactions = [];

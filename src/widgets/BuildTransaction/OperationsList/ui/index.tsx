@@ -8,7 +8,7 @@ import { useShallow } from "zustand/react/shallow";
 import { setOperationType } from "@/shared/helpers";
 
 const OperationsList: FC = () => {
-  const { tx, addOperation, setOperations } = useStore(useShallow((state) => state));
+  const { tx,  setOperations } = useStore(useShallow((state) => state));
   const [isOperationsOpen, setIsOperationsOpen] = useState<boolean>(true);
 
   useEffect(() => {

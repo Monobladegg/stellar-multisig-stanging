@@ -88,8 +88,6 @@ export interface IOperation {
       data_value: string | null | undefined;
     };
   };
-
-  operation_type?: string;
 }
 
 interface IBuildTxJSONSlice extends IBuildTxJSONState, IBuildTxJSONActions {}

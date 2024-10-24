@@ -128,49 +128,49 @@ const PageLayout: FC<Props> = ({ children }) => {
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
-        fetchLatestCommitHash(); // Мгновенная проверка при возврате на вкладку
-        startPolling(); // Запуск интервала
+        fetchLatestCommitHash();
+        startPolling();
       } else {
-        stopPolling(); // Остановка интервала при уходе с вкладки
+        stopPolling();
       }
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
-    // Запуск проверки и интервала при первой загрузке
     fetchLatestCommitHash();
     startPolling();
 
-    
+
     return () => {
-      stopPolling(); 
-      document.removeEventListener("visibilitychange", handleVisibilityChange); // Удаление обработчика
+      stopPolling();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
 
   useEffect(() => {
-    window.localStorage.getItem("Firebase-currentFirebase") === "Default"
-      ? initializeFirebase({
-          apiKey: process.env.NEXT_PUBLIC_API_KEY,
-          authDomain: process.env.NEXT_PUBLIC_AUTH_DOMAIN,
-          projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
-          storageBucket: process.env.NEXT_PUBLIC_STORAGE_BUCKET,
-          messagingSenderId: process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID,
-          appId: process.env.NEXT_PUBLIC_APP_ID,
-          measurementId: process.env.NEXT_PUBLIC_MEASUREMENT_ID,
-        })
-      : initializeFirebase({
-          apiKey: window.localStorage.getItem("Firebase-apiKey")!,
-          authDomain: window.localStorage.getItem("Firebase-authDomain")!,
-          projectId: window.localStorage.getItem("Firebase-projectId")!,
-          storageBucket: window.localStorage.getItem("Firebase-storageBucket")!,
-          messagingSenderId: window.localStorage.getItem(
-            "Firebase-messagingSenderId"
-          )!,
-          appId: window.localStorage.getItem("Firebase-appId")!,
-          measurementId: window.localStorage.getItem("Firebase-measurementId")!,
-        });
+    if (window.localStorage.getItem("Firebase-currentFirebase") === "Default") {
+      initializeFirebase({
+        apiKey: process.env.NEXT_PUBLIC_API_KEY,
+        authDomain: process.env.NEXT_PUBLIC_AUTH_DOMAIN,
+        projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
+        storageBucket: process.env.NEXT_PUBLIC_STORAGE_BUCKET,
+        messagingSenderId: process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID,
+        appId: process.env.NEXT_PUBLIC_APP_ID,
+        measurementId: process.env.NEXT_PUBLIC_MEASUREMENT_ID,
+      });
+    } else {
+      initializeFirebase({
+        apiKey: window.localStorage.getItem("Firebase-apiKey")!,
+        authDomain: window.localStorage.getItem("Firebase-authDomain")!,
+        projectId: window.localStorage.getItem("Firebase-projectId")!,
+        storageBucket: window.localStorage.getItem("Firebase-storageBucket")!,
+        messagingSenderId: window.localStorage.getItem("Firebase-messagingSenderId")!,
+        appId: window.localStorage.getItem("Firebase-appId")!,
+        measurementId: window.localStorage.getItem("Firebase-measurementId")!,
+      });
+    }
   }, []);
+
 
   if (!isWindowDefined) {
     return (

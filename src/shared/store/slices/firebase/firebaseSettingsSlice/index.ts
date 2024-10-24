@@ -15,8 +15,8 @@ export const firebaseSettingsSlice: StateCreator<
   [],
   IFirebaseSettingsSlice
 > = (set /*, get*/) => {
-  let firebaseApp: FirebaseApp | undefined = undefined;
-  let firestore: Firestore | undefined = undefined;
+  const firebaseApp: FirebaseApp | undefined = undefined;
+  const firestore: Firestore | undefined = undefined;
 
   const initializeFirebase = (config: FirebaseOptions, appName?: string) => {
     const name = appName || "[DEFAULT]";
@@ -40,8 +40,7 @@ export const firebaseSettingsSlice: StateCreator<
   };
 
   const setFirestore = (newFirestore: Firestore) => {
-    firestore = newFirestore;
-    set({ firestore });
+    set({ firestore: newFirestore });
   };
 
   return {
